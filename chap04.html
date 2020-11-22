@@ -1,0 +1,1284 @@
+        <!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap04.html">http://coreapython.hosting.paran.com/dive/chap04.html</a><br>
+<b>Title:</b> 4. 내부검사의 힘 &nbsp;&bull;&nbsp; <b>Size:</b> 123529<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap03.html">☜ 제 03 장 고유 데이터 유형</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap05.html">제 05 장 객체와 객체지향 ☞</A></TD>
+</TR>
+</TABLE>
+       <div name="04장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="apihelper"></a>제&nbsp;4 장&nbsp;강력한 내부검사</h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="abstract">
+               <p>이 장에서는 <span class="application">파이썬</span>의 강력한 힘 중 하나인 내부검사(introspection)를 다루어 보겠습니다. 아시다시피, <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.objects" title="2.4.&nbsp;Everything Is an Object"><span class="application">파이썬</span>에서 모든 것은 객체입니다</a>. 내부검사는 메모리에 있는 다른 모듈과 함수를 객체로 보고서, 그에 관한 정보를 얻어내고 조작하는 것입니다. 그와 더불어, 이름 없는 함수를 정의하고 순서없이 인자를 가지는 함수를 호출해보며 심지어 미리 이름조차도 알지 못하는 함수들을 참조해 보겠습니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="apihelper.divein"></a>4.1.&nbsp;뛰어 들기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>다음은 완전하게 작동하는 <span class="application">파이썬</span> 프로그램입니다. 그냥 한 번 보는 것 만으로도 상당히 많은 것을 알 수 있으리라 생각합니다.  번호 붙은 줄은 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper" title="Chapter&nbsp;2.&nbsp;Your First Python Program">제&nbsp;2장 <i>첫 파이썬 프로그램</i></a>에서 다룬 개념들을 보여줍니다.  나머지 코드가 겁나게 보이더라도 걱정하지 마세요; 이 장을 지나면 그에 관하여 모두 알게 될 겁니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e8158"></a><h3 class="title">예제&nbsp;4.1.&nbsp;<tt class="filename">apihelper.py</tt></h3>
+                  <p>아직 그렇게 하지 못했다면 이 장에서 사용된 <a href="exdive.zip" title="Download example scripts">이런 저런 예제들을 내려 받을 수</a> 있습니다.
+                  </p><pre class="programlisting">
+def info(object, spacing=10, collapse=1): <a name="apihelper.intro.1.1"></a><span class="round">①</span> <a name="apihelper.intro.1.2"></a><span class="round">②</span> <a name="apihelper.intro.1.3"></a><span class="round">③</span>
+    """Print methods and doc strings.
+    
+    Takes module, class, list, dictionary, or string."""
+    methodList = [method for method in dir(object) if callable(getattr(object, method))]
+    processFunc = collapse and (lambda s: " ".join(s.split())) or (lambda s: s)
+    print "\n".join(["%s %s" %
+                      (method.ljust(spacing),
+                       processFunc(str(getattr(object, method).__doc__)))
+                     for method in methodList])
+
+if __name__ == "__main__":                <a name="apihelper.intro.1.4"></a><span class="round">④</span> <a name="apihelper.intro.1.5"></a><span class="round">⑤</span>
+    print info.__doc__</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.intro.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 모듈에는 <tt class="function">info</tt>라는 함수가 하나 있습니다.  그의 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.funcdef" title="2.2.&nbsp;Declaring Functions">함수 선언</a>에 따르면 매개변수를 세 개 받습니다: <tt class="varname">object</tt>와 <tt class="varname">spacing</tt> 그리고 <tt class="varname">collapse</tt>가 그것입니다.  마지막 두개는 실제로는 선택적인 매개변수로서, 곧 가르쳐 드리겠습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.intro.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">info</tt> 함수는 여러-줄의 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.docstring" title="2.3.&nbsp;Documenting Functions">문서화 문자열(<tt class="literal">doc string</tt>)</a>을 가지는데 이는 함수의 목적을 간결하게 기술합니다. 반환 값이 언급되지 않은 것에 주목하세요; 이 함수는 값보다는 오로지 그 효과를 위해 사용될 것입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.intro.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">함수안의 코드는 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.indenting" title="2.5.&nbsp;Indenting Code">들여쓰기 되어 있습니다</a>.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.intro.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.ifnametrick"><tt class="literal"><span class="literal">if</span> <span class="literal">__name__</span></tt> 트릭</a> 덕분에 이 프로그램은 홀로 실행될 때 무언가 유용한 일을 할 수 있습니다. 다른 프로그램을 위한 모듈로서의 그의 사용법에 방해를 받지 않고서 말입니다. 이 경우, 프로그램은 단순히 <tt class="function">info</tt> 함수의 문서화 문자열(<tt class="literal">doc string</tt>)을 인쇄할 뿐입니다
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.intro.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.ifnametrick"><tt class="literal">if</tt> 서술문</a>은 비교에 <tt class="literal">==</tt>을 사용하며, 괄호는 필요하지 않습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>
+			   <tt class="function">info</tt> 함수는 한 편으로 <span class="application">파이썬</span> <span class="acronym">IDE</span>에서 작동하며, 또 프로그래머가 사용하도록 설계되어 있습니다. 함수나 메쏘드를 가지는 객체라면 (함수가 있는 모듈이든, 메쏘드가 있는 리스트이든) 뭐든지 취해서 그 함수와 그의 문서화 문자열(<tt class="literal">doc string</tt>)을 인쇄합니다.
+               </p>
+               <div class="example"><a name="d0e8257"></a><h3 class="title">예제&nbsp;4.2.&nbsp;<tt class="filename">apihelper.py</tt>를 사용하는 법</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from apihelper import info</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = []</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">info(li)</span>
+<span class="computeroutput">append     L.append(object) -- append object to end
+count      L.count(value) -&gt; integer -- return number of occurrences of value
+extend     L.extend(list) -- extend list by appending list elements
+index      L.index(value) -&gt; integer -- return index of first occurrence of value
+insert     L.insert(index, object) -- insert object before index
+pop        L.pop([index]) -&gt; item -- remove and return item at index (default last)
+remove     L.remove(value) -- remove first occurrence of value
+reverse    L.reverse() -- reverse *IN PLACE*
+sort       L.sort([cmpfunc]) -- sort *IN PLACE*; if given, cmpfunc(x, y) -&gt; -1, 0, 1</span></pre></div>
+               <p>기본적으로 출력은 읽기 쉽게 형식화됩니다.  여러-줄 문서화 문자열(<tt class="literal">doc string</tt>)은 기다랗게 한 줄로 축약되지만, 이 옵션은 <i class="parameter"><tt>collapse</tt></i> 인자에 <tt class="constant">0</tt>을 지정하면 바꿀 수 있습니다.  함수 이름이 10 문자를 넘어가면 <i class="parameter"><tt>spacing</tt></i> 인자에 더 큰 값을 지정하여 출력결과를 더 쉽게 읽을 수 있도록 만들 수 있습니다.
+               </p>
+               <div class="example"><a name="d0e8294"></a><h3 class="title">예제&nbsp;4.3.&nbsp; <tt class="filename">apihelper.py</tt>의 고급 사용법</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import odbchelper</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">info(odbchelper)</span>
+<span class="computeroutput">buildConnectionString Build a connection string from a dictionary Returns string.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">info(odbchelper, 30)</span>
+<span class="computeroutput">buildConnectionString          Build a connection string from a dictionary Returns string.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">info(odbchelper, 30, 0)</span>
+<span class="computeroutput">buildConnectionString          Build a connection string from a dictionary
+    
+    Returns string.
+</span></pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="apihelper.optional"></a>4.2.&nbsp;선택적인 인자와 이름붙은 인자 사용하기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>에서는 함수 인자에 기본 값을 가질 수 있습니다; 인자 없이 함수가 호출되면 그 인자는 기본 값을 가집니다.  게다가, 이름붙은 인자를 사용하면 인자는 순서없이 지정이 가능합니다.  <span class="application">SQL Server</span> Transact/<span class="acronym">SQL</span>이라면 저장 프로시저(Stored procedures)가 이렇게 할 수 있습니다. 그래서 <span class="application">SQL Server</span> 스크립팅 구루(guru)라면 이 부분을 건너 뛰어도 좋습니다.
+                  </p>
+               </div>
+               <div class="informalexample">
+                  <p>다음은 <tt class="function">info</tt>의 예제입니다. 선택적인 인자가 두 개 있습니다:
+                  </p><pre class="programlisting">
+def info(object, spacing=10, collapse=1):</pre></div>
+               <p>
+			   <tt class="varname">spacing</tt>과 <tt class="varname">collapse</tt>는 선택적인데, 두 인자는 기본적으로 정의된 값이 있기 때문입니다.  <tt class="varname">object</tt>는 필수인데, 기본값이 없기 때문입니다.  <tt class="function">info</tt>가 오직 한 개의 인자만으로 호출되면 <tt class="varname">spacing</tt>은 기본값이 <tt class="constant">10</tt>이고 <tt class="varname">collapse</tt>는 기본값이 <tt class="constant">1</tt>입니다.  <tt class="function">info</tt>가 두 개의 인자로 호출되더라도, 여전히 <tt class="varname">collapse</tt>는 기본값이 <tt class="constant">1</tt>입니다.
+               </p>
+               <p><tt class="varname">collapse</tt>에는 값을 지정하고 싶지만 <tt class="varname">spacing</tt>에는 기본값을 받고 싶다고 합시다.  대부분의 언어에서는 운이 별로 없을텐데, 함수를 세 개의 인자로 호출할 필요가 있기 때문입니다.  그러나 <span class="application">파이썬</span>에서 인자는 어떤 순서이든 상관없이 이름으로 지정이 가능합니다.
+               </p>
+               <div class="example"><a name="d0e8401"></a><h3 class="title">예제&nbsp;4.4.&nbsp;<tt class="function">info</tt>를 호출하는 방법</h3><pre class="programlisting">
+info(odbchelper)                    <a name="apihelper_args.1.1"></a><span class="round">①</span>
+info(odbchelper, 12)                <a name="apihelper_args.1.2"></a><span class="round">②</span>
+info(odbchelper, collapse=0)        <a name="apihelper_args.1.3"></a><span class="round">③</span>
+info(spacing=15, object=odbchelper) <a name="apihelper_args.1.4"></a><span class="round">④</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper_args.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">인자가 오직 하나만 있다면 <tt class="varname">spacing</tt>은 그의 기본값을 <tt class="literal">10</tt>으로 하고 <tt class="varname">collapse</tt>는 <tt class="constant">1</tt>을 기본값으로 합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper_args.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">인자가 두 개라면 <tt class="varname">collapse</tt>는 그의 기본값을 <tt class="constant">1</tt>로 합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper_args.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서는 명시적으로 <tt class="varname">collapse</tt> 인자에 이름을 주고 그의 값을 지정합니다.  <tt class="varname">spacing</tt>은 여전히 그의 기본값을 <tt class="literal">10</tt>으로 합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper_args.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">(<tt class="varname">object</tt>와 같이 기본값이 없는) 필수 인자도 역시 이름을 달 수 있으며, 이름붙은 인자는 순서에 상관없이 나타날 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>혼란스러워 보이지만 인자는 단순히 사전일 뿐이라는 사실을 깨닫게 되면 이 혼란스러움은 사라집니다. 인자 이름 없이 함수를 호출하는 &#8220;<span class="quote">보통의 방식</span>&#8221;은 실제로는 함수 선언에 지정된 순서대로 <span class="application">파이썬</span>이 값을 인자 이름에 일치시켜주는 것에 불과합니다. 대부분 &#8220;<span class="quote">정상적인 방식</span>&#8221;으로 함수를 호출하겠지만, 언제든지 필요하면 더 유연하게 호출할 수 있습니다.
+               </p><a name="tip.arguments"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">함수를 호출하려면 필수 인자마다 (어떻게든) 값을 지정하기만 하면 됩니다; 어떤 방식으로 어떤 순서로 호출할지는 여러분에게 달려 있습니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="itemizedlist">
+                  <h3 class="title">선택적인 인자에 관하여 더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.python.org/doc/current/tut/tut.html"><i class="citetitle"><span class="application">파이썬</span> 튜토리얼에서 </i></a> 정확하게 <a href="http://www.python.org/doc/current/tut/node6.html#SECTION006710000000000000000">언제 그리고 어떻게 기본 인자가 평가되는지</a>를 다룬다. 이는 부작용을 가진 표현식이나 리스트가 기본 인자일 때 문제가 된다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="apihelper.builtin"></a>4.3.&nbsp;<tt class="function">type</tt>, <tt class="function">str</tt>, <tt class="function">dir</tt>, 그리고 기타 내장 함수들</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>은 아주 쓸모있는 내장 함수들을 작은 모듬으로 갖추고 있습니다.  기타 모든 함수들은 모듈 안으로 조각조각 들어가 있습니다. 이런 디자인은 실제로 지혜로운 결정이었고, 이 덕분에 코어가 다른 스크립팅 언어들(예, 비주얼 베이직(<span class="application">Visual Basic</span>))과는 다르게 뚱뚱해지지 않을 수 있었습니다.
+                  </p>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e8510"></a>4.3.1.&nbsp; <tt class="function">type</tt> 함수</h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>
+				  <tt class="function">type</tt> 함수는 객체의 데이터유형을 돌려줍니다.  가능한 유형들은 <tt class="filename">types</tt> 모듈에 나열되어 있습니다.  이는 여러 유형의 데이터를 다룰 수 있기 때문에 도움자(helper) 함수에 쓸모가 있습니다.
+                  </p>
+                  <div class="example"><a name="apihelper.type.intro"></a><h3 class="title">예제&nbsp;4.5.&nbsp; <tt class="function">type</tt> 소개</h3>
+				  
+				  <pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">type(1)</span>           <a name="apihelper.builtin.1.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;type 'int'&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = []</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">type(li)</span>          <a name="apihelper.builtin.1.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;type 'list'&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import odbchelper</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">type(odbchelper)</span>  <a name="apihelper.builtin.1.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;type 'module'&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import types</span>      <a name="apihelper.builtin.1.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">type(odbchelper) == types.ModuleType</span>
+<span class="computeroutput">True</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.1.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">type</tt>은 무엇이든 -- 정말로 무엇이든 -- 취해서, 그의 데이터유형을 돌려줍니다.  정수, 문자열, 리스트, 사전, 터플, 함수, 클래스, 모듈, 심지어 자기자신조차도 받아 들일 수 있습니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.1.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">type</tt>은 변수를 취해서 그의 데이터유형을 돌려줍니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.1.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">type</tt>은 또한 모듈에도 작동합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.1.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="filename">types</tt> 모듈에 있는 상수들을 이용하면 객체의 유형을 비교할 수 있습니다. 잠시 후에 보여 드리겠지만, 이것이 바로 <tt class="function">info</tt> 함수가 하는 일입니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e8609"></a>4.3.2.&nbsp;<tt class="function">str</tt> 함수</h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>
+				  <tt class="function">str</tt>은 데이터를 문자열로 강제로 변환합니다.  어떠한 데이터 유형도 문자열로 강제로 변환될 수 있습니다.
+                  </p>
+                  <div class="example"><a name="apihelper.str.intro"></a><h3 class="title">예제&nbsp;4.6.&nbsp; <tt class="function">str</tt> 소개</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">str(1)</span>          <a name="apihelper.builtin.2.1"></a><span class="round">①</span>
+<span class="computeroutput">'1'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">horsemen = ['war', 'pestilence', 'famine']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">horsemen</span>
+<span class="computeroutput">['war', 'pestilence', 'famine']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">horsemen.append('<span class="application">Powerbuilder</span>')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">str(horsemen)</span>   <a name="apihelper.builtin.2.2"></a><span class="round">②</span>
+<span class="computeroutput">"['war', 'pestilence', 'famine', '<span class="application">Powerbuilder</span>']"</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">str(odbchelper)</span> <a name="apihelper.builtin.2.3"></a><span class="round">③</span>
+<span class="computeroutput">"&lt;module 'odbchelper' from 'c:\\docbook\\dip\\py\\odbchelper.py'&gt;"</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">str(None)</span>       <a name="apihelper.builtin.2.4"></a><span class="round">④</span>
+<span class="computeroutput">'None'</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.2.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">정수같이 간단한 데이터유형에 대해서, <tt class="function">str</tt>이 작동할 것이라 예상하실텐데, 대부분의 언어가 정수를 문자열로 바꾸는 함수가 있기 때문입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.2.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">그렇지만, <tt class="function">str</tt>은 어떤 유형의 어떤 객체에도 작동합니다. 여기에서는 여러분이 일일이 손수 구축한 리스트에 작동합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.2.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">str</tt>은 또한 모듈에도 작동합니다. 모듈의 문자열 표현은 디스크에서의 모듈 경로를 포함하므로, 여러분의 출력은 다를 것입니다.                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.2.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">str</tt>에서 작지만 중요한 행위는 <span class="application">파이썬</span> 널(null) 값인, <tt class="literal">None</tt>에도 작동한다는 것입니다. 문자열 <tt class="literal">'None'</tt>을 돌려줍니다. 잠시 후에 보여드리겠지만, 이를 <tt class="function">info</tt> 함수에 이용할 수 있습니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>
+				  <tt class="function">info</tt> 함수의 심장은 강력한 <tt class="function">dir</tt> 함수입니다.  <tt class="function">dir</tt>은 객체의 속성과 메쏘드의 리스트를 돌려줍니다: 모듈, 함수, 문자열, 리스트, 사전... 뭐 아무거라도 됩니다.
+                  </p>
+                  <div class="example"><a name="apihelper.dir.intro"></a><h3 class="title">예제&nbsp;4.7.&nbsp; <tt class="function">dir</tt> 소개</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = []</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">dir(li)</span>           <a name="apihelper.builtin.3.1"></a><span class="round">①</span>
+<span class="computeroutput">['append', 'count', 'extend', 'index', 'insert',
+'pop', 'remove', 'reverse', 'sort']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">d = {}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">dir(d)</span>            <a name="apihelper.builtin.3.2"></a><span class="round">②</span>
+<span class="computeroutput">['clear', 'copy', 'get', 'has_key', 'items', 'keys', 'setdefault', 'update', 'values']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import odbchelper</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">dir(odbchelper)</span>   <a name="apihelper.builtin.3.3"></a><span class="round">③</span>
+<span class="computeroutput">['__builtins__', '__doc__', '__file__', '__name__', 'buildConnectionString']</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.3.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="varname">li</tt>는 리스트입니다. 그래서 <tt class="literal"><tt class="function">dir</tt>(<tt class="varname">li</tt>)</tt>는 리스트의 모든 메쏘드를 담은 리스트를 돌려줍니다. 주의할 것은 반환된 리스트에는 메쏘드의 이름이 문자열로 담겨있지, 메쏘드 자체가 들어가 있는 것이 아니라는 것입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.3.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="varname">d</tt>는 사전입니다. 그래서 <tt class="literal"><tt class="function">dir</tt>(<tt class="varname">d</tt>)</tt>는 사전 메쏘드의 이름들을 담은 리스트를 돌려줍니다. 이 메쏘드들 중  적어도 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.items" title="Example&nbsp;3.25.&nbsp;The keys, values, and items Functions"><tt class="function">keys</tt></a>는 틀림없이 눈에 익을 것입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.3.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left">이곳이 정말 흥미로와지는 곳입니다. <tt class="filename">odbchelper</tt>는 모듈입니다. 그래서 <tt class="literal"><tt class="function">dir</tt>(<tt class="filename">odbchelper</tt>)</tt>는 그 모듈에 정의된 온갖 것들을 리스트에 모두 담아 돌려줍니다. 내장 속성을 비롯하여, <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.ifnametrick"><tt class="literal">__name__</tt></a>과 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.import" title="Example&nbsp;2.3.&nbsp;Accessing the buildConnectionString Function's doc string"><tt class="literal">__doc__</tt></a> 그리고 여러분이 정의한 속성과 메쏘드를 모두 담고 있습니다. 이 경우, <tt class="filename">odbchelper</tt>는 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper">제 2 장</a>에서 설명한 단 한 개의 사용자-정의 메쏘드 <tt class="function">buildConnectionString</tt> 함수가  있습니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>
+				  마지막으로, <tt class="function">callable</tt> 함수는 객체를 취해서 그 객체가 호출가능하면 <tt class="constant">True</tt>를 돌려주고, 그렇지 않으면 <tt class="constant">False</tt>를 돌려줍니다.  호출가능 객체에는 함수와 클래스 메쏘드 그리고 심지어 클래스도 포함됩니다.  (다음 장에서 클래스에 관하여 더 자세히 다룹니다.)
+                  </p>
+                  <div class="example"><a name="apihelper.builtin.callable"></a><h3 class="title">예제&nbsp;4.8.&nbsp; <tt class="function">callable</tt> 소개</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import string</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">string.punctuation</span>           <a name="apihelper.builtin.4.1"></a><span class="round">①</span>
+<span class="computeroutput">'!"#$%&amp;\'()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">string.join</span>                  <a name="apihelper.builtin.4.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;function join at 00C55A7C&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">callable(string.punctuation)</span> <a name="apihelper.builtin.4.3"></a><span class="round">③</span>
+<span class="computeroutput">False</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">callable(string.join)</span>        <a name="apihelper.builtin.4.4"></a><span class="round">④</span>
+<span class="computeroutput">True</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print string.join.__doc__</span>    <a name="apihelper.builtin.4.5"></a><span class="round">⑤</span>
+<span class="computeroutput">join(list [,sep]) -&gt; string
+
+    Return a string composed of the words in list, with
+    intervening occurrences of sep.  The default separator is a
+    single space.
+
+    (joinfields and join are synonymous)</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.4.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left"> (많은 사람들이 여전히 <tt class="function">join</tt> 함수를 사용하고 있음에도 불구하고) <tt class="filename">string</tt> 모듈에 있는 함수들은 추천되지 않습니다. 그러나 이 모듈에는 쓸모있는 상수가 많이 담겨 있습니다. 예를 들어 이곳의 <tt class="varname">string.punctuation</tt> 상수에는 표준 구두점 문자들이 모두 들어 있습니다.</td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.4.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.join" title="3.7.&nbsp;Joining Lists and Splitting Strings"><tt class="function">string.join</tt></a>은 문자열의 리스트를 연결하는 함수입니다.</td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.4.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="varname">string.punctuation</tt>은 호출이 불가능합니다; 문자열이기 때문입니다. (문자열은 호출가능한 메쏘드들을 가지지만, 문자열 그 자체는 호출이 불가능합니다.)
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.4.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">string.join</tt>은 호출이 가능합니다; 두 개의 인자를 취하는 함수입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.builtin.4.5"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left">호출가능한 객체라면 모두 문서화 문자열(<tt class="literal">doc string</tt>)을 가질 수 있습니다.  한 객체의 속성에다 <tt class="function">callable</tt> 함수를 사용하면 어느 속성(메쏘드, 함수, 클래스)에 신경을 쓸지 그리고 어느 속성(상수, 등등)을 무시하고 싶은지 결정할 수 있습니다. 미리 그 객체에 관하여 알 필요가 없습니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e8958"></a>4.3.3.&nbsp;내장 함수</h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p><tt class="function">type</tt>, <tt class="function">str</tt>, <tt class="function">dir</tt>, 그리고 나머지 <span class="application">파이썬</span>의 내장 함수들은 모두 이른바 <tt class="filename">__builtin__</tt>이라고 부르는 특별한 모듈로 무리지어져 들어가 있습니다 (앞과 뒤에 밑줄문자가 두개입니다.). <span class="application">파이썬</span>이 시작시에 자동으로 <tt class="literal">from __builtin__ import *</tt>를 실행하는 것이라고 편하게 생각해도 좋습니다. 이렇게 하면 모든 &#8220;<span class="quote">built-in</span>&#8221; 함수들이 이름공간으로 반입되고 그래서 직접 그 함수들을 사용할 수 있습니다.
+                  </p>
+                  <p>
+				  이런 식으로 생각하면 <tt class="filename">__builtin__</tt> 모듈에 관한 정보를 얻어서 모든 내장 함수와 속성을 한 그룹으로 접근할 수 있는 이점이 있습니다. 그리고 추측해 보세요. <span class="application">파이썬</span>에 <tt class="function">info</tt>라고 부르는 함수가 있습니다. 지금 그 리스트를 손수 둘러보세요. 더 중요한 함수들을 나중에 깊이 다루어 보겠습니다.  (<a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.tuplemethods" title="Example&nbsp;3.16.&nbsp;Tuples Have No Methods"><tt class="errorcode">AttributeError</tt></a> 같은 내장 에러 클래스는 이미 눈에 익으실 겁니다.)
+                  </p>
+                  <div class="example"><a name="apihelper.builtin.list"></a><h3 class="title">예제&nbsp;4.9.&nbsp;내장 속성과 함수</h3>
+				  
+				  <pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from apihelper import info</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import __builtin__</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">info(__builtin__, 20)</span>
+<span class="computeroutput">ArithmeticError      Base class for arithmetic errors.
+AssertionError       Assertion failed.
+AttributeError       Attribute not found.
+EOFError             Read beyond end of file.
+EnvironmentError     Base class for I/O related errors.
+Exception            Common base class for all exceptions.
+FloatingPointError   Floating point operation failed.
+IOError              I/O operation failed.
+
+[...snip...]</span></pre></div><a name="tip.manuals"></a><table class="note" border="0" summary="">
+                     <tr>
+                        <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                     </tr>
+                     <tr>
+                        <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬</span>에는 훌륭한 참조 매뉴얼이 따라옵니다. <span class="application">파이썬</span>이 제공하는 모든 모듈들을 배우려면 이를 철저히 정독하여야 하겠습니다.  그러나 <span class="application">파이썬</span>은 대체로 자체로-문서화되어 있습니다. 파이썬과는 다르게 대부분의 다른 언어에서 이런 모듈의 사용법을 기억해 내려면 맨 페이지나 매뉴얼을 다시 몸소 참조해야 합니다.
+                        </td>
+                     </tr>
+                  </table>
+                  <div class="itemizedlist">
+                     <h3 class="title">내장 함수에 관하여 더 읽어야 할 것</h3>
+                     <ul>
+                        <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>에는 <a href="http://www.python.org/doc/current/lib/built-in-funcs.html">모든 내장 함수</a>와 <a href="http://www.python.org/doc/current/lib/module-exceptions.html">모든 내장 예외</a>가 문서화되어 있다.
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="apihelper.getattr"></a>4.4.&nbsp;<tt class="function">getattr</tt>로 객체 참조점 얻는 방법</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이미 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.objects" title="2.4.&nbsp;Everything Is an Object"><span class="application">파이썬</span> 함수가 객체라는 사실을 알고 있습니다</a>. 그러나 <tt class="function">getattr</tt>를 사용하면 실행-시간까지 그의 이름을 미리 알지 못하더라도 함수의 참조점을 얻을 수 있다는 사실은 모르실 것입니다.</p>
+               </div>
+               <div class="example"><a name="apihelper.getattr.intro"></a><h3 class="title">예제&nbsp;4.10.&nbsp; <tt class="function">getattr</tt> 소개</h3>
+			   
+			   <pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = ["Larry", "Curly"]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li.pop</span>                       <a name="apihelper.getattr.1.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;built-in method pop of list object at 010DF884&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">getattr(li, "pop")</span>           <a name="apihelper.getattr.1.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;built-in method pop of list object at 010DF884&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">getattr(li, "append")("Moe")</span> <a name="apihelper.getattr.1.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li</span>
+<span class="computeroutput">["Larry", "Curly", "Moe"]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">getattr({}, "clear")</span>         <a name="apihelper.getattr.1.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;built-in method clear of dictionary object at 00F113D4&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">getattr((), "pop")</span>           <a name="apihelper.getattr.1.5"></a><span class="round">⑤</span>
+<span class="traceback">Traceback (innermost last):
+  File "&lt;interactive input&gt;", line 1, in ?
+AttributeError: 'tuple' object has no attribute 'pop'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.getattr.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서는 리스트의 <tt class="function">pop</tt>  메쏘드에 대한 참조점을 얻습니다.  주목할 것은 이것이  <tt class="function">pop</tt> 메쏘드를 호출하고 있는 것이 아니라는 것입니다; 그것은 <tt class="literal">li.pop()</tt>이 될 겁니다.  이는 메쏘드 그 자체입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.getattr.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 역시 <tt class="function">pop</tt> 메쏘드를 가리키는 참조점을 돌려줍니다. 그러나 이번에는 메쏘드 이름이 문자열로 지정되어 <tt class="function">getattr</tt> 함수에 인자로 건네집니다.  <tt class="function">getattr</tt>은 객체의 속성을 돌려주는 아주 유용한 내장 함수입니다. 이 경우 객체는 리스트이며 그 속성은 <tt class="function">pop</tt> 메쏘드입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.getattr.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이것이 얼마나 유용한지 감명을 받지 못했다면 이렇게 해 보세요: <tt class="function">getattr</tt> <span class="emphasis">의 반환값은 <em>메쏘드이며</em></span>, 그러면 이 메쏘드를 마치 직접 <tt class="literal">li.append("Moe")</tt>라고 말하는 것과 똑 같이 호출할 수 있습니다. 그러나 함수를 직접 호출하지 않았습니다; 대신에 함수 이름을 문자열로 지정했습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.getattr.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">getattr</tt>은 사전에도 작동합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.getattr.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">이론적으로, <tt class="function">getattr</tt>은 터플에도 작동합니다. 단, <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.tuplemethods" title="Example&nbsp;3.16.&nbsp;Tuples Have No Methods">터플은 메쏘드가 없습니다</a>. 그래서 거기에 어떤 속성 이름을 주더라도 <tt class="function">getattr</tt>은 예외를 일으킵니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e9194"></a>4.4.1.&nbsp; 모듈에 작동하는 <tt class="function">getattr</tt>
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p><tt class="function">getattr</tt>는 내장 데이터 유형만을 위한 것은 아닙니다. 모듈에도 작동합니다.
+                  </p>
+                  <div class="example"><a name="apihelper.getattr.example"></a><h3 class="title">예제&nbsp;4.11.&nbsp;<tt class="filename">apihelper.py</tt>에 있는 <tt class="function">getattr</tt> 함수</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import odbchelper</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">odbchelper.buildConnectionString</span>             <a name="apihelper.getattr.2.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;function buildConnectionString at 00D18DD4&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">getattr(odbchelper, "buildConnectionString")</span> <a name="apihelper.getattr.2.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;function buildConnectionString at 00D18DD4&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">object = odbchelper</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">method = "buildConnectionString"</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">getattr(object, method)</span>                      <a name="apihelper.getattr.2.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;function buildConnectionString at 00D18DD4&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">type(getattr(object, method))</span>                <a name="apihelper.getattr.2.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;type 'function'&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import types</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">type(getattr(object, method)) == types.FunctionType</span>
+<span class="computeroutput">True</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">callable(getattr(object, method))</span>            <a name="apihelper.getattr.2.5"></a><span class="round">⑤</span>
+<span class="computeroutput">True</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.getattr.2.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 <tt class="filename">odbchelper</tt> 모듈의 <tt class="function">buildConnectionString</tt> 함수를 가리키는 참조점을 돌려줍니다. <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper" title="Chapter&nbsp;2.&nbsp;Your First Python Program">제&nbsp;2 장, <i>여러분의 첫 파이썬 프로그램</i></a>에서 배운 것입니다.  (십육진 주소는 본인의 머신에 한정된 것이고; 여러분의 출력은 다릅니다.)
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.getattr.2.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">getattr</tt>을 사용하면 같은 함수를 가리키는 같은 참조점을 얻을 수 있습니다. 일반적으로, <tt class="literal"><tt class="function">getattr</tt>(<i class="replaceable">object</i>, "<i class="replaceable">attribute</i>")</tt>는 <tt class="literal"><i class="replaceable">object</i>.<i class="replaceable">attribute</i></tt>와 동등합니다. 객체(<i class="replaceable"><tt>object</tt></i>)가 모듈이라면 <i class="replaceable"><tt>attribute</tt></i>는 모듈에 정의된 것이면 무엇이든 됩니다: 함수나 클래스 또는 전역 변수.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.getattr.2.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left">그리고 이것이 바로 실제로 <tt class="function">info</tt> 함수에서 사용하는 것입니다.  <tt class="varname">object</tt>는 함수에 인자로 건네지고; <tt class="varname">method</tt>는 문자열로서 메쏘드나 함수의 이름입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.getattr.2.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left">이 경우, <tt class="varname">method</tt>는 함수의 이름입니다. 그의 <a href="#apihelper.type.intro" title="Example&nbsp;4.5.&nbsp;Introducing type"><tt class="function">type</tt></a>을 얻어보면 확실하게 알 수 있습니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.getattr.2.5"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="varname">method</tt>는 함수이므로, 호출이 <a href="#apihelper.builtin.callable" title="Example&nbsp;4.8.&nbsp;Introducing callable">가능합니다</a>.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e9362"></a>4.4.2.&nbsp;분배자로서의 <tt class="function">getattr</tt> 
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p><tt class="function">getattr</tt>의 일반적인 사용 패턴은 분배자입니다. 예를 들어, 다양한 형태로 데이터를 출력하는 프로그램이 있다면 단 하나의 분배 함수를 사용할 수 있습니다. 분배함수에서 각 출력에 대하여 따로따로 함수를 정의하여 그에 맞게 올바른 함수를 호출할 수 있습니다.
+                  </p>
+                  <p>예를 들어, <span class="acronym">HTML</span>과 <span class="acronym">XML</span> 그리고 평범한 텍스트 포맷으로 사이트 통계를 인쇄하는 프로그램을 생각해 봅시다.  출력 포맷의 선택은 명령 줄에서 지정하거나 또는 환경설정 파일에 정의할 수 있습니다.  <tt class="filename">statsout</tt> 모듈에는 세 가지 함수가 정의됩니다. <tt class="function">output_html</tt>과 <tt class="function">output_xml</tt> 그리고 <tt class="function">output_text</tt> 함수가 그것입니다. 주 프로그램에는 다음과 같이 출력 함수가 하나만 정의 됩니다:
+                  </p>
+                  <div class="example"><a name="apihelper.getattr.dispatch"></a><h3 class="title">예제&nbsp;4.12.&nbsp;<tt class="function">getattr</tt>로 분배자 만들기</h3><pre class="programlisting">
+import statsout
+
+def output(data, format="text"):                              <a name="apihelper.getattr.3.1"></a><span class="round">①</span>
+    output_function = getattr(statsout, "output_%s" % format) <a name="apihelper.getattr.3.2"></a><span class="round">②</span>
+    return output_function(data)                              <a name="apihelper.getattr.3.3"></a><span class="round">③</span>
+</pre></div>
+                  <div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.getattr.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">
+						   <tt class="function">output</tt> 함수는 필수 인자 <tt class="varname">data</tt>와 선택적 인자 <tt class="varname">format</tt>을 받습니다. 형식(<tt class="varname">format</tt>)이 지정되지 않으면 기본 값은 <tt class="literal">text</tt>가 되고, 결국 평범한 텍스트 출력 함수를 호출하게 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.getattr.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">format</tt> 인자를 "output_"과 결합하여 함수 이름을 만든 다음, 그 함수를 <tt class="filename">statsout</tt> 모듈로부터 얻습니다.  이렇게 하면 나중에 기타 다른 포맷을 지원하도록 쉽게 프로그램을 확장할 수 있습니다. 이 분배자 함수를 바꿀 필요가 없습니다.  그냥 또다른 함수를 <tt class="filename">statsout</tt>에 붙이면 됩니다. 예를 들어 <tt class="function">output_pdf</tt>과 같은 이름이라면 "pdf"를 <tt class="varname">format</tt> 인자로 하여 <tt class="function">output</tt> 함수에 건네면 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.getattr.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 다른 함수와 마찬가지로 그냥 출력 함수를 호출하면 됩니다. <tt class="varname">output_function</tt> 변수는 <tt class="filename">statsout</tt> 모듈에서 적절한 함수를 가리킵니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+                  <p>
+				  앞의 예제에 버그가 있습니다. 문자열과 함수를 아주 느슨하게 결합하며, 에러를 점검하지 않기 때문입니다. 혹시라도 사용자가 <tt class="filename">statsout</tt> 모듈에 정의된 함수에 상응하지 않는 형식을 건네면 어떻게 될까요?  음, <tt class="function">getattr</tt>은 <tt class="literal">None</tt>을 돌려주고, 이 값은 <tt class="varname">output_function</tt>에 할당됩니다. 이는 유효한 함수가 아니므로, 다음 줄에서 그 함수를 호출하려고 시도하면 충돌하여 예외가 일어납니다. 안 좋은 일입니다.
+                  </p>
+                  <p>다행스럽게도, <tt class="function">getattr</tt>은 선택적으로 세 번째 인자, 기본 값을 받습니다.
+                  </p>
+                  <div class="example"><a name="apihelper.getattr.default"></a><h3 class="title">예제&nbsp;4.13.&nbsp;<tt class="function">getattr</tt> 기본 값
+                     </h3><pre class="programlisting">
+import statsout
+
+def output(data, format="text"):
+    output_function = getattr(statsout, "output_%s" % format, statsout.output_text)
+    return output_function(data) <a name="apihelper.getattr.4.1"></a><span class="round">①</span>
+</pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.getattr.4.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">이 함수는 확실하게 작동합니다. 왜냐하면 세 번째 매개변수를 <tt class="function">getattr</tt>를 호출할때 추가했기 때문입니다. 세 번째 매개변수는 두 번째 인자에 지정된 속성이나 메쏘드가 발견되지 않을 경우 돌려주는 기본값입니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>보시다시피, <tt class="function">getattr</tt>은 상당히 강력합니다. 내부 검사의 심장이며, 나중에 훨씬 더 강력한 예들을 보여 드리겠습니다.
+                  </p>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="apihelper.filter"></a>4.5.&nbsp;리스트 여과하기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>아시다시피, <span class="application">파이썬</span>은 지능형 리스트(list comprehensions)를 통하여 (<a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.map" title="3.6.&nbsp;Mapping Lists">섹션&nbsp;3.6, &#8220;리스트 짝짓기&#8221;</a>) 리스트를 리스트에 짝짓는 강력한 능력이 있습니다. 이 능력을 여과 메커니즘과 조합하면 리스트의 어떤 요소들은 짝짓기되고 또 어떤 요소들은 완전히 무시됩니다.
+                  </p>
+               </div>
+               <div class="informalexample">
+                  <p>다음은 리스트 여과 구문입니다:</p>
+				  
+				  <pre class="programlisting">
+[<i class="replaceable"><tt>mapping-expression</tt></i> for <i class="replaceable"><tt>element</tt></i> in <i class="replaceable"><tt>source-list</tt></i> if <i class="replaceable"><tt>filter-expression</tt></i>]</pre></div>
+               <p>
+			   이는 여러분이 익히 알고 좋아하는 지능형 리스트(<a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.map" title="3.6.&nbsp;Mapping Lists">list comprehensions</a>)를 확장한 것입니다. 첫 2/3는 같지만; <tt class="literal">if</tt>로 시작하는 뒷부분은 여과 표현식입니다.  여과 표현식은 참 또는 거짓으로 평가되기만 하면 어떤 표현식이든 상관없습니다 (<span class="application">파이썬</span>에서는 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#tip.boolean">거의 모든 것이 여과 표현식이 될 수 있습니다</a>).  어떤 원소든지 여과 표현식에서 참으로 평가되면 짝짓기에 포함됩니다. 다른 원소들은 모두 무시되어서 짝짓기 표현식을 통과하지 못하며 출력 리스트에 포함되지 않습니다.               </p>
+               <div class="example"><a name="d0e9539"></a><h3 class="title">예제&nbsp;4.14.&nbsp;리스트 여과</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = ["a", "mpilgrim", "foo", "b", "c", "b", "d", "d"]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[elem for elem in li if len(elem) &gt; 1]</span>       <a name="apihelper.filter.1.1"></a><span class="round">①</span>
+<span class="computeroutput">['mpilgrim', 'foo']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[elem for elem in li if elem != "b"]</span>         <a name="apihelper.filter.1.2"></a><span class="round">②</span>
+<span class="computeroutput">['a', 'mpilgrim', 'foo', 'c', 'd', 'd']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[elem for elem in li if li.count(elem) == 1]</span> <a name="apihelper.filter.1.3"></a><span class="round">③</span>
+<span class="computeroutput">['a', 'mpilgrim', 'foo', 'c']</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.filter.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서 짝짓기 표현식은 단순합니다 (그냥 각 원소의 값을 돌려줄 뿐입니다). 그래서 여과 표현식에 집중하겠습니다. <span class="application">파이썬</span>은 리스트를 회돌이 하면서, 각 원소를 여과 표현식에 집어 넣습니다. 여과 표현식이 참이면 그 원소는 짝짓기 되고 짝짓기 표현식의 결과는 반환된 리스트에 포함됩니다.  여기에서는 길이가-하나인 문자열을 모두 여과하고 있습니다. 그래서 긴 문자열을 모두 담은 리스트가 남습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.filter.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서 특정한 값 <tt class="literal">b</tt>를 여과합니다. <tt class="literal">b</tt>가 나타날 때마다 여과 표현식이 거짓이 되기 때문에 <tt class="literal">b</tt>는 모두 여과됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.filter.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">count</tt>는 리스트에서 값이 나타난 횟수를 돌려주는 리스트 메쏘드입니다. 이 여과기가 리스트에서 중복값을 제거해 줄거라고 생각하실지 모르겠습니다. 원래 리스트에서 각 값을 한 개씩만 담아서 리스트로 돌려줄 것이라고 말입니다.  그러나, 그렇지 않습니다. 원래 리스트에서 두 번 나타난 값은 (이 경우, <tt class="literal">b</tt>와 <tt class="literal">d</tt>) 완전히 배제되기 때문입니다.  리스트에서 중복 값을 제거하는 방법이 있지만, 여과는 해결책이 아닙니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="informalexample"><a name="apihelper.filter.care"></a><p> <tt class="filename">apihelper.py</tt>에서 다음 줄을 다시 보세요:
+                  </p><pre class="programlisting">
+    methodList = [method for method in dir(object) if callable(getattr(object, method))]</pre></div>
+               <p>
+			   복잡해 보이고, 사실 복잡하지만, 기본 구조는 같습니다. 전체 여과 표현식은 리스트를 돌려줍니다. 이 리스트는 <tt class="varname">methodList</tt> 변수에 할당됩니다.  표현식에서 앞 부분은 리스트 짝짓기 부분입니다. 짝짓기 표현식은 신분 표현식으로서, 각 원소의 값을 돌려줍니다. <tt class="literal"><tt class="function">dir</tt>(<tt class="varname">object</tt>)</tt>는 객체(<tt class="varname">object</tt>)의 속성과 메쏘드를 리스트에 담아 돌려줍니다 -- 이 리스트가 바로 짝짓기하고 있는 바로 그 리스트입니다.  그래서 새로운 부분은 <tt class="literal">if</tt> 뒤에 있는 여과 표현식 뿐입니다.
+               </p>
+               <p>
+			   여과 표현식이 좀 겁나게 보이지만, 그렇지 않습니다.  이미 <a href="#apihelper.builtin.callable" title="Example&nbsp;4.8.&nbsp;Introducing callable"><tt class="function">callable</tt></a>과 <a href="#apihelper.getattr.intro" title="Example&nbsp;4.10.&nbsp;Introducing getattr"><tt class="function">getattr</tt></a> 그리고 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.tuplemethods" title="Example&nbsp;3.16.&nbsp;Tuples Have No Methods"><tt class="literal">in</tt></a>에 관하여 알고 있습니다.  <a href="#apihelper.getattr" title="4.4.&nbsp;Getting Object References With getattr">앞 섹션</a>에서 보셨듯이, 표현식 <tt class="literal">getattr(object, method)</tt>은 <tt class="varname">object</tt>가 모듈이고 <tt class="varname">method</tt>가 그 모듈에 있는 함수 이름이면 함수 객체를 돌려줍니다.
+               </p>
+               <p>
+			   그래서 이 표현식은 (이름이 <tt class="varname">object</tt>인) 객체를 받습니다. 그 다음 그 객체의 속성과 메쏘드 함수 기타 등등의 이름을 리스트로 얻습니다. 다음 그 리스트를 여과하여 관심의 대상이 아닌 것들을 모두 걸러냅니다. 각 속성/메쏘드/함수의 이름을 취해 실제 객체에 대한 참조점은 <tt class="function">getattr</tt> 함수를 통하여 얻어서 걸러내고 있습니다.  다음 그 객체가 호출가능한지 알아 봅니다. 호출가능 하다면 메쏘드나 함수가 되는데, (리스트의 <tt class="function">pop</tt> 메쏘드 같이) 내장 메쏘드와 (<tt class="filename">odbchelper</tt> 모듈의 <tt class="function">buildConnectionString</tt> 함수 같이) 사용자-정의 함수가 될 수 있습니다.  기타 다른 속성은 신경쓰지 않습니다. 예를 들어, 어느 모듈에나 내장되어 있는 <tt class="literal">__name__</tt> 같은 속성은 신경쓰지 않습니다.
+               </p>
+               <div class="itemizedlist">
+                  <h3 class="title">리스트 여과에 관하여 더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.python.org/doc/current/tut/tut.html"><i class="citetitle"><span class="application">파이썬</span> 자습서</i></a>는 <a href="http://www.python.org/doc/current/tut/node7.html#SECTION007130000000000000000">내장 <tt class="function">filter</tt> 함수를 사용하여 리스트를 여과하는 또다른 방법</a>을 연구한다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="apihelper.andor"></a>4.6.&nbsp;<tt class="literal">and</tt>와 <tt class="literal">or</tt>의 특이한 본성</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>에서 <tt class="literal">and</tt>와 <tt class="literal">or</tt>는 예상대로 불리언 논리를 수행합니다. 그러나 불리언 값을 돌려주지 않습니다; 대신에, 비교중인 실제 값중의 하나를 돌려줍니다.
+                  </p>
+               </div>
+               <div class="example"><a name="apihelper.andor.intro.example"></a><h3 class="title">예제&nbsp;4.15.&nbsp;<tt class="literal">and</tt> 소개</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">'a' and 'b'</span>         <a name="apihelper.andor.1.1"></a><span class="round">①</span>
+<span class="computeroutput">'b'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">'' and 'b'</span>          <a name="apihelper.andor.1.2"></a><span class="round">②</span>
+<span class="computeroutput">''</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">'a' and 'b' and 'c'</span> <a name="apihelper.andor.1.3"></a><span class="round">③</span>
+<span class="computeroutput">'c'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.andor.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">and</tt>를 사용할 때, 값들은 불리언 문맥에서 왼쪽에서 오른쪽으로 가면서 평가됩니다.  <tt class="constant">0</tt>, <tt class="literal">''</tt>, <tt class="literal">[]</tt>, <tt class="literal">()</tt>, <tt class="literal">{}</tt>, 그리고 <tt class="literal">None</tt>은 불리언 문맥에서 거짓입니다; 다른 것들은 모두 참입니다.  음, 거의 모든 것입니다. 기본값으로, 클래스의 실체는 불리언 문맥에서 참입니다. 그러나 특별한 메쏘드를 클래스에 설정하면 그 실체가 거짓으로 평가되도록 만들 수 있습니다.  클래스와 특수 메쏘드에 관한 모든 것은 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo">제 5 장</a>에서 배우겠습니다.  불리언 문맥에서 모든 값이 참이면 <tt class="literal">and</tt>는 가장 마지막 값을 돌려줍니다. 이 경우, <tt class="literal">and</tt>는 <tt class="literal">'a'</tt>를 평가하는데, 그 값은 참이며, 다음 <tt class="literal">'b'</tt>를 평가하는데, 그 값이 참입니다. 그래서 <tt class="literal">'b'</tt>를 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.andor.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">불리언 문맥에서 무엇이든 거짓이면 <tt class="literal">and</tt>는 그 첫 거짓 값을 돌려줍니다. 이 경우, <tt class="literal">''</tt> 가 첫 거짓 값입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.andor.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">모든 값이 참입니다. 그래서 <tt class="literal">and</tt>는 마지막 값인 <tt class="literal">'c'</tt>를 돌려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e9812"></a><h3 class="title">예제&nbsp;4.16.&nbsp;<tt class="literal">or</tt> 소개</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">'a' or 'b'</span>          <a name="apihelper.andor.2.1"></a><span class="round">①</span>
+<span class="computeroutput">'a'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">'' or 'b'</span>           <a name="apihelper.andor.2.2"></a><span class="round">②</span>
+<span class="computeroutput">'b'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">'' or [] or {}</span>      <a name="apihelper.andor.2.3"></a><span class="round">③</span>
+<span class="computeroutput">{}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">def sidefx():</span>
+<tt class="prompt">...     </tt><span class="userinput">print "in sidefx()"</span>
+<tt class="prompt">...     </tt><span class="userinput">return 1</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">'a' or sidefx()</span>     <a name="apihelper.andor.2.4"></a><span class="round">④</span>
+<span class="computeroutput">'a'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.andor.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">or</tt>을 사용할 때, 값은 불리언 문맥에서 왼쪽에서 오른쪽으로 가면서 평가됩니다. <tt class="literal">and</tt>와 똑 같이 말입니다. 어떤 값이 참이면 <tt class="literal">or</tt>은 즉시 그 값을 돌려줍니다. 이 경우, <tt class="literal">'a'</tt>가 첫 참 값입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.andor.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">or</tt>은 <tt class="literal">''</tt>를 평가하고, 그 값은 거짓입니다. 다음 <tt class="literal">'b'</tt>를 평가하는데, 그 값은 참입니다. 그래서 <tt class="literal">'b'</tt>를 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.andor.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">모든 값이 거짓이면 <tt class="literal">or</tt>는 마지막 값을 돌려줍니다.  <tt class="literal">or</tt>은 <tt class="literal">''</tt>을 평가하는데, 이 값은 거짓입니다. 다음 <tt class="literal">[]</tt>가 평가되며, 그 값은 거짓입니다. 다음 <tt class="literal">{}</tt>가 평가되는데, 그 값은 거짓입니다. 그래서 <tt class="literal">{}</tt>을 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.andor.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">주목하세요. <tt class="literal">or</tt>은 불리언 문맥에서 참인 값을 발견할 때까지만 값들을 평가합니다. 그리고 나머지는 무시합니다. 어떤 값들은 부작용을 가질 수 있기 때문에  이 구별은 중요합니다. 여기에서 <tt class="function">sidefx</tt> 함수는 절대로 호출되지 않습니다. 왜냐하면 <tt class="literal">or</tt>은 <tt class="literal">'a'</tt>를 평가하고, 그 값은 참이므로, 즉시 <tt class="literal">'a'</tt>를 돌려주기 때문입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>
+			   여러분이 <span class="application"><span class="acronym">C</span></span> 해커라면 분명히 <tt class="literal"><i class="replaceable">bool</i> ? <tt class="varname">a</tt> : <tt class="varname">b</tt></tt> 표현식을 잘 아실 겁니다. 이 표현식은 <i class="replaceable"><tt>bool</tt></i>이 참이면 <tt class="varname">a</tt>로 평가되고, 그렇지 않으면 <tt class="varname">b</tt>로 평가됩니다. <span class="application">파이썬</span>에서 <tt class="literal">and</tt>와 <tt class="literal">or</tt>의 작동 방식 때문에, 같은 일을 할 수 있습니다.
+               </p>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e9975"></a>4.6.1.&nbsp;<tt class="literal">and-or</tt> 트릭을 사용하기
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <div class="example"><a name="apihelper.andortrick.intro"></a><h3 class="title">예제&nbsp;4.17.&nbsp;<tt class="literal">and-or</tt> 트릭
+                     </h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">a = "first"</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">b = "second"</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">1 and a or b</span> <a name="apihelper.andor.3.1"></a><span class="round">①</span>
+<span class="computeroutput">'first'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">0 and a or b</span> <a name="apihelper.andor.3.2"></a><span class="round">②</span>
+<span class="computeroutput">'second'</span>
+</pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.andor.3.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">이 구문은 <span class="application"><span class="acronym">C</span></span>의 <tt class="literal"><i class="replaceable">bool</i> ? <tt class="varname">a</tt> : <tt class="varname">b</tt></tt> 표현식과 비슷합니다. 전체 표현식은 왼쪽에서 오른쪽으로 평가됩니다. 그래서 <tt class="literal">and</tt>가 먼저 평가됩니다.  <tt class="literal">1 and 'first'</tt>는 <tt class="literal">'first'</tt>로 평가되고, 다음 <tt class="literal">'first' or 'second'</tt>는 <tt class="literal">'first'</tt>로 평가됩니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.andor.3.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">0 and 'first'</tt>는 <tt class="constant">False</tt>로 평가되고, 다음 <tt class="literal">0 or 'second'</tt>는 <tt class="literal">'second'</tt>로 평가됩니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>
+				  그렇지만, 이 <span class="application">파이썬</span> 표현식은 단순히 불리언 논리에 불과하고, 언어의 특별한 구조가 아니기 때문에, <span class="application">파이썬</span>의 <tt class="literal">and-or</tt> 트릭과 <span class="application"><span class="acronym">C</span></span>의 <tt class="literal"><i class="replaceable">bool</i> ? <tt class="varname">a</tt> : <tt class="varname">b</tt></tt> 구문 사이에 아주 중대한 차이가 하나 있습니다.  <tt class="varname">a</tt>의 값이 거짓이면 표현식은 예상대로 작동하지 않습니다 (본인은 과연 이 함정에 빠졌을까요?  몇 번이나 빠졌을까요?)
+                  </p>
+                  <div class="example"><a name="d0e10093"></a><h3 class="title">예제&nbsp;4.18.&nbsp;<tt class="literal">and-or</tt> 트릭이 실패할 때
+                     </h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">a = ""</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">b = "second"</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">1 and a or b</span>         <a name="apihelper.andor.4.1"></a><span class="round">①</span>
+<span class="computeroutput">'second'</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.andor.4.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="varname">a</tt>는 빈 문자열이므로, <span class="application">파이썬</span>은 불리언 문맥에서 거짓으로 간주하고, <tt class="literal">1 and ''</tt>는 <tt class="literal">''</tt>로 평가되며, 다음 <tt class="literal">'' or 'second'</tt>는 <tt class="literal">'second'</tt>로 평가됩니다.  이런! 원한게 아니군요.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>
+				  불리언 문맥에서 <tt class="varname">a</tt>가 거짓으로 평가될 경우,  <tt class="literal">and-or</tt> 트릭인 "<tt class="literal"><i class="replaceable">bool</i> and <tt class="varname">a</tt> or <tt class="varname">b</tt></tt>"는 <span class="application"><span class="acronym">C</span></span> 표현식인 "<tt class="literal"><i class="replaceable">bool</i> ? <tt class="varname">a</tt> : <tt class="varname">b</tt></tt>"와 똑같이 작동하지 않습니다.
+                  </p>
+                  <p>
+				  그래서 <tt class="literal">and-or</tt> 트릭 뒤의 진짜 트릭은 <tt class="varname">a</tt>의 값이 절대로 거짓이 되지 않도록 확인하는 것입니다. 이렇게 하는 일반적인 방법은 <tt class="varname">a</tt>를 <tt class="literal">[<tt class="varname">a</tt>]</tt>에 넣고 <tt class="varname">b</tt>를 <tt class="literal">[<tt class="varname">b</tt>]</tt>에 넣은 다음, 반환된 리스트의 첫 원소를 받는 것입니다. 그 원소는 <tt class="varname">a</tt>나 <tt class="varname">b</tt>가 될 것입니다.
+                  </p>
+                  <div class="example"><a name="d0e10205"></a><h3 class="title">예제&nbsp;4.19.&nbsp;안전하게 <tt class="literal">and-or</tt> 트릭을 사용하는법
+                     </h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">a = ""</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">b = "second"</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">(1 and [a] or [b])[0]</span> <a name="apihelper.andor.5.1"></a><span class="round">①</span>
+<span class="computeroutput">''</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.andor.5.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">
+							  <tt class="literal">[<tt class="varname">a</tt>]</tt>는 빈 리스트가 아니므로, 절대 거짓이 아닙니다. <tt class="varname">a</tt>가 <tt class="constant">0</tt>이나 <tt class="literal">''</tt> 또는 기타 다른 거짓 값이라도 원소가 한개 있으므로 리스트 <tt class="literal">[<tt class="varname">a</tt>]</tt>는 참입니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>
+				  지금까지는 이 트릭이 그 가치에 비해 너무 복잡해 보일 수도 있습니다. 어쨋든 같은 일을 <tt class="literal">if</tt> 서술문으로 할 수 있습니다. 그런데 왜 이렇게 복잡하게 하는가? 음, 많은 경우, 두 개의 상수 값 중에 하나를 선택합니다. 그래서 더 간단한 구문을 사용할 수 있으면 신경쓰지 않아도 됩니다.  왜냐하면 <tt class="varname">a</tt> 값이 언제나 참이라는 사실을 알기 때문입니다. 더 복잡한 안전한 형태를 사용할 필요가 있다면 그래야 할 충분한 이유가 있습니다. 예를 들어, 어떤 경우는 <span class="application">파이썬</span>에서 <tt class="literal">lambda</tt> 함수 같은 경우 <tt class="literal">if</tt> 서술문이 허용되지 않습니다. 
+                  </p>
+                  <div class="itemizedlist">
+                     <h3 class="title"><tt class="literal">and-or</tt> 트릭에 관하여 더 읽어야 할 것
+                     </h3>
+                     <ul>
+                        <li><a href="http://www.activestate.com/ASPN/Python/Cookbook/" title="growing archive of annotated code samples"><span class="application">파이썬</span> 요리책</a>은 <a href="http://www.activestate.com/ASPN/Python/Cookbook/Recipe/52310"><tt class="literal">and-or</tt> 트릭에 대한 대안책</a>을 다룬다.
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="apihelper.lambda"></a>4.7.&nbsp;<tt class="literal">lambda</tt> 함수 사용하기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>은 한 줄짜리 미니-함수를 바로바로 정의할 수 있는 흥미로운 구문을 지원합니다. <span class="application">Lisp</span>에서 빌려온 이른바 이 <tt class="literal">lambda</tt> 함수는 함수가 요구되는 곳이면 어디든지 사용할 수 있습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e10311"></a><h3 class="title">예제&nbsp;4.20.&nbsp; 람다(<tt class="literal">lambda</tt>) 함수
+                  </h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">def f(x):</span>
+<tt class="prompt">...     </tt><span class="userinput">return x*2</span>
+<tt class="prompt">...     </tt><span class="userinput"></span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f(3)</span>
+<span class="computeroutput">6</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">g = lambda x: x*2</span>  <a name="apihelper.lambda.1.2"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">g(3)</span>
+<span class="computeroutput">6</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">(lambda x: x*2)(3)</span> <a name="apihelper.lambda.1.3"></a><span class="round">②</span>
+<span class="computeroutput">6</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.lambda.1.2"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">
+						   
+						   이는 람다(<tt class="literal">lambda</tt>) 함수로서 위의 정상 함수와 똑 같은 일을 합니다. 여기에서 생략된 구문에 주목하세요: 인자 리스트 주위에 반괄호가 없으며, <tt class="literal">return</tt> 키워드가 없습니다 (전체 함수가 오직 표현식만 가능하므로, 묵시적으로 반환됩니다). 또한, 함수에 이름도 없습니다. 그러나 자신에게 할당된 변수를 통하여 호출될 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.lambda.1.3"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"> 변수에 할당하지 않아도 람다(<tt class="literal">lambda</tt>) 함수를 사용할 수 있습니다. 이것이 세상에서 제일 유용한 것은 아니겠지만, 람다가 그저 한 줄짜리 함수라는 사실 만큼은 확실하게 보여줍니다. 
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>일반적으로 말해 람다(<tt class="literal">lambda</tt>) 함수는 (<a href="#apihelper.optional" title="4.2.&nbsp;Using Optional and Named Arguments">선택적 인자를 포함하여</a>) 인자를 얼마든지 취해 단일한 표현식의 값을 돌려주는 함수입니다.  람다(<tt class="literal">lambda</tt>) 함수는 명령어를 포함할 수 없습니다. 그리고 하나 이상의 표현식을 담을 수 없습니다. 람다(<tt class="literal">lambda</tt>) 함수 안에 너무 많은 것을 구겨 넣으려 하지 마세요; 좀 더 복잡한 식이 필요하면 대신에 보통의 함수를 정의하고 원하는 만큼 만드세요.
+               </p><a name="tip.lambda"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">람다(<tt class="literal">lambda</tt>) 함수는 스타일의 문제입니다. 반드시 람다 함수를 사용할 필요는 없습니다; 어디든지 람다 함수를 사용할 수 있는 곳이라면 따로 정상 함수를 정의해서 대신에 그 함수를 사용해도 좋습니다. 본인은 재사용이 필요없는 특정한 코드를 캡슐화해 넣고 싶은 경우에 람다 함수를 사용합니다. 수 많은 한 줄짜리 함수로 코드를 어지럽히고 싶지 않기 때문입니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e10403"></a>4.7.1.&nbsp;실-세계의 람다(<tt class="literal">lambda</tt>) 함수
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <div class="informalexample">
+                     <p>다음은 <tt class="filename">apihelper.py</tt>에 있는 람다(<tt class="literal">lambda</tt>) 함수입니다:
+                     </p><pre class="programlisting">
+    processFunc = collapse and (lambda s: " ".join(s.split())) or (lambda s: s)</pre></div>
+                  <p>
+				
+				여기에서 단순한 형태의 <a href="#apihelper.andor" title="4.6.&nbsp;The Peculiar Nature of and and or"><tt class="literal">and-or</tt></a> 트릭을 사용하고 있음에 주목하세요. 지금은 문제가 없습니다. 왜냐하면 람다(<tt class="literal">lambda</tt>) 함수는 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#tip.boolean">불리언 문맥에서</a> 언제나 참이기 때문입니다.  (그렇다고 해서 람다(<tt class="literal">lambda</tt>) 함수가 거짓 값을 돌려주지 못한다는 뜻은 아닙니다.  이 함수는 언제나 참입니다; 무엇이든 그의 반환 값이 될 수 있습니다.)
+                  </p>
+                  <p>
+				  또 주목할 것은 아무 인자 없이 <tt class="function">split</tt> 함수를 사용하고 있다는 것입니다. 이미 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.split.example" title="Example&nbsp;3.28.&nbsp;Splitting a String">문자열 가르기</a>에서 사용된 것을  보신 바 있습니다. 그러나 인자가 없으면 공백문자를 기준으로 가릅니다.
+                  </p>
+                  <div class="example"><a name="d0e10444"></a><h3 class="title">예제&nbsp;4.21.&nbsp;인자 없이 사용하는 <tt class="function">split</tt> 함수
+                     </h3>
+					 
+					 
+					 <pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s = "this   is\na\ttest"</span>  <a name="apihelper.split.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print s</span>
+<span class="computeroutput">this   is
+a	test</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print s.split()</span>           <a name="apihelper.split.1.2"></a><span class="round">②</span>
+<span class="computeroutput">['this', 'is', 'a', 'test']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print " ".join(s.split())</span> <a name="apihelper.split.1.3"></a><span class="round">③</span>
+<span class="computeroutput">'this is a test'</span></pre>
+
+
+
+
+
+<div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.split.1.1"><span class="round">①</span></a>
+                              </td>
+                              <td valign="top" align="left">
+							  이는 여러줄 문자열로서, <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.triplequotes" title="Example&nbsp;2.2.&nbsp;Defining the buildConnectionString Function's doc string">삼중 따옴표</a> 대신에 피신 문자로 정의되어 있습니다.  <tt class="literal">\n</tt>는 줄바꿈 문자이며, <tt class="literal">\t</tt>는 탭 문자입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.split.1.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">인자없이 <tt class="function">split</tt> 함수를 호출하면 공백문자를 기준으로 가릅니다. 그래서 세 개의 공백 문자와 줄바꿈 문자 그리고 탭 문자는 모두 같습니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#apihelper.split.1.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"> <tt class="function">split</tt>로 문자열을 가르고 난 다음 공간 문자 한개를 가름자로 사용하여 <tt class="function">join</tt>으로 다시 결합하면 공백문자를 표준화할 수 있습니다. 이것이 바로 <tt class="function">info</tt> 함수가 하는 일로서 여러줄 문서화 문자열(<tt class="literal">doc string</tt>)을 한줄로 축약합니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>
+				  그래서 <tt class="function">info</tt> 함수는 이 <tt class="literal">lambda</tt> 함수와 <tt class="function">split</tt> 함수 그리고 <tt class="literal">and-or</tt> 트릭으로 실제로 무슨 일을 하는가?
+                  </p>
+                  <div class="informalexample"><a name="apihelper.funcassign"></a><pre class="programlisting">
+    processFunc = collapse and (lambda s: " ".join(s.split())) or (lambda s: s)</pre></div>
+                  <p>
+				  
+				  <tt class="varname">processFunc</tt>는 이제 함수이지만, 그것이 어느 함수인가는  <tt class="varname">collapse</tt> 변수의 값에 따라 다릅니다.  <tt class="varname">collapse</tt>가 참이면 <tt class="literal"><tt class="varname">processFunc</tt>(<i class="replaceable">string</i>)</tt>은 공백으로 축약됩니다; 그렇지 않으면 <tt class="literal"><tt class="varname">processFunc</tt>(<i class="replaceable">string</i>)</tt>는 그의 인자를 그대로 돌려줍니다.
+                  </p>
+                  <p>
+				  비주얼 베이직(<span class="application">Visual Basic</span>) 같이 유약한 언어에서 이렇게 하려면 아마도 문자열과 <i class="parameter"><tt>collapse</tt></i> 인자를 받고 <tt class="literal">if</tt> 서술문을 사용하여 공백문자로 축약할지 말지를 결정한 다음, 적절한 값을 돌려주는 함수를 만들어야 합니다.  이는 가능한 모든 사례마다 일일이 함수가 처리해야 하기 때문에 비효율적입니다. 호출할 때마다, 여러분이 원하는 것을 돌려주기 전에 공백을 축약해야 할지 말지를 결정할 필요가 있습니다. <span class="application">파이썬</span>에서는 함수로부터 결정 로직을 분리할 수 있으며 정확하게 (오직) 원하는 것을 돌려주도록 맞춤-재단된 람다(<tt class="literal">lambda</tt>) 함수를 정의할 수 있습니다. 이 방법이 더 효율적이며 더 우아하고 그리고 성가신 에러가 더 적습니다.
+                  </p>
+                  <div class="itemizedlist">
+                     <h3 class="title">람다(<tt class="literal">lambda</tt>) 함수에 관하여 더 읽어야 할 것
+                     </h3>
+                     <ul>
+                        <li><a href="http://www.faqts.com/knowledge-base/index.phtml/fid/199/"><span class="application">파이썬</span> 지식 기지</a>에서는 <tt class="literal">lambda</tt>로 <a href="http://www.faqts.com/knowledge-base/view.phtml/aid/6081/fid/241">함수를 간접적으로 호출하는 법을 연구한다</a>.
+                        </li>
+                        <li><a href="http://www.python.org/doc/current/tut/tut.html"><i class="citetitle"><span class="application">파이썬</span> 자습서</i></a>는 <a href="http://www.python.org/doc/current/tut/node6.html#SECTION006740000000000000000"><tt class="literal">lambda</tt> 함수 안에서 바깥 변수에 접근하는 법을 보여준다</a>.  ( <span class="application">파이썬</span>에서 앞으로 이 특징이 어떻게 바뀔지 <a href="http://python.sourceforge.net/peps/pep-0227.html"><span class="acronym">PEP</span> 227</a>에서 설명한다.)
+                        </li>
+                        <li><a href="http://www.python.org/doc/FAQ.html"><i class="citetitle">전체 <span class="application">파이썬</span> <span class="acronym">FAQ</span></i></a>에는 <a href="http://www.python.org/cgi-bin/faqw.py?query=4.15&querytype=simple&casefold=yes&req=search"><tt class="literal">lambda</tt></a>를 사용한 복잡한 한-줄짜리 예제가 있다.
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="apihelper.alltogether"></a>4.8.&nbsp;하나로 모두 합치기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>코드의 마지막 줄에서 아직 유일하게 분석하지 못한 한가지는 모든 일을 해 주는 코드입니다. 그러나 이제 그 작업은 쉽습니다. 왜냐하면 필요한 모든 것이 필요한 그대로 준비되어 있기 때문입니다. 모든 도미노 조각이 제 자리에 놓였고; 이제 쓰러뜨릴 시간입니다.
+                  </p>
+               </div>
+               <div class="informalexample">
+                  <p>
+				  다음은 <tt class="filename">apihelper.py</tt>의 핵심입니다:
+                  </p><pre class="programlisting">
+    print "\n".join(["%s %s" %
+                      (method.ljust(spacing),
+                       processFunc(str(getattr(object, method).__doc__)))
+                     for method in methodList])</pre></div>
+               <p>
+			   주목할 것은 이는 한 개짜리 명령어로서 여러 줄에 걸쳐 있지만 줄 연속 문자(<tt class="literal">\</tt>)를 사용하지 않는다는 것입니다.  기억하십니까? <a href="http://coreapython.hosting.paran.com/dive/chap03.html#tip.implicitmultiline">어떤 표현식은 역사선을 사용하지 않고서도 여러 줄로 갈라질 수 있습니다</a>. 지능형 리스트가 그런 표현식 중의 하나입니다. 왜냐하면 전체 표현식이 각 괄호 안에 담기어 있기 때문입니다.
+               </p>
+               <p>
+			   이제, 맨뒤에서 지능형 리스트를 뜯어내어 거꾸로 연구해 보겠습니다.</p>
+			   
+			   <pre class="programlisting">
+for method in methodList</pre>
+
+
+<p>위는 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.map" title="3.6.&nbsp;Mapping Lists">지능형 리스트(list comprehension)</a>를 보여줍니다. 아시다시피, <tt class="varname">methodList</tt>는 리스트로서 <tt class="varname">object</tt>에서 관심을 두고 있는 <a href="#apihelper.filter.care">모든 메쏘드를 담고 있습니다</a>.  그래서 <tt class="varname">method</tt>로 그 리스트를 회돌이하고 있습니다.
+               </p>
+               <div class="example"><a name="d0e10681"></a><h3 class="title">예제&nbsp;4.22.&nbsp;동적으로 문서화 문자열(<tt class="literal">doc string</tt>) 얻는 법
+                  </h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import odbchelper</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">object = odbchelper</span>                   <a name="apihelper.alltogether.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">method = 'buildConnectionString'</span>      <a name="apihelper.alltogether.1.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">getattr(object, method)</span>               <a name="apihelper.alltogether.1.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;function buildConnectionString at 010D6D74&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print getattr(object, method).__doc__</span> <a name="apihelper.alltogether.1.4"></a><span class="round">④</span>
+<span class="computeroutput">Build a connection string from a dictionary of parameters.
+
+    Returns string.</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">info</tt> 함수에서, <tt class="varname">object</tt>는 여러분에게 도움을 줄 객체로서, 인자로 건네집니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">methodList</tt>를 회돌이하는 동안, <tt class="varname">method</tt>는 현재 메쏘드의 이름입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="#apihelper.getattr" title="4.4.&nbsp;Getting Object References With getattr"><tt class="function">getattr</tt></a> 함수를 사용하여,  <i class="replaceable"><tt>object</tt></i> 모듈에 있는 <i class="replaceable"><tt>method</tt></i> 함수를 가리키는 참조점을 얻고 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제, 메쏘드의 실제 문서화 문자열(<tt class="literal">doc string</tt>)을 쉽게 인쇄할 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>다음 퍼즐 조각은  <tt class="function">str</tt>을 문서화 문자열(<tt class="literal">doc string</tt>) 둘레에 사용하는 것입니다.  기억하시겠지만, <tt class="function">str</tt>은 <a href="#apihelper.builtin" title="4.3.&nbsp;Using type, str, dir, and Other Built-In Functions">데이터를 문자열로 바꾸는</a> 내장 함수입니다.  그러나 문서화 문자열(<tt class="literal">doc string</tt>)은 언제나 문자열입니다. 그런데 왜 <tt class="function">str</tt> 함수에 신경을 쓸까요?  그 해답은 어느 함수나 다 문서화 문자열(<tt class="literal">doc string</tt>)을 가지고 있는 것은 아니기 때문입니다. 만약 그렇다면 <tt class="literal">__doc__</tt> 속성이 <tt class="literal">None</tt>이 되기 때문입니다.
+               </p>
+               <div class="example"><a name="d0e10793"></a><h3 class="title">예제&nbsp;4.23.&nbsp;왜 문서화 문자열(<tt class="literal">doc string</tt>)에 <tt class="function">str</tt> 함수를 사용하는가?
+                  </h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">&gt;&gt;&gt; def foo(): print 2</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">&gt;&gt;&gt; foo()</span>
+<span class="computeroutput">2</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">&gt;&gt;&gt; foo.__doc__</span>     <a name="apihelper.alltogether.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">foo.__doc__ == None</span> <a name="apihelper.alltogether.2.2"></a><span class="round">②</span>
+<span class="computeroutput">True</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">str(foo.__doc__)</span>    <a name="apihelper.alltogether.2.3"></a><span class="round">③</span>
+<span class="computeroutput">'None'</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">문서화 문자열(<tt class="literal">doc string</tt>) 없이 함수를 정의하기가 쉽습니다. 그래서, 그의 <tt class="literal">__doc__</tt> 속성은 <tt class="literal">None</tt>입니다.  혼란스럽게도, <tt class="literal">__doc__</tt> 속성을 곧바로 평가하면 <span class="application">파이썬</span> <span class="acronym">IDE</span>는 아무것도 인쇄하지 않습니다. 생각해 보면 일리는 있지만, 여전히 도움은 안됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">__doc__</tt> 속성의 값이 실제로 <tt class="literal">None</tt>이라는 것을 직접 비교해 보면 알 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">str</tt> 함수는 <tt class="literal">'None'</tt>의 널 값을 받아 문자열 표현을 돌려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="compare.isnull.sql"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="acronym">SQL</span>에서는 널 값을 비교하려면 <tt class="literal">= NULL</tt> 대신에 <tt class="literal">IS NULL</tt>을 사용해야 합니다. <span class="application">파이썬</span>에서는 <tt class="literal">== None</tt> 또는 <tt class="literal">is None</tt>을 사용할 수 있지만, <tt class="literal">is None</tt>이 더 빠릅니다.
+                     </td>
+                  </tr>
+               </table>
+               <p>
+			   이제 확실하게 문자열을 확보하였습니다. 그 문자열을 <tt class="varname">processFunc</tt>에 건넬 수 있습니다. 이 함수는 <a href="#apihelper.lambda" title="4.7.&nbsp;Using lambda Functions">이미 정의해 둔 함수로서</a> 공백문자로 축약하거나 또는 축약하지 않습니다. 이제 <tt class="function">str</tt>을 사용하여 <tt class="literal">None</tt> 값을 문자열 표현으로 변환하는 것이 왜 중요한지 알 수 있습니다.  <tt class="varname">processFunc</tt>는 인자가 문자열이라고 간주하고 자신의 <tt class="function">split</tt> 메쏘드를 호출합니다. 이럴 경우 <tt class="literal">None</tt>을 건네면 충돌이 일어납니다. 왜냐하면 <tt class="literal">None</tt>은 <tt class="function">split</tt> 메쏘드가 없기 때문입니다.
+               </p>
+               <p>
+			   뒤로 좀 더 물러서서 보면 문자열 형식화를 또 사용하여 <tt class="varname">processFunc</tt>의 반환값과 <tt class="varname">method</tt> <tt class="function">ljust</tt> 메쏘드의 반환값을 결합하고 있음을 볼 수 있습니다. <tt class="function">ljust</tt> 메쏘드는 아직 보지 못한 새로운 문자열 메쏘드입니다.
+               </p>
+               <div class="example"><a name="d0e10958"></a><h3 class="title">예제&nbsp;4.24.&nbsp;<tt class="function">ljust</tt> 소개</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s = 'buildConnectionString'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s.ljust(30)</span> <a name="apihelper.alltogether.3.1"></a><span class="round">①</span>
+<span class="computeroutput">'buildConnectionString         '</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s.ljust(20)</span> <a name="apihelper.alltogether.3.2"></a><span class="round">②</span>
+<span class="computeroutput">'buildConnectionString'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">ljust</tt> 메쏘드는 주어진 길이만큼 문자열에 공간문자를 채웁니다. 이를 <tt class="function">info</tt> 함수가 사용하여 두 개의 컬럼을 출력하며 두 번째 컬럼에 문서화 문자열(<tt class="literal">doc string</tt>)을 모두 정렬합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">주어진 길이가 문자열의 길이보다 작으면 <tt class="function">ljust</tt>는 단순히 문자열을 그냥 돌려줍니다. 문자열을 잘라내지 않습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>거의 완성입니다. <tt class="function">ljust</tt> 메쏘드로 메쏘드 이름이 주어지고 <tt class="varname">processFunc</tt>를 호출하여 (축약될 수도 있는) 문서화 문자열(<tt class="literal">doc string</tt>)이 주어지면  그 두 개의 문자열을 결합해 하나의 문자열을 얻습니다. <tt class="varname">methodList</tt>를 짝짓기 하고 있으므로, 결국 문자열 리스트를 얻습니다.  문자열 <tt class="literal">"\n"</tt>의 <tt class="function">join</tt> 메쏘드를 사용하여, 이 리스트를 한 개짜리 문자열로 결합합니다. 리스트의 각 원소 마다 따로따로 줄을 차지합니다. 그리고 그 결과를 인쇄합니다.
+               </p>
+               <div class="example"><a name="d0e11026"></a><h3 class="title">예제&nbsp;4.25.&nbsp;리스트 인쇄하기</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = ['a', 'b', 'c']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print "\n".join(li)</span> <a name="apihelper.alltogether.4.1"></a><span class="round">①</span>
+<span class="computeroutput">a
+b
+c</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#apihelper.alltogether.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 리스트와 작업할 때 유용한 디버깅 트릭이기도 합니다. 그리고 <span class="application">파이썬</span>에서는 언제나 리스트로 작업합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>
+			   이제 마지막 퍼즐 조각입니다. 다음 코드가 이해 되실줄로 믿습니다.</p>
+               <div class="informalexample"><pre class="programlisting">
+    print "\n".join(["%s %s" %
+                      (method.ljust(spacing),
+                       processFunc(str(getattr(object, method).__doc__)))
+                     for method in methodList])</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="apihelper.summary"></a>4.9.&nbsp;요약
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>
+				  <tt class="filename">apihelper.py</tt> 프로그램과 그의 출력은 이제 완벽하게 이해가 되실 겁니다.
+                  </p>
+               </div>
+               <div class="informalexample"><pre class="programlisting">
+def info(object, spacing=10, collapse=1):
+    """Print methods and doc strings.
+    
+    Takes module, class, list, dictionary, or string."""
+    methodList = [method for method in dir(object) if callable(getattr(object, method))]
+    processFunc = collapse and (lambda s: " ".join(s.split())) or (lambda s: s)
+    print "\n".join(["%s %s" %
+                      (method.ljust(spacing),
+                       processFunc(str(getattr(object, method).__doc__)))
+                     for method in methodList])
+
+if __name__ == "__main__":
+    print info.__doc__</pre></div>
+               <div class="informalexample">
+                  <p>
+				  
+				  다음은 <tt class="filename">apihelper.py</tt>의 출력입니다:
+                  </p><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from apihelper import info</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = []</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">info(li)</span>
+<span class="computeroutput">append     L.append(object) -- append object to end
+count      L.count(value) -&gt; integer -- return number of occurrences of value
+extend     L.extend(list) -- extend list by appending list elements
+index      L.index(value) -&gt; integer -- return index of first occurrence of value
+insert     L.insert(index, object) -- insert object before index
+pop        L.pop([index]) -&gt; item -- remove and return item at index (default last)
+remove     L.remove(value) -- remove first occurrence of value
+reverse    L.reverse() -- reverse *IN PLACE*
+sort       L.sort([cmpfunc]) -- sort *IN PLACE*; if given, cmpfunc(x, y) -&gt; -1, 0, 1</span></pre></div>
+               <div class="highlights">
+                  <p>다음 장으로 넘어가기 전에, 다음과 같은 일을 몸에 익히시기를 바랍니다:</p>
+                  <div class="itemizedlist">
+                     <ul>
+                        <li><a href="#apihelper.optional" title="4.2.&nbsp;Using Optional and Named Arguments">선택적 인자와 이름붙은 인자로</a> 함수를 정의하고 호출하기</li>
+                        <li><a href="#apihelper.str.intro" title="Example&nbsp;4.6.&nbsp;Introducing str"><tt class="function">str</tt></a>을 사용하여 임의의 값을 문자열 표현식으로 강제로 변환하기
+                        </li>
+                        <li>함수와 기타 속성에 대하여 <a href="#apihelper.getattr" title="4.4.&nbsp;Getting Object References With getattr"><tt class="function">getattr</tt></a>을 사용하여 동적으로 참조점 얻기                        </li>
+                        <li>지능형 리스트 구문을 확장하여 <a href="#apihelper.filter" title="4.5.&nbsp;Filtering Lists">리스트를 여과하기</a></li>
+                        <li><a href="#apihelper.andor" title="4.6.&nbsp;The Peculiar Nature of and and or"><tt class="literal">and-or</tt> 트릭을 이해하고</a> 안전하게 사용하기
+                        </li>
+                        <li><a href="#apihelper.lambda" title="4.7.&nbsp;Using lambda Functions">람다(<tt class="literal">lambda</tt>) 함수를 정의하기</a></li>
+                        <li><a href="#apihelper.funcassign">함수를 변수에 할당하기</a> 그리고 그 변수를 참조하여 함수를 호출하기. 이는 너무나 중요합니다. 이런식으로 사고해야 <span class="application">파이썬</span>에 대한 이해를 더욱 증진시킬 수 있습니다.  이 책을 통하여 이 개념을 복잡하게 응용한 예들을 더 많이 보실 것입니다.
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap03.html">☜ 제 03 장 고유 데이터 유형</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap05.html">제 05 장 객체와 객체지향 ☞</A></TD>
+</TR>
+</TABLE>
+	</body>
+</html>

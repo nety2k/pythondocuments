@@ -1,0 +1,1434 @@
+        <!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap08.html">http://coreapython.hosting.paran.com/dive/chap08.html</a><br>
+<b>Title:</b> 8. HTML 처리하기 &nbsp;&bull;&nbsp; <b>Size:</b> 145534<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap07.html">☜ 제 07 장 정규표현식</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap09.html">제 09 장 XML 처리 ☞</A></TD>
+</TR>
+</TABLE>
+		 <div name="08장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="dialect">제&nbsp;8&nbsp;장 <span class="acronym">HTML</span> 처리하기 </a></h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.divein"></a>8.1.&nbsp;뛰어 들기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>
+				  자주 <a href="http://groups.google.com/groups?group=comp.lang.python">comp.lang.python</a>에 올라오는 질문들이 있습니다. 예를 들면 &#8220;<span class="quote">어떻게 [헤더|이미지|링크]를 <span class="acronym">HTML</span> 문서에서 모두 나열할 수 있을까요?</span>&#8221;  &#8220;<span class="quote">태그는 그대로 둔 채 <span class="acronym">HTML</span> 문서의 텍스트를 어떻게 해석/변환/조작 할 수 있나요?</span>&#8221;  &#8220;<span class="quote"> 어떻게 해야 모든 <span class="acronym">HTML</span> 태그의 속성을 단 번에 추가/제거/인용할 수 있을까요?</span>&#8221; 이 장에서 이런 모든 질문에 대하여 해답을 찾아 보겠습니다.
+                  </p>
+               </div>
+               <p>
+			   다음은 완벽하게 작동하는 <span class="application">파이썬</span> 프로그램입니다. 두 부분으로 구성되어 있는데, 첫 부분은 <tt class="filename">BaseHTMLProcessor.py</tt>로서 텍스트 블럭과 태그를 거닐면서 <span class="acronym">HTML</span> 파일 처리를 도와줄 총괄적 도구입니다. 두 번째 부분은 <tt class="filename">dialect.py</tt>로서 <tt class="filename">BaseHTMLProcessor.py</tt>를 사용하여 태그는 그대로 둔 채 <span class="acronym">HTML</span> 문서를 변환하는 법을 보여주는 예제입니다. 문서화문자열(<tt class="literal">doc string</tt>)과 주석을 읽어보고 대충 무슨 일이 진행되는지 알아봅시다. 대부분은 신비한 마법처럼 보이겠지요. 이런 클래스들이 도대체 어떤 식으로 호출되는지 알 수 없기 때문입니다. 걱정하지 맙시다. 때가 되면 다 알게 됩니다.
+               </p>
+               <div class="example"><a name="dialect.basehtml.listing"></a><h3 class="title">예제&nbsp;8.1.&nbsp;<tt class="filename">BaseHTMLProcessor.py</tt></h3>
+                  <p>
+				  아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">다음 예제와 기타 예제들</a>을 내려 받으시면 됩니다.
+                  </p><pre class="programlisting">
+from sgmllib import SGMLParser
+import htmlentitydefs
+
+class BaseHTMLProcessor(SGMLParser):
+    def reset(self):                       
+        # 확장한다 (SGMLParser.__init__에서 호출)
+        self.pieces = []
+        SGMLParser.reset(self)
+
+    def unknown_starttag(self, tag, attrs):
+        # 시작 태그마다 호출됨.
+        # attrs는 (attr, value) 터플로 구성된 리스트이다.
+        # 예를 들어, &lt;pre class="screen"&gt;이라면 tag="pre", attrs=[("class", "screen")]이다.
+        # 이상적으로 원래 태그와 속성을 재구성하고 싶지만,
+        # 소스 문서에서 인용부호 처리되지 않은 속성 값을 처리해야 하거나,
+        # 또는 속성 값 주위의 인용부호 종류를 바꿀 수도 있다.
+        # (홑따옴표를 겹따옴표로 말이다.)
+        # (클라이언트-쪽 자바스크립트처럼) HTML-아닌 코드가 부적절하게 임베드되어 있으면,
+        # 조상 메쏘드에 의하여 올바르지 않게 해석될 수 있어서, 
+        # 실행시간 스크립트 에러가 야기될 수 있다.
+        # HTML-아닌 코드는 모두 HTML 주석 태그 (&lt;!-- code --&gt;) 안에 싸 넣어서,
+        # 이 해석기를 (handle_comment 안을) 그대로 통과하는지 확인해야 한다.
+        strattrs = "".join([' %s="%s"' % (key, value) for key, value in attrs])
+        self.pieces.append("&lt;%(tag)s%(strattrs)s&gt;" % locals())
+
+    def unknown_endtag(self, tag):         
+        # 끝 태그마다 호출됨. 예를 들어 &lt;/pre&gt;이라면, 태그는 "pre"가 될 것이다.
+        # 원래 끝 태그를 재구성한다.
+        self.pieces.append("&lt;/%(tag)s&gt;" % locals())
+
+    def handle_charref(self, ref):         
+        # 문자 참조마다 호출됨. 예를 들어, "&amp;#160;"이라면, ref는 "160"이 될 것이다.
+        # 원래 문자 참조를 재구성한다.
+        self.pieces.append("&amp;#%(ref)s;" % locals())
+
+    def handle_entityref(self, ref):       
+        # 개체 참조마다 호출됨. 예를 들어 "&amp;copy;"이라면, ref는 "copy"가 될 것이다.
+        # 원래 개체 참조를 재구성한다.
+        self.pieces.append("&amp;%(ref)s" % locals())
+        # 표준 HTML 개체는 쌍반점으로 끝난다; 다른 개체들은 그렇지 않다.
+        if htmlentitydefs.entitydefs.has_key(ref):
+            self.pieces.append(";")
+
+    def handle_data(self, text):           
+        # 평범한 텍스트 블록마다 호출됨. 다시 말해, 태그의 바깥에 있으며, 
+        # 문자 참조나 개체 참조가 포함되지 않는다.
+        # 원래 텍스트를 그냥 그대로 저장한다.
+        self.pieces.append(text)
+
+    def handle_comment(self, text):        
+        # HTML 주석마다 호출됨. 예, &lt;!-- insert Javascript code here --&gt;
+        # 원래 주석을 재구성한다.
+        # 소스 문서에서 주석에 (자바스크립트 같은) 클라이언트-쪽 코드가 담겨 있어서, 
+        # 이 처리기를 그대로 통과시키려면 특히 중요하다;
+        # 자세한 것은 unknown_starttag에 있는 주석을 참고하라.
+        self.pieces.append("&lt;!--%(text)s--&gt;" % locals())
+
+    def handle_pi(self, text):             
+        # 처리 지시어마다 호출됨. 예, &lt;?instruction&gt;
+        # 원래 처리 지시어를 재구성한다.
+        self.pieces.append("&lt;?%(text)s&gt;" % locals())
+
+    def handle_decl(self, text):
+        # 존재한다면, DOCTYPE에 대하여 호출됨. 예,
+        # &lt;!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        #     "http://www.w3.org/TR/html4/loose.dtd"&gt;
+        # 원래 DOCTYPE을 재구성한다
+        self.pieces.append("&lt;!%(text)s&gt;" % locals())
+
+    def output(self):              
+        """처리된 HTML을 문자열 하나로 돌려준다"""
+        return "".join(self.pieces)</pre></div>
+               <div class="example"><a name="d0e19707"></a><h3 class="title">예제&nbsp;8.2.&nbsp;<tt class="filename">dialect.py</tt></h3><pre class="programlisting">
+import re
+from BaseHTMLProcessor import BaseHTMLProcessor
+
+class Dialectizer(BaseHTMLProcessor):
+    subs = ()
+
+    def reset(self):
+        # 확장 (조상의 __init__ 메쏘드로부터 호출된다)
+        # 모든 데이터 속성을 초기화한다.
+        self.verbatim = 0
+        BaseHTMLProcessor.reset(self)
+
+    def start_pre(self, attrs):            
+        # HTML 소스에서 &lt;pre&gt; 태그마다 호출됨.
+        # verbatim 모드 횟수를 증가시키고, 평소처럼 태그를 처리한다.
+        self.verbatim += 1                 
+        self.unknown_starttag("pre", attrs)
+
+    def end_pre(self):                     
+        # HTML 소스에서 &lt;/pre&gt; 태그마다 호출됨.
+        # verbatim 모드 횟수를 감소시킨다.
+        self.unknown_endtag("pre")         
+        self.verbatim -= 1                 
+
+    def handle_data(self, text):                                        
+        # 오버라이드한다.
+        # HTML 소스에서 텍스트 블록마다 호출됨.
+        # verbatim 모드에 있다면, 텍스트를 그대로 저장한다;
+        # 그렇지 않으면 순서대로 교체하면서 텍스트를 처리한다.
+        self.pieces.append(self.verbatim and text or self.process(text))
+
+    def process(self, text):
+        # handle_data으로부터 호출된다.
+        # 일련의 정규 표현식 교체를 수행함으로써 텍스트 블록을 처리한다.
+        # (실제로 교체하는 일은 자손에 정의된다)
+        for fromPattern, toPattern in self.subs:
+            text = re.sub(fromPattern, toPattern, text)
+        return text
+
+class ChefDialectizer(Dialectizer):
+    """HTML을 스웨덴 주방장식-화법으로 변환한다.
+    
+    다음에 기반함 chef.x, copyright (c) 1992, 1993 John Hagerman
+    """
+    subs = ((r'a([nu])', r'u\1'),
+            (r'A([nu])', r'U\1'),
+            (r'a\B', r'e'),
+            (r'A\B', r'E'),
+            (r'en\b', r'ee'),
+            (r'\Bew', r'oo'),
+            (r'\Be\b', r'e-a'),
+            (r'\be', r'i'),
+            (r'\bE', r'I'),
+            (r'\Bf', r'ff'),
+            (r'\Bir', r'ur'),
+            (r'(\w*?)i(\w*?)$', r'\1ee\2'),
+            (r'\bow', r'oo'),
+            (r'\bo', r'oo'),
+            (r'\bO', r'Oo'),
+            (r'the', r'zee'),
+            (r'The', r'Zee'),
+            (r'th\b', r't'),
+            (r'\Btion', r'shun'),
+            (r'\Bu', r'oo'),
+            (r'\BU', r'Oo'),
+            (r'v', r'f'),
+            (r'V', r'F'),
+            (r'w', r'w'),
+            (r'W', r'W'),
+            (r'([a-z])[.]', r'\1.  Bork Bork Bork!'))
+
+class FuddDialectizer(Dialectizer):
+    """HTML을 엘머 퍼드(Elmer Fudd)-화법으로 변환한다"""
+    subs = ((r'[rl]', r'w'),
+            (r'qu', r'qw'),
+            (r'th\b', r'f'),
+            (r'th', r'd'),
+            (r'n[.]', r'n, uh-hah-hah-hah.'))
+
+class OldeDialectizer(Dialectizer):
+    """HTML을 중세 영어를 흉내내도록 변환한다"""
+    subs = ((r'i([bcdfghjklmnpqrstvwxyz])e\b', r'y\1'),
+            (r'i([bcdfghjklmnpqrstvwxyz])e', r'y\1\1e'),
+            (r'ick\b', r'yk'),
+            (r'ia([bcdfghjklmnpqrstvwxyz])', r'e\1e'),
+            (r'e[ea]([bcdfghjklmnpqrstvwxyz])', r'e\1e'),
+            (r'([bcdfghjklmnpqrstvwxyz])y', r'\1ee'),
+            (r'([bcdfghjklmnpqrstvwxyz])er', r'\1re'),
+            (r'([aeiou])re\b', r'\1r'),
+            (r'ia([bcdfghjklmnpqrstvwxyz])', r'i\1e'),
+            (r'tion\b', r'cioun'),
+            (r'ion\b', r'ioun'),
+            (r'aid', r'ayde'),
+            (r'ai', r'ey'),
+            (r'ay\b', r'y'),
+            (r'ay', r'ey'),
+            (r'ant', r'aunt'),
+            (r'ea', r'ee'),
+            (r'oa', r'oo'),
+            (r'ue', r'e'),
+            (r'oe', r'o'),
+            (r'ou', r'ow'),
+            (r'ow', r'ou'),
+            (r'\bhe', r'hi'),
+            (r've\b', r'veth'),
+            (r'se\b', r'e'),
+            (r"'s\b", r'es'),
+            (r'ic\b', r'ick'),
+            (r'ics\b', r'icc'),
+            (r'ical\b', r'ick'),
+            (r'tle\b', r'til'),
+            (r'll\b', r'l'),
+            (r'ould\b', r'olde'),
+            (r'own\b', r'oune'),
+            (r'un\b', r'onne'),
+            (r'rry\b', r'rye'),
+            (r'est\b', r'este'),
+            (r'pt\b', r'pte'),
+            (r'th\b', r'the'),
+            (r'ch\b', r'che'),
+            (r'ss\b', r'sse'),
+            (r'([wybdp])\b', r'\1e'),
+            (r'([rnt])\b', r'\1\1e'),
+            (r'from', r'fro'),
+            (r'when', r'whan'))
+
+def translate(url, dialectName="chef"):
+    """URL을 가져와서 사투리로 번역한다.
+    
+    dialect in ("chef", "fudd", "olde")"""
+    import urllib                      
+    sock = urllib.urlopen(url)         
+    htmlSource = sock.read()           
+    sock.close()                       
+    parserName = "%sDialectizer" % dialectName.capitalize()
+    parserClass = globals()[parserName]                    
+    parser = parserClass()                                 
+    parser.feed(htmlSource)
+    parser.close()         
+    return parser.output() 
+
+def test(url):
+    """URL에 대하여 모든 사투리를 테스트한다"""
+    for dialect in ("chef", "fudd", "olde"):
+        outfile = "%s.html" % dialect
+        fsock = open(outfile, "wb")
+        fsock.write(translate(url, dialect))
+        fsock.close()
+        import webbrowser
+        webbrowser.open_new(outfile)
+
+if __name__ == "__main__":
+    test("http://diveintopython.org/odbchelper_list.html")</pre></div>
+               <div class="example"><a name="d0e19713"></a><h3 class="title">예제&nbsp;8.3.&nbsp;<tt class="filename">dialect.py</tt>의 출력</h3>
+                  <p>이 스크립트를 실행하면 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.list" title="3.2.&nbsp;Introducing Lists">섹션&nbsp;3.2, &#8220;리스트 소개&#8221;</a>가 (머펫(The Muppets) 쇼의) <a href="http://coreapython.hosting.paran.com/native_data_types/chef.html">스웨덴-주방장(Swedish Chef)식-화법</a>과 (벅스 버니(Bugs Bunny ) 만화의) <a href="http://coreapython.hosting.paran.com/native_data_types/fudd.html">엘머-퍼드(Elmer Fudd)식-화법</a> 그리고 (초서(Chaucer)의 <i class="citetitle">캔터베리 이야기</i>에 느슨하게 기반한) <a href="http://coreapython.hosting.paran.com/native_data_types/olde.html">중세 영어식</a>으로 번역됩니다. 출력 페이지의 <span class="acronym">HTML</span> 소스를 보면 모든 <span class="acronym">HTML</span> 태그와 속성이 그대로인 것을 알 수 있습니다. 그러나 태그 사이에 있는 텍스트는 흉내언어로 &#8220;<span class="quote">번역되어 있습니다</span>&#8221;.  더 자세히 들여다 보면 실제로 제목과 문단만 번역되었습니다; 코드 목록과 화면 예제는 그대로입니다.
+                  </p><pre class="programlisting">
+&lt;div class="abstract"&gt;
+&lt;p&gt;Lists awe &lt;span class="application"&gt;Pydon&lt;/span&gt;'s wowkhowse datatype.
+If youw onwy expewience wif wists is awways in
+&lt;span class="application"&gt;Visuaw Basic&lt;/span&gt; ow (God fowbid) de datastowe
+in &lt;span class="application"&gt;Powewbuiwdew&lt;/span&gt;, bwace youwsewf fow
+&lt;span class="application"&gt;Pydon&lt;/span&gt; wists.&lt;/p&gt;
+&lt;/div&gt;
+</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.sgmllib"></a>8.2.&nbsp;<tt class="filename">sgmllib.py</tt> 소개</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="acronym">HTML</span> 처리는 세 단계로 나뉩니다: <span class="acronym">HTML</span>을 구성요소로 나누는 것과 그 조각을 처리하는 것 그리고 다시 그 조각을 <span class="acronym">HTML</span> 로 재구성하는 단계로 나뉩니다.  첫 단계는 표준  <span class="application">파이썬</span> 라이브러리에 있는 <tt class="filename">sgmllib.py</tt>로 완수합니다.
+                  </p>
+               </div>
+               <p>이 장을 이해하는 열쇠는 <span class="acronym">HTML</span>이 단순한 텍스트가 아니라 구조가 있는 텍스트라는 사실을 깨닫는 것입니다.  구조는 대략 계통적인 시작 태그와 끝 태그로부터 파생됩니다. 보통 이런 식으로 <span class="acronym">HTML</span>을 사용하지 않습니다; 텍스트 편집기에서 <span class="emphasis"><em>텍스트를</em></span> 보면서 작업하거나 또는 웹 브라우저나 웹 저작 도구에서 <span class="emphasis"><em>시각적으로</em></span> 보면서 작업합니다.  <tt class="filename">sgmllib.py</tt>는 <span class="acronym">HTML</span>을 <span class="emphasis"><em>구조적으로</em></span> 보여줍니다.
+               </p>
+               <p><tt class="filename">sgmllib.py</tt>에는 중요한 클래스가 하나 있습니다: <tt class="classname">SGMLParser</tt>가 그것입니다.  <tt class="classname">SGMLParser</tt>는 <span class="acronym">HTML</span>을 시작 태그와 끝 태그 같은 유용한 조각들로 분해합니다. 데이터를 유용한 조각으로 분해하자 마자, 무엇이 발견되었는가에 따라 메쏘드를 호출합니다.  해석기를 사용하기 위하여 <tt class="classname">SGMLParser</tt> 클래스를 하부클래스화하고 이런 메쏘드를 오버라이드합니다.  이것이 바로  <span class="acronym">HTML</span>을 <span class="emphasis"><em>구조적으로</em></span> 보여준다고 언급했을 때의 의미입니다: <span class="acronym">HTML</span>의 구조는 일련의 메쏘드 호출을 결정하고  각 메쏘드에 건넬 인자를 결정합니다.
+               </p>
+               <p><tt class="classname">SGMLParser</tt>는 <span class="acronym">HTML</span>을 여덟가지 데이터로 나누고, 각각에 대하여 따로따로 메쏘드를 호출합니다:
+               </p>
+               <div class="variablelist">
+                  <dl>
+                     <dt><span class="term">시작 태그</span></dt>
+                     <dd>블록을 시작하는 <span class="acronym">HTML</span> 태그로서, <tt class="sgmltag-element">&lt;html&gt;</tt>, <tt class="sgmltag-element">&lt;head&gt;</tt>, <tt class="sgmltag-element">&lt;body&gt;</tt>, 또는 <tt class="sgmltag-element">&lt;pre&gt;</tt> 같은 태그가 있습니다. 또는 단독 태그로서 <tt class="sgmltag-element">&lt;br&gt;</tt>이나 <tt class="sgmltag-element">&lt;img&gt;</tt> 같은 태그가 있습니다.  
+					 
+					 
+					 <i class="replaceable"><tt>tagname</tt></i>이 시작태그이면 <tt class="classname">SGMLParser</tt> 는 <tt class="function">start_<i class="replaceable"><tt>tagname</tt></i></tt>나 <tt class="function">do_<i class="replaceable"><tt>tagname</tt></i></tt>라는 메쏘드를 찾습니다.  예를 들어 <tt class="sgmltag-element">&lt;pre&gt;</tt> 태그를 발견하면 <tt class="function">start_pre</tt>나 <tt class="function">do_pre</tt> 메쏘드를 찾습니다.  발견하면 <tt class="classname">SGMLParser</tt>는 그 태그의 속성을 가지고 이 메쏘드를 호출합니다; 그렇지 않으면 그 태그의 이름과 속성 리스트를 가지고 <tt class="function">unknown_starttag</tt>를 호출합니다.
+                     </dd>
+                     <dt><span class="term">끝 태그</span></dt>
+                     <dd>블록을 끝내는 <span class="acronym">HTML</span> 태그로서 <tt class="sgmltag-element">&lt;/html&gt;</tt>, <tt class="sgmltag-element">&lt;/head&gt;</tt>, <tt class="sgmltag-element">&lt;/body&gt;</tt>, 또는 <tt class="sgmltag-element">&lt;/pre&gt;</tt>과 같은 태그가 있습니다.  끝 태그를 발견하면 <tt class="classname">SGMLParser</tt>는 <tt class="function">end_<i class="replaceable"><tt>tagname</tt></i></tt>라는 메쏘드를 찾습니다. 발견하면 <tt class="classname">SGMLParser</tt>는 이 메쏘드를 호출합니다. 그렇지 않으면 그 태그 이름을 가지고 <tt class="function">unknown_endtag</tt>를 호출합니다.
+                     </dd>
+                     <dt><span class="term">문자 참조</span></dt>
+                     <dd>십진수 또는 십육진수로 참조되는 피신 문자로서 <tt class="literal">&amp;#160;</tt> 같은 문자가 있습니다.  발견하면 <tt class="classname">SGMLParser</tt>는 지정한 십육진 또는 십진 문자에 상응하는 텍스트를 가지고 <tt class="function">handle_charref</tt>를 호출합니다.
+                     </dd>
+                     <dt><span class="term">개체 참조</span></dt>
+                     <dd> <tt class="literal">&amp;copy;</tt> 같은 <span class="acronym">HTML</span> 개체입니다. 발견되면 <tt class="classname">SGMLParser</tt>는 <span class="acronym">HTML</span> 개체의 이름을 가지고 <tt class="function">handle_entityref</tt>를 호출합니다.
+                     </dd>
+                     <dt><span class="term">주석</span></dt>
+                     <dd><span class="acronym">HTML</span> 주석으로서, <tt class="literal">&lt;!-- ... --&gt;</tt>로 둘러싸여 있습니다. 발견되면 <tt class="classname">SGMLParser</tt>는 주석의 몸체를 가지고 <tt class="function">handle_comment</tt>를 호출합니다.
+                     </dd>
+                     <dt><span class="term">처리 지시어</span></dt>
+                     <dd><span class="acronym">HTML</span> 처리 지시어로서 <tt class="literal">&lt;? ... &gt;</tt>로 둘러 싸여 있습니다. 발견되면 <tt class="classname">SGMLParser</tt>는 처리 지시어 몸체를 가지고 <tt class="function">handle_pi</tt>를 호출합니다.
+                     </dd>
+                     <dt><span class="term">선언</span></dt>
+                     <dd><tt class="sgmltag-element">DOCTYPE</tt> 같은 <span class="acronym">HTML</span> 선언으로서 <tt class="literal">&lt;! ... &gt;</tt>로 둘러싸여 있습니다. 발견되면 <tt class="classname">SGMLParser</tt>는 선언의 몸체를 가지고 <tt class="function">handle_decl</tt>를 호출합니다.
+                     </dd>
+                     <dt><span class="term">텍스트 데이터</span></dt>
+                     <dd>텍스트 블록. 일곱가지 범주에 맞지 않는 모든 것. 발견되면 <tt class="classname">SGMLParser</tt>는 텍스트를 가지고 <tt class="function">handle_data</tt>를 호출합니다.
+                     </dd>
+                  </dl>
+               </div><a name="d0e20023"></a><table class="important" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundImportant">★</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬</span> 2.0에 버그가 있었습니다. <tt class="classname">SGMLParser</tt>가 선언을 전혀 인식하지 않았었습니다 (<tt class="function">handle_decl</tt>가 호출되지 않았습니다). 즉 <tt class="sgmltag-element">DOCTYPE</tt>이 조용히 무시된다는 뜻입니다. 이 버그는 <span class="application">파이썬</span> 2.1에서 수정되었습니다.
+                     </td>
+                  </tr>
+               </table>
+               <p><tt class="filename">sgmllib.py</tt>에는 이를 보여주는 테스트 모듬이 따라옵니다. <tt class="filename">sgmllib.py</tt>를 실행하고, 명령줄에서 <span class="acronym">HTML</span> 파일의 이름을 건네면 해석을 해가면서 바로바로 그 태그와 기타 요소들을 인쇄합니다.  <tt class="classname">SGMLParser</tt> 클래스를 상속받고 <tt class="function">unknown_starttag</tt>와 <tt class="function">unknown_endtag</tt> 그리고 <tt class="function">handle_data</tt>와 단순히 자신의 인자를 인쇄할 뿐인 기타 메쏘드를 정의하여 이렇게 합니다.
+               </p><a name="tip.commandline.windows"></a><table class="tip" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundTip">√</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">윈도우즈의 <span class="application">ActivePython</span> <span class="acronym">IDE</span>라면 명령어 줄 인자를 &#8220;<span class="quote">Run script</span>&#8221; 대화상자에서 지정할 수 있습니다. 여러 인자는 공백으로 가릅니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="d0e20080"></a><h3 class="title">예제&nbsp;8.4.&nbsp; <tt class="filename">sgmllib.py</tt>의 샘플 테스트</h3>
+                  <p>다음은 이 책의 <span class="acronym">HTML</span> 버전에서 목차를 뽑아 온 것입니다. 물론 여러분의 경로는 다를 것입니다.  (이 책의 <span class="acronym">HTML</span> 버전을 내려받지 못했다면 <a href="http://diveintopython.org/">http://diveintopython.org/</a>에서 내려받을 수 있습니다.)
+                  </p><pre class="screen">
+<tt class="prompt">c:\python23\lib&gt;</tt> <span class="userinput">type "c:\downloads\diveintopython\html\toc\index.html"</span>
+<tt class="literal">
+&lt;!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"&gt;
+&lt;html lang="en"&gt;
+   &lt;head&gt;
+      &lt;meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"&gt;
+   
+      &lt;title&gt;Dive Into Python&lt;/title&gt;
+      &lt;link rel="stylesheet" href="diveintopython.css" type="text/css"&gt;
+
+... 간결하게 하기 위해 이하 생략함 ...
+</tt></pre>
+
+<p>
+<tt class="filename">sgmllib.py</tt>의 테스트 모듬을 통하여 실행하면 다음과 같이 출력됩니다:
+                  </p><pre class="screen">
+<tt class="prompt">c:\python23\lib&gt;</tt> <span class="userinput">python sgmllib.py "c:\downloads\diveintopython\html\toc\index.html"</span>
+<span class="computeroutput">data: '\n\n'
+start tag: &lt;html lang="en" &gt;
+data: '\n   '
+start tag: &lt;head&gt;
+data: '\n      '
+start tag: &lt;meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" &gt;
+data: '\n   \n      '
+start tag: &lt;title&gt;
+data: 'Dive Into Python'
+end tag: &lt;/title&gt;
+data: '\n      '
+start tag: &lt;link rel="stylesheet" href="diveintopython.css" type="text/css" &gt;
+data: '\n      '
+
+... rest of output omitted for brevity ...
+</span></pre></div>
+               <p>앞으로 다음과 같은 순서로 다루어 보겠습니다:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><tt class="classname">SGMLParser</tt>를 상속받아 <span class="acronym">HTML</span> 문서에서 흥미로운 데이터를 추출하는 클래스를 만든다.
+                     </li>
+                     <li><tt class="classname">SGMLParser</tt>를 상속받아 <tt class="classname">BaseHTMLProcessor</tt>를 만든다. 이는 여덟개의 처리자 메쏘드를 모두 덮어쓰고 그렇게 덮어쓴 메쏘드를 사용하여 조각을 모아 원래의 <span class="acronym">HTML</span>을 재구성한다.
+                     </li>
+                     <li><tt class="classname">BaseHTMLProcessor</tt>을 상속받아 <tt class="classname">Dialectizer</tt>를 만든다. 이는 특정한 <span class="acronym">HTML</span> 태그를 특별히 처리하기 위하여 몇가지 메쏘드를 추가하고, <tt class="function">handle_data</tt> 메쏘드를 오버라이드하여 <span class="acronym">HTML</span> 태그 사이의 텍스트 블록을 처리할 작업틀을 제공한다.
+                     </li>
+                     <li><tt class="classname">Dialectizer</tt>를 상속받아 <tt class="function">Dialectizer.handle_data</tt>가 사용할 텍스트 처리 규칙을 정의한 클래스를 만든다.
+                     </li>
+                     <li><tt class="systemitem">http://diveintopython.org/</tt>로부터 실제 웹 페이지를 가져와 처리할 테스트 모듬을 작성한다.
+                     </li>
+                  </ul>
+               </div>
+               <p>앞으로 <tt class="function">locals</tt>와 <tt class="function">globals</tt> 그리고 사전-기반의 문자열 형식화를 배웁니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.extract"></a>8.3.&nbsp;<span class="acronym">HTML</span> 문서에서 데이터 추출하는 법</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="acronym">HTML</span> 문서로부터 데이터를 추출하려면 <tt class="classname">SGMLParser</tt> 클래스를 상속받아, 잡고싶은 각 개체 또는 각 태그에 대하여 메쏘드를 정의합니다.
+                  </p>
+               </div>
+               <p>데이터를 <span class="acronym">HTML</span> 문서로부터 추출하는 첫 단계는 <span class="acronym">HTML</span>을 얻는 것입니다. <span class="acronym">HTML</span>이 하드 디스크에 있다면 <a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.files" title="6.2.&nbsp;Working with File Objects">파일 함수</a>를 사용하여 읽을 수 있지만, 진짜 재미는 살아있는 웹 페이지로부터 <span class="acronym">HTML</span>을 얻을 때 시작됩니다.
+               </p>
+               <div class="example"><a name="dialect.extract.urllib"></a><h3 class="title">예제&nbsp;8.5.&nbsp;<tt class="filename">urllib</tt> 소개</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import urllib</span>                                       <a name="dialect.extract.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">sock = urllib.urlopen("http://diveintopython.org/")</span> <a name="dialect.extract.1.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">htmlSource = sock.read()</span>                            <a name="dialect.extract.1.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">sock.close()</span>                                        <a name="dialect.extract.1.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print htmlSource</span>                                    <a name="dialect.extract.1.5"></a><span class="round">⑤</span>
+<span class="computeroutput">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;&lt;html&gt;&lt;head&gt;
+      &lt;meta http-equiv='Content-Type' content='text/html; charset=ISO-8859-1'&gt;
+   &lt;title&gt;Dive Into Python&lt;/title&gt;
+&lt;link rel='stylesheet' href='diveintopython.css' type='text/css'&gt;
+&lt;link rev='made' href='mailto:mark@diveintopython.org'&gt;
+&lt;meta name='keywords' content='Python, Dive Into Python, tutorial, object-oriented, programming'&gt;
+&lt;meta name='description' content='a free Python tutorial for experienced programmers'&gt;
+&lt;/head&gt;
+&lt;body bgcolor='white' text='black' link='#0000FF' vlink='#840084' alink='#0000FF'&gt;
+&lt;table cellpadding='0' cellspacing='0' border='0' width='100%'&gt;
+&lt;tr&gt;&lt;td class='header' width='1%' valign='top'&gt;diveintopython.org&lt;/td&gt;
+&lt;td width='99%' align='right'&gt;&lt;hr size='1' noshade&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td class='tagline' colspan='2'&gt;Python&amp;nbsp;for&amp;nbsp;experienced&amp;nbsp;programmers&lt;/td&gt;&lt;/tr&gt;</span>
+
+[...이하 생략...]</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">urllib</tt> 모듈은 표준 <span class="application">파이썬</span> 라이브러리에 포함되어 있습니다. 이 모듈에는 (주로 웹 페이지인) 인터넷-기반의 <span class="acronym">URL</span>로부터 실제로 데이터를 열람하고  정보를 얻는 함수들이 들어 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">가장 쉽게 <tt class="filename">urllib</tt>을 사용하는 방법은<tt class="function">urlopen</tt> 함수를 사용하여 웹 페이지의 전체 텍스트를 열람하는 것입니다. <span class="acronym">URL</span>을 여는 일은 <a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.files" title="6.2.&nbsp;Working with File Objects">파일을 여는 것과 똑 같습니다</a>. <tt class="function">urlopen</tt>의 반환 값은 파일-류의 객체이며, 이는 파일 객체와 똑 같은 메쏘드들을 갖추고 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">urlopen</tt>이 돌려준 파일류의 객체를 다루는 가장 간단한 방법은 <tt class="function">read</tt>인데, 이 메쏘드는 <span class="acronym">HTML</span> 웹 페이지의 전체 텍스트를 한-개짜리 문자열로 읽습니다. 또한 <tt class="function">readlines</tt>도 지원하는데, 이는 텍스트를 한줄 한줄 리스트로 읽습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">객체 처리 작업이 끝나면 반드시 다른 보통의 파일 객체처럼 닫으세요.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 완벽하게 <tt class="systemitem">http://diveintopython.org/</tt> <span class="acronym">HTML</span> 홈페이지를 문자열로 확보하였고, 해석할 준비가 되었습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="dialect.extract.links"></a><h3 class="title">예제&nbsp;8.6.&nbsp;<tt class="filename">urllister.py</tt> 소개</h3>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">예제</a>를 내려 받을 수 있습니다.
+                  </p><pre class="programlisting">
+from sgmllib import SGMLParser
+
+class URLLister(SGMLParser):
+    def reset(self):                              <a name="dialect.extract.2.1"></a><span class="round">①</span>
+        SGMLParser.reset(self)
+        self.urls = []
+
+    def start_a(self, attrs):                     <a name="dialect.extract.2.2"></a><span class="round">②</span>
+        href = [v for k, v in attrs if k=='href'] <a name="dialect.extract.2.3"></a><span class="round">③</span> <a name="dialect.extract.2.4"></a><span class="round">④</span>
+        if href:
+            self.urls.extend(href)</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">reset</tt>은 <tt class="classname">SGMLParser</tt> <tt class="function">__init__</tt> 메쏘드에서 호출하며, 해석기의 실체가 만들어질 때 한번 손수 호출할 수도 있습니다. 그래서 초기화가 필요하다면 <tt class="function">reset</tt>에서 초기화해야지, <tt class="function">__init__</tt>에서 초기화하지 마세요. 그래야 누군가 해석기 실체를 재사용할 때 적절하게 다시-초기화될 것입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="sgmltag-element">&lt;a&gt;</tt> 태그가 발견될 때마다 <tt class="classname">SGMLParser</tt>에 의하여 <tt class="function">start_a</tt>가 호출됩니다. 태그에는 <tt class="literal">href</tt> 속성이나, 예를 들어 <tt class="literal">name</tt>이나 <tt class="literal">title</tt> 같은 기타 속성들이 담길 수 있습니다.  
+						   
+						   <tt class="varname">attrs</tt> 매개변수는 터플로 구성된 리스트입니다 <tt class="literal">[(<i class="replaceable">attribute</i>, <i class="replaceable">value</i>), (<i class="replaceable">attribute</i>, <i class="replaceable">value</i>), ...]</tt>.  
+						   
+						   그렇지 않으면 그냥 <tt class="sgmltag-element">&lt;a&gt;</tt>가 되는데, (쓸모가 없더라도) 유효한 <span class="acronym">HTML</span> 태그로서, 이 경우 <tt class="varname">attrs</tt>는 빈 리스트가 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">간단한 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.multiassign" title="3.4.2.&nbsp;Assigning Multiple Values at Once">다중-변수 할당</a> <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.map" title="3.6.&nbsp;Mapping Lists">지능형 리스트</a>로 이 <tt class="sgmltag-element">&lt;a&gt;</tt> 태그에 <tt class="literal">href</tt> 속성이 있는지 알아볼 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">k=='href'</tt> 같은 문자열 비교는 언제나 대소문자에-민감하지만, 이 경우에는 안전합니다. <B>그 이유는 <tt class="classname">SGMLParser</tt>가 <tt class="varname">attrs</tt>를 구성하면서 속성 이름을 소문자로 변환하기 때문입니다</B>.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="dialect.feed.example"></a><h3 class="title">예제&nbsp;8.7.&nbsp;<tt class="filename">urllister.py</tt> 사용법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import urllib, urllister</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">usock = urllib.urlopen("http://diveintopython.org/")</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">parser = urllister.URLLister()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">parser.feed(usock.read())</span>         <a name="dialect.extract.3.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">usock.close()</span>                     <a name="dialect.extract.3.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">parser.close()</span>                    <a name="dialect.extract.3.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">for url in parser.urls: print url</span> <a name="dialect.extract.3.4"></a><span class="round">④</span>
+<span class="computeroutput">toc/index.html
+#download
+#languages
+toc/index.html
+appendix/history.html
+download/diveintopython-html-5.0.zip
+download/diveintopython-pdf-5.0.zip
+download/diveintopython-word-5.0.zip
+download/diveintopython-text-5.0.zip
+download/diveintopython-html-flat-5.0.zip
+download/diveintopython-xml-5.0.zip
+download/diveintopython-common-5.0.zip
+</span>
+
+... 나머지 출력은 깨끗하게 생략함 ...</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">SGMLParser</tt>에 정의된 <tt class="function">feed</tt> 메쏘드를 불러서 <span class="acronym">HTML</span>을 해석기에 먹입니다.<sup>[<a name="d0e20503" href="#ftn.d0e20503">1</a>]</sup> 이 메쏘드는 <tt class="function">usock.read()</tt>가 돌려주는 문자열을 받습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">파일과 마찬가지로, 작업이 끝나면 바로  <span class="acronym">URL</span> 객체를 닫으세요.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">해석기 객체도 역시 닫아야 하지만, 그 이유는 다릅니다. 모든 데이터를 읽었고, 그것을 해석기에 먹였지만, <tt class="function">feed</tt> 메쏘드가 실제로 주어진 <span class="acronym">HTML</span>을 모두 처리한다는 보장은 없습니다; 데이터를 버퍼에 담아두고, 더 들어오기를 기다릴 수도 있습니다.  반드시 <tt class="function">close</tt>를 호출하여 버퍼를 비우고 모든 것이 완전히 해석되도록 강제해야 합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.extract.3.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">일단 해석기가 닫히면(<tt class="function">close</tt>), 해석작업은 완료되고, <tt class="varname">parser.urls</tt>에 담긴 리스트에 <span class="acronym">HTML</span> 문서 안에 있는 모든 <span class="acronym">URL</span> 링크가 담깁니다.  (여러분은 출력이 다를 수 있습니다. 내려받기 링크가 이 글을 읽을 때 쯤 갱신되었다면 말입니다.)
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.basehtml"></a>8.4.&nbsp;<tt class="filename">BaseHTMLProcessor.py</tt> 해석기 소개</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><tt class="classname">SGMLParser</tt>는 자체로는 아무것도 산출하지 못합니다. 해석하고 또 해석하면서, 자신이 발견한 흥미로운 것들에 대하여 메쏘드를 호출할 뿐입니다. 그러나 그 메쏘드들은 아무 것도 하지 않습니다. <tt class="classname">SGMLParser</tt>는 <span class="acronym">HTML</span> <span class="emphasis"><em>소비자</em></span>입니다: <span class="acronym">HTML</span>을 받아 구조화된 조각으로 쪼갭니다.  <a href="#dialect.extract" title="8.3.&nbsp;Extracting data from HTML documents">앞 섹션</a>에서 보셨듯이, <tt class="classname">SGMLParser</tt>을 상속받아 특정 태그를 잡아 웹 페이지 있는 모든 링크 리스트 같은 유용한 것들을 생산하는 클래스를 정의합니다. 이제 한 걸음 더 나아가 보겠습니다. <tt class="classname">SGMLParser</tt>가 던져주는 모든 것을 잡아 완전한 <span class="acronym">HTML</span> 문서로 재구성하는 클래스를 정의해 보겠습니다. 기술적 관점에서, 이 클래스는 <span class="acronym">HTML</span> <span class="emphasis"><em>생산자</em></span>입니다.
+                  </p>
+               </div>
+               <p><tt class="classname">BaseHTMLProcessor</tt>는 <tt class="classname">SGMLParser</tt>를 상속받아 여덟 개의 핵심 처리자 메쏘드를 모두 제공합니다: <tt class="function">unknown_starttag</tt>, <tt class="function">unknown_endtag</tt>, <tt class="function">handle_charref</tt>, <tt class="function">handle_entityref</tt>, <tt class="function">handle_comment</tt>, <tt class="function">handle_pi</tt>, <tt class="function">handle_decl</tt>, 그리고 <tt class="function">handle_data</tt>.
+               </p>
+               <div class="example"><a name="dialect.basehtml.intro"></a><h3 class="title">예제&nbsp;8.8.&nbsp;<tt class="classname">BaseHTMLProcessor</tt> 소개</h3><pre class="programlisting">
+class BaseHTMLProcessor(SGMLParser):
+    def reset(self):                        <a name="dialect.basehtml.1.1"></a><span class="round">①</span>
+        self.pieces = []
+        SGMLParser.reset(self)
+
+    def unknown_starttag(self, tag, attrs): <a name="dialect.basehtml.1.2"></a><span class="round">②</span>
+        strattrs = "".join([' %s="%s"' % (key, value) for key, value in attrs])
+        self.pieces.append("&lt;%(tag)s%(strattrs)s&gt;" % locals())
+
+    def unknown_endtag(self, tag):          <a name="dialect.basehtml.1.3"></a><span class="round">③</span>
+        self.pieces.append("&lt;/%(tag)s&gt;" % locals())
+
+    def handle_charref(self, ref):          <a name="dialect.basehtml.1.4"></a><span class="round">④</span>
+        self.pieces.append("&amp;#%(ref)s;" % locals())
+
+    def handle_entityref(self, ref):        <a name="dialect.basehtml.1.5"></a><span class="round">⑤</span>
+        self.pieces.append("&amp;%(ref)s" % locals())
+        if htmlentitydefs.entitydefs.has_key(ref):
+            self.pieces.append(";")
+
+    def handle_data(self, text):            <a name="dialect.basehtml.1.6"></a><span class="round">⑥</span>
+        self.pieces.append(text)
+
+    def handle_comment(self, text):         <a name="dialect.basehtml.1.7"></a><span class="round">⑦</span>
+        self.pieces.append("&lt;!--%(text)s--&gt;" % locals())
+
+    def handle_pi(self, text):              <a name="dialect.basehtml.1.8"></a><span class="round">⑧</span>
+        self.pieces.append("&lt;?%(text)s&gt;" % locals())
+
+    def handle_decl(self, text):
+        self.pieces.append("&lt;!%(text)s&gt;" % locals())</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">SGMLParser.__init__</tt>이 호출하는 <tt class="function">reset</tt> 메쏘드는 <tt class="varname">self.pieces</tt>를 빈 리스트로 초기화한 후에 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.init.code.example" title="Example&nbsp;5.6.&nbsp;Coding the FileInfo Class">조상 메쏘드를 호출합니다</a>.  <tt class="varname">self.pieces</tt>는 구성하려고 하는 <span class="acronym">HTML</span> 문서의 조각들을 보유할 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.userdict.init.example" title="Example&nbsp;5.9.&nbsp;Defining the UserDict Class">데이터 속성</a>입니다. 각 처리자 메쏘드는 <tt class="classname">SGMLParser</tt>가 해석한 <span class="acronym">HTML</span>을 재구성합니다. 그리고 각 메소드는 그 문자열을 <tt class="varname">self.pieces</tt>에 추가합니다. <tt class="varname">self.pieces</tt>는 리스트임을 주목하세요. 문자열로 정의하고 그냥 그 뒤에 각 조각을 덧붙이고 싶을 것입니다. 그래도 되지만, <span class="application">파이썬</span>에서는 리스트로 다루는 것이 훨씬 더 효율적입니다.<sup>[<a name="d0e20702" href="#ftn.d0e20702">2</a>]</sup></td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">BaseHTMLProcessor</tt>에는 특정 태그에 대하여 (<a href="#dialect.extract.links" title="Example&nbsp;8.6.&nbsp;Introducing urllister.py"><tt class="classname">URLLister</tt></a>에서의 <tt class="function">start_a</tt> 메쏘드 같은) 아무 메쏘드도 정의되어 있지 않으므로, <tt class="classname">SGMLParser</tt>는 시작 태그면 모두 <tt class="function">unknown_starttag</tt>를 호출합니다. 이 메쏘드는 그 태그(<tt class="varname">tag</tt>)와 속성 이름/값 쌍이 담긴 리스트(<tt class="varname">attrs</tt>)를 취해, 원래의 <span class="acronym">HTML</span>을 재구성하여, 그것을 <tt class="varname">self.pieces</tt>에 추가합니다.  여기에 있는 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.stringformatting" title="3.5.&nbsp;Formatting Strings">문자열 형식화</a>는 약간 이상합니다; (그리고 기묘하게 보이는 <tt class="function">locals</tt> 함수도) 이 장의의 후반부에 가면 이해가 되실겁니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">끝 태그를 재구성하는 일은 더 쉽습니다; 그냥 태그 이름을 취해 <tt class="literal">&lt;/...&gt;</tt> 괄호에 싸 넣으면 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">SGMLParser</tt>가 문자 참조를 발견하면 오직 그 참조점만 가지고 <tt class="function">handle_charref</tt>를 호출합니다. <span class="acronym">HTML</span> 문서에 참조 <tt class="literal">&amp;#160;</tt>이 있다면 <tt class="varname">ref</tt>는 <tt class="literal">160</tt>이 됩니다. 원래의 완벽한 문자 참조를 재구성하려면 그냥 <tt class="varname">ref</tt>를 <tt class="literal">&amp;#...;</tt> 문자에 싸 넣으면 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">개체 참조는 문자 참조와 비슷합니다. 그러나 해시 마크가 없습니다. 원래의 개체 참조를 재구성하려면 <tt class="varname">ref</tt>를 <tt class="literal">&amp;...;</tt> 문자에 싸 넣어야 합니다.  (박식한 독자 한 분이 지적하셨듯이, 실제로는 이 보다 약간 더 복잡합니다.  오직 어떤 표준 <span class="acronym">HTML</span> 개체만이 쌍반점으로 끝납니다; 비슷하게 보이는 다른 객체들은 그렇지 않습니다. 다행스럽게도, <span class="acronym">HTML</span> 개체의 표준 집합이 <tt class="filename">htmlentitydefs</tt>이라고 부르는 <span class="application">파이썬</span> 모듈에 있는 한 사전에 정의되어 있습니다. 그러므로 따로 또 <tt class="literal">if</tt> 서술문이 있습니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.1.6"><span class="round">⑥</span></a> 
+                           </td>
+                           <td valign="top" align="left">텍스트 블록은 그대로 <tt class="varname">self.pieces</tt>에 추가됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.1.7"><span class="round">⑦</span></a> 
+                           </td>
+                           <td valign="top" align="left"><span class="acronym">HTML</span> 주석은 <tt class="literal">&lt;!--...--&gt;</tt> 문자 안에 싸 넣습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.1.8"><span class="round">⑧</span></a> 
+                           </td>
+                           <td valign="top" align="left">처리 지시어는 <tt class="literal">&lt;?...&gt;</tt> 문자 안에 싸 넣습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="d0e20845"></a><table class="important" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundImportant">★</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="acronym">HTML</span> 규격에 의하면 (클라이언트-쪽 <span class="application">JavaScript</span> 같은) 모든 비-<span class="acronym">HTML</span> 요소들은 반드시 <span class="acronym">HTML</span> 주석으로 둘러 싸야 하지만, 모든 웹 페이지가 이 규칙을 적절하게 지키는 것은 아닙니다 (현대의 웹 브라우저라면 그렇게 하지 않더라도 관대하게 처리합니다).  <tt class="classname">BaseHTMLProcessor</tt>는 용서가 없습니다; 스크립트가 적절하게 임베드되지 않으면 마치 <span class="acronym">HTML</span>인 것처럼 해석해 버립니다. 예를 들어 스크립트에 '~보다 작다' 부호가 들어 있다면 <tt class="classname">SGMLParser</tt>는 태그와 속성을 발견했다고 오해를 할 수 있습니다.  <B><tt class="classname">SGMLParser</tt>는 언제나 태그와 속성 이름을 소문자로 변환하는데</B>, 이 때문에 스크립트가 깨질 수 있습니다. 그리고 <tt class="classname">BaseHTMLProcessor</tt>는 (원래 <span class="acronym">HTML</span> 문서가 홑 따옴표를 사용하거나 또는 아무것도 사용하지 않았을 지라도) 언제나 속성 값을 겹 따옴표로 둘러싸는데, 이 때문에 확실히 문서가 깨집니다. 언제나 <span class="acronym">HTML</span> 주석 안에 클라이언트-쪽 스크립트를 보호하세요.
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="dialect.output.example"></a><h3 class="title">예제&nbsp;8.9.&nbsp; <tt class="classname">BaseHTMLProcessor</tt> 출력&nbsp;
+                  </h3><pre class="programlisting">
+    def output(self):               <a name="dialect.basehtml.2.1"></a><span class="round">①</span>
+        """처리된 HTML을 한-개짜리 문자열로 돌려준다"""
+        return "".join(self.pieces) <a name="dialect.basehtml.2.2"></a><span class="round">②</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 메쏘드는 <tt class="classname">BaseHTMLProcessor</tt>에서 조상인 <tt class="classname">SGMLParser</tt> 메쏘드에 의하여 절대로 호출되지 않는 한가지 메쏘드입니다. 다른 처리자 메쏘드는 자신이 재구성한 <span class="acronym">HTML</span>을 <tt class="varname">self.pieces</tt>에 저장하므로, 이 함수는 그 조각들을 모두 하나의 문자열로 결합하는데 필요합니다.  앞서 지적하였듯이, <span class="application">파이썬</span>은 리스트를 잘 다루고 문자열은 별로 잘 못 다룹니다. 그래서 누군가 명시적으로 그렇게 해달라고 요청할 경우에만 완전한 문자열을 만듭니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">원하신다면 대신에 <tt class="filename">string</tt> 모듈의 <tt class="function">join</tt> 메쏘드를 사용해도 됩니다: <tt class="literal">string.join(self.pieces, "")</tt></td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="itemizedlist">
+                  <h3 class="title">더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.w3.org/">W3C</a>에서 <a href="http://www.w3.org/TR/REC-html40/charset.html#entities">문자 참조와 개체 참조</a>를 연구한다.
+                     </li>
+                     <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>는 <a href="http://www.python.org/doc/current/lib/module-htmlentitydefs.html"><tt class="filename">htmlentitydefs</tt> 모듈</a>이 정확하게 예상대로 작동할지 의심을 풀어준다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.locals"></a>8.5.&nbsp;<tt class="function">locals</tt> 그리고 <tt class="function">globals</tt></h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>잠시만 <span class="acronym">HTML</span> 처리를 벗어나서 어떻게 <span class="application">파이썬</span>이 변수를 처리하는지 언급하겠습니다.  <span class="application">파이썬</span>은 내장 함수로 <tt class="function">locals</tt>와 <tt class="function">globals</tt>가 있는데, 이를 사용하면 지역 변수와 전역 변수에 사전-기반의 접근을 할 수 있습니다. 
+                  </p>
+               </div>
+               <p>지역변수(<tt class="function">locals</tt>)를 기억하십니까?  여기에서 처음 그것을 보셨습니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    def unknown_starttag(self, tag, attrs):
+        strattrs = "".join([' %s="%s"' % (key, value) for key, value in attrs])
+        self.pieces.append("&lt;%(tag)s%(strattrs)s&gt;" % locals())
+</pre></div>
+               <p>아니, 기다리세요. 아직 <tt class="function">locals</tt>를 배울 수 없습니다. 먼저, 이름공간을 배워야 합니다. 따분한 주제이지만, 중요하니 주의를 기울이세요.
+               </p>
+               <p><span class="application">파이썬</span>은 이름공간이라고 부르는 것을 사용하여 변수들을 추적관리합니다. 이름공간은 키가 변수의 이름이고 값은 변수의 값인 사전과 똑 같습니다.  실제로, <span class="application">파이썬</span> 사전처럼 이름공간에 접근할 수 있습니다. 이는 잠시후에 보여 드리겠습니다.
+               </p>
+               <p><span class="application">파이썬</span> 프로그램에서 일정 지점에, 여러 이름공간을 사용할 수 있습니다. 각 함수는 자신만의 이름공간을 가지며 이를 지역 이름공간이라고 부르는데, 지역적으로 정의된 변수와 함수 인자를 비롯하여 함수의 변수를 추적관리 합니다. 각 모듈은 자신만의 이름공간을 가지며 이를 전역 이름공간이라고 부르는데, 함수와 클래스 그리고 기타 반입된 모듈과 모듈-수준의 변수와 상수를 포함하여 모듈의 변수를 추적관리합니다. 그리고 어떤 모듈에서도 접근할 수 있는 내장 이름공간이 있습니다. 이 공간에 내장 함수와 예외가 존재합니다.
+               </p>
+               <p>한 줄의 코드가 변수 <tt class="varname">x</tt>의 값을 요구하면 <span class="application">파이썬</span>은 가능한 모든 이름공간에서 순서대로 그 변수를 검색합니다:
+               </p>
+               <div class="orderedlist">
+                  <ol type="1">
+                     <li>지역 이름공간 - 현재 함수나 클래스 메쏘드에 종속됩니다. 함수에 지역 변수 <tt class="varname">x</tt>가 정의되어 있거나, 인자 <tt class="varname">x</tt>가 있으면 <span class="application">파이썬</span>은 이를 사용하고 검색을 중지합니다.
+                     </li>
+                     <li>전역 이름공간 - 현재 모듈에 종속됩니다. 모듈에 <tt class="varname">x</tt>라고 부르는 변수나 함수 또는 클래스가 정의되어 있으면 <span class="application">파이썬</span>은 그것을 사용하고 찾기를 멈춥니다.
+                     </li>
+                     <li>내장 이름공간 - 모든 변수에 대하여 전역적입니다. 최후 수단으로서, <span class="application">파이썬</span>은 <tt class="varname">x</tt>가 내장 함수나 변수의 이름이라고 간주합니다.
+                     </li>
+                  </ol>
+               </div>
+               <p>어떤 이름공간에서도 <span class="application">파이썬</span>이 <tt class="varname">x</tt>를 발견하지 못하면 손을 들고 <tt class="errorname">이름이 'x'인 변수가 없습니다</tt>라는 메시지를 가지고 <tt class="errorcode">NameError</tt>를 일으킵니다. 이는 앞서 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.unboundvariable" title="Example&nbsp;3.18.&nbsp;Referencing an Unbound Variable">예제&nbsp;3.18, &#8220;묶이지 않은 변수 참조하기&#8221;</a>에서 보셨습니다. 그러나, 에러를 보기 전까지는 <span class="application">파이썬</span>이 얼마나 많은 일을 하고 있는지 깨닫지 못했습니다.
+               </p><a name="d0e21061"></a><table class="important" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundImportant">★</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬</span> 2.2에서 이름공간 검색 순서에 영향을 미칠 미묘하지만 중요한 변화를 도입했습니다: 바로 내포된 영역(nested scopes)이 그것입니다.  2.2 이전의 <span class="application">파이썬</span> 버전에서는 <a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.nested" title="Example&nbsp;6.21.&nbsp;listDirectory">내포된 함수</a> 또는 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.lambda" title="4.7.&nbsp;Using lambda Functions">람다(<tt class="literal">lambda</tt>) 함수</a> 안에서 변수를 참조하면 <span class="application">파이썬</span>이 그 변수를 현재 (내포된 함수나 <tt class="literal">lambda</tt>) 함수의 이름공간을 검색한 다음, 모듈의 이름공간에서 검색을 했습니다. <span class="application">파이썬</span> 2.2는 그 변수를 현재 (내포 함수 또는 <tt class="literal">lambda</tt>) 함수의 이름공간을 검색한 다음, <span class="emphasis"><em>부모 함수의 이름공간을 찾고</em></span>, 다음으로 모듈의 이름공간에서 찾습니다.  <span class="application">파이썬</span> 2.1은 어느 쪽으로도 작동할 수 있습니다; 기본으로 <span class="application">파이썬</span> 2.0처럼 작동하지만, 다음 코드 줄을 모듈의 상단에 추가하면 모듈을 <span class="application">파이썬</span> 2.2처럼 작동시킬 수 있습니다:<pre class="programlisting">
+from __future__ import nested_scopes</pre></td>
+                  </tr>
+               </table>
+               <p>아직 이해가 안 되십니까? 좌절하지 마세요! 약속하건대 정말 재미있습니다. <span class="application">파이썬</span>에서 다른 많은 것처럼, 이름공간은 실행시간에 <span class="emphasis"><em>직접적으로 접근할 수 있습니다</em></span>.  어떻게?  자, 지역 이름공간은 내장 <tt class="function">locals</tt> 함수를 통하여 접근할 수 있고, (모듈 수준의) 전역 이름공간은 내장 <tt class="function">globals</tt> 함수를 통하여 접근할 수 있습니다.
+               </p>
+               <div class="example"><a name="d0e21119"></a><h3 class="title">예제&nbsp;8.10.&nbsp;<tt class="function">locals</tt> 소개</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">def foo(arg):</span> <a name="dialect.locals.1.1"></a><span class="round">①</span>
+<tt class="prompt">...     </tt><span class="userinput">x = 1</span>
+<tt class="prompt">...     </tt><span class="userinput">print locals()</span>
+<tt class="prompt">...     </tt>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">foo(7)</span>        <a name="dialect.locals.1.2"></a><span class="round">②</span>
+<span class="computeroutput">{'arg': 7, 'x': 1}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">foo('bar')</span>    <a name="dialect.locals.1.3"></a><span class="round">③</span>
+<span class="computeroutput">{'arg': 'bar', 'x': 1}</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">foo</tt> 함수는 지역 이름공간에 두 개의 변수가 있습니다: 하나는 <tt class="varname">arg</tt>이며 그 값이 함수에 건네지며, 또 하나는 <tt class="varname">x</tt>이며 함수 안에 정의되어 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">locals</tt>는 이름/값 쌍의 사전을 돌려줍니다. 이 사전의 키는 문자열로 된 변수의 이름입니다; 사전의 값은 그 변수의 실제 값입니다.  그래서 <tt class="literal">7</tt>을 가지고 <tt class="function">foo</tt>를 호출하면 그 함수의 두개의 지역 변수가 담긴 사전을 인쇄합니다: <tt class="varname">arg</tt> (<tt class="literal">7</tt>) 그리고 <tt class="varname">x</tt> (<tt class="constant">1</tt>).
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">기억하세요. <span class="application">파이썬</span>은 동적으로 유형이 정의됩니다. 그래서 그냥 쉽게 <tt class="varname">arg</tt>에 문자열을 건네면 됩니다; 그래도 (<tt class="function">locals</tt>를 호출하면) 그 함수는 여전히 그대로 잘 작동합니다.  <tt class="function">locals</tt>는 온갖 데이터유형의 변수에 모두 작동합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p><tt class="function">locals</tt>가 지역 (함수) 이름공간을 위해 작용하는 것처럼, <tt class="function">globals</tt>는 전역 (모듈) 이름공간을 위해 작동합니다. 그렇지만 <tt class="function">globals</tt>가 더 재미있습니다. 왜냐하면 모듈의 이름공간이 더 재미있기 때문입니다.<sup>[<a name="d0e21226" href="#ftn.d0e21226">3</a>]</sup>  모듈의 이름공간에는 모듈-수준의 변수와 상수 뿐만 아니라, 그 모듈에 정의된 함수와 클래스가 모두 들어 있습니다. 게다가 모듈 안으로 반입된 것들이 모두 들어 있습니다.
+               </p>
+               <p><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.fromimport" title="5.2.&nbsp;Importing Modules Using from module import"><tt class="literal">from <i class="replaceable">module</i> import</tt></a> 그리고 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.import" title="Example&nbsp;2.3.&nbsp;Accessing the buildConnectionString Function's doc string"><tt class="literal">import <i class="replaceable">module</i></tt></a> 사이의 차이점을 기억하십니까? <tt class="literal">import <i class="replaceable">module</i></tt>로, 모듈 그 자체가 반입되지만, 자신만의 이름공간을 유지합니다. 이 때문에 그 모듈의 이름공간을 사용하여 자신의 함수나 속성에 접근할 필요가 있습니다: <tt class="literal"><i class="replaceable">module</i>.<i class="replaceable">function</i></tt>의 형태로 말입니다. 그러나 <tt class="literal">from <i class="replaceable">module</i> import</tt>로, 또다른 모듈로부터 특정한 함수와 속성을 자신의 이름공간 안으로 반입합니다. 이 때문에 어디에서 왔든지 원래 모듈을 참조할 필요 없이 작접적으로 접근할 수 있습니다. <tt class="function">globals</tt> 함수를 사용하면 실제로 이런 일이 일어나는 것을 볼 수 있습니다.
+               </p>
+               <div class="example"><a name="dialect.globals.example"></a><h3 class="title">예제&nbsp;8.11.&nbsp;<tt class="function">globals</tt> 소개</h3>
+                  <p><tt class="filename">BaseHTMLProcessor.py</tt> 아래에서 다음 코드 블록을 살펴보세요:
+                  </p><pre class="programlisting">
+if __name__ == "__main__":
+    for k, v in globals().items():             <a name="dialect.locals.2.1"></a><span class="round">①</span>
+        print k, "=", v</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">그래서 겁나지 않습니다. 이전에 모두 본 것들입니다. <tt class="function">globals</tt> 함수는 사전을 돌려주고, <tt class="function">items</tt> 메쏘드와 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.multiassign" title="3.4.2.&nbsp;Assigning Multiple Values at Once">다중-변수 할당</a>을 사용하여 <a href="http://coreapython.hosting.paran.com/dive/chap06.html#dictionaryiter.example" title="Example&nbsp;6.10.&nbsp;Iterating Through a Dictionary">그 사전을 순회하고 있습니다</a>. 여기에서 유일하게 새로운 것이 있다면 <tt class="function">globals</tt> 함수뿐입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+                  <p>이제 명령줄에서 스크립트를 실행하면 다음과 같이 출력됩니다 (여러분의 출력은 플랫폼과 <span class="application">파이썬</span>을 설치한 곳에 따라 약간 다를 수 있음을 주의하세요):
+                  </p><pre class="screen"><tt class="prompt">c:\docbook\dip\py&gt;</tt> <span class="userinput">python BaseHTMLProcessor.py</span></pre><pre class="programlisting">
+SGMLParser = sgmllib.SGMLParser                <a name="dialect.locals.3.1"></a><span class="round">①</span>
+htmlentitydefs = &lt;module 'htmlentitydefs' from 'C:\Python23\lib\htmlentitydefs.py'&gt; <a name="dialect.locals.3.2"></a><span class="round">②</span>
+BaseHTMLProcessor = __main__.BaseHTMLProcessor <a name="dialect.locals.3.3"></a><span class="round">③</span>
+__name__ = __main__                            <a name="dialect.locals.3.4"></a><span class="round">④</span>
+... rest of output omitted for brevity...</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">SGMLParser</tt>가 <tt class="filename">sgmllib</tt>로부터 반입되었고, <tt class="literal">from <i class="replaceable">module</i> import</tt>를 사용했습니다. 즉 그 모듈의 이름공간 안으로 직접적으로 반입되었다는 뜻이고, 현재 그 모듈의 이름공간에 존재한다는 뜻입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이를 <tt class="filename">htmlentitydefs</tt>와 대조해 보세요. 이는 <tt class="literal">import</tt>를 사용하여 반입되었습니다.  즉 <tt class="filename">htmlentitydefs</tt> 모듈 그 자체가 이름공간에 존재하지만, <tt class="filename">htmlentitydefs</tt> 안에 정의된 <tt class="varname">entitydefs</tt> 변수는 그렇지 않다는 뜻입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 모듈에는 오직 하나의 클래스, <tt class="classname">BaseHTMLProcessor</tt> 만 정의되어 있습니다. 여기에서 그 값은 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.classattributes.intro" title="Example&nbsp;5.17.&nbsp;Introducing Class Attributes">클래스 자신이지</a>, 그 실체의 특정한 실체가 아님에 주의하세요.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.3.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.ifnametrick"><tt class="literal">if <span class="literal">__name__</span></tt> 트릭</a>이 기억나십니까?  모듈을 실행할 때 (또다른 모듈에서 반입하는 것과 대조적으로), 내장 <tt class="literal">__name__</tt> 변수는 특수한 값 <tt class="literal">__main__</tt>입니다.  이 모듈을 스크립트로 명령-줄에서 실행하였으므로, <tt class="literal">__name__</tt>은 <tt class="literal">__main__</tt>이며, 이 때문에 <tt class="function">globals</tt>를 인쇄하는 작은 테스트 코드가 실행되었습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="tip.localsbyname"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><tt class="function">locals</tt> 함수와 <tt class="function">globals</tt> 함수를 사용하면 변수 이름을 문자열로 제공하면서 어떤 변수든지 동적으로 얻을 수 있습니다. 이는 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.getattr" title="4.4.&nbsp;Getting Object References With getattr"><tt class="function">getattr</tt></a> 함수의 기능을 흉내내며, 이 덕분에 그 함수의 이름을 문자열로 제공하면 어떤 함수에도 접근할 수 있습니다.
+                     </td>
+                  </tr>
+               </table>
+               <p><tt class="function">locals</tt> 함수와 <tt class="function">globals</tt> 함수 사이에 또 중요한 차이점이 있습니다. 함정에 빠지지 않도록 잘 배워두어야 하겠습니다. 어쨌든 함정에 빠지더라도, 적어도 배운 기억은 나실 겁니다.
+               </p>
+               <div class="example"><a name="dialect.locals.readonly.example"></a><h3 class="title">예제&nbsp;8.12.&nbsp;<tt class="function">locals</tt>은 읽기 전용이지만, <tt class="function">globals</tt>는 쓰기도 된다
+                  </h3><pre class="programlisting">
+def foo(arg):
+    x = 1
+    print locals()    <a name="dialect.locals.4.1"></a><span class="round">①</span>
+    locals()["x"] = 2 <a name="dialect.locals.4.2"></a><span class="round">②</span>
+    print "x=",x      <a name="dialect.locals.4.3"></a><span class="round">③</span>
+
+z = 7
+print "z=",z
+foo(3)
+globals()["z"] = 8    <a name="dialect.locals.4.4"></a><span class="round">④</span>
+print "z=",z          <a name="dialect.locals.4.5"></a><span class="round">⑤</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">foo</tt>가 <tt class="literal">3</tt>으로 호출되므로, <tt class="literal">{'arg': 3, 'x': 1}</tt>가 인쇄됩니다. 별로 놀랍지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">locals</tt>는 사전을 돌려주는 함수이며, 그 사전에 값을 할당하고 있습니다. 이렇게 하면 지역 변수 <tt class="varname">x</tt>의 값이 <tt class="literal">2</tt>로 바뀔 거라 생각하시겠지만, 그렇지 않습니다.  <tt class="function">locals</tt>는 실제로 지역 이름공간을 돌려주지 않고, 사본을 돌려줍니다. 그래서 그를 바꾸더라도 지역 이름공간에 있는 변수의 값에는 아무 영향을 미치지 않습니다. .
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.4.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 <tt class="literal">x= 1</tt>을 인쇄하지, <tt class="literal">x= 2</tt>을 인쇄하지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.4.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">locals</tt>에 데어보았으므로, 이것은 <tt class="varname">z</tt>의 값에 <span class="emphasis"><em>영향을 미치지 않을 것이라고</em></span> 생각하시겠지만, 영향을 미칩니다. <span class="application">파이썬</span>이 구현된 내부 방식의 차이 때문에 (더 이상 깊이 들어가지 않는 것이 좋겠습니다. 내 자신 완벽히 이해하지 못하고 있기 때문입니다), <tt class="function">globals</tt>는 실제 전역 이름공간을 돌려주지, 사본을 돌려주는 것이 아닙니다: <tt class="function">locals</tt>와 정확하게 반대로 행위합니다. 그래서 <tt class="function">globals</tt>가 돌려주는 사전에 조금이라도 변경을 가자면 곧바로 전역 이름공간에 영향을 미칩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.locals.4.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 <tt class="literal">z= 8</tt>을 인쇄하지, <tt class="literal">z= 7</tt>을 인쇄하지 않습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.dictsub"></a>8.6.&nbsp;사전-기반의 형식화
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <p>왜 <tt class="function">locals</tt>와 <tt class="function">globals</tt>를 배웠을까요? 그 덕분에 사전-기반의 문자열 형식화를 배울 수 있습니다. 기억하시다시피, <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.stringformatting" title="3.5.&nbsp;Formatting Strings">정규 문자열 형식화</a>는 값을 문자열 안에 쉽게 삽입할 수 있도록 해 줍니다. 값들은 터플로 나열되고 순서대로 문자열 표식이 있는 곳마다 문자열 안으로 삽입됩니다. 이는 효율적이긴 하지만, 언제나 읽기에 쉬운 코드는 아닙니다. 특히 여러 값이 삽입될 때는 복잡합니다. 단순히 문자열을 한 번 스캔하면서 그 결과가 어떻게 될지는 알 수 없습니다; 한편으로 문자열을 읽고 또 한편으로 터플 값을 읽는 것 사이를 끊임없이 왔다갔다 합니다.
+               </p>
+               <div class="abstract">
+                  <p>터플 값 대신에 사전을 사용하는 문자열 형식화 형태가 있습니다.</p>
+               </div>
+               <div class="example"><a name="d0e21518"></a><h3 class="title">예제&nbsp;8.13.&nbsp;사전-기반의 문자열 형식화 소개</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">params = {"server":"mpilgrim", "database":"master", "uid":"sa", "pwd":"secret"}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">"%(pwd)s" % params</span>                                    <a name="dialect.dictsub.1.1"></a><span class="round">①</span>
+<span class="computeroutput">'secret'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">"%(pwd)s is not a good password for %(uid)s" % params</span> <a name="dialect.dictsub.1.2"></a><span class="round">②</span>
+<span class="computeroutput">'secret is not a good password for sa'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">"%(database)s of mind, %(database)s of body" % params</span> <a name="dialect.dictsub.1.3"></a><span class="round">③</span>
+<span class="computeroutput">'master of mind, master of body'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dictsub.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">명시적인 값이 든 터플 대신, 이 문자열 형식화 모양은 사전 <tt class="varname">params</tt>를 사용합니다. 문자열에 단순한 <tt class="literal">%s</tt> 표식을 사용하는 대신에, 표식에 괄호로 둘러싸인 이름이 담깁니다. 이 이름은 <tt class="varname">params</tt> 사전의 키로 사용되고 <tt class="literal">%(pwd)s</tt> 표식의 위치에 상응하는 값 <tt class="literal">secret</tt>으로 교체합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dictsub.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">사전-기반의 문자열 형식화는 몇 개이든 이름 붙은 키와 얼마든지 작동합니다. 키는 주어진 사전에 존재해야 합니다. 그렇지 않으면 형식화는 <tt class="errorcode">KeyError</tt>로 실패합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dictsub.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">같은 키를 두 번 지정할 수도 있습니다; 나타날 때마다 같은 값으로 교체됩니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>그래서 왜 사전-기반의 형식화를 사용해야 할까요? 자, 단순히 다음 줄에 문자열 형식화를 하기 위해 키와 값이 담긴 사전을 설정하는 것은 너무 과도한 것 같아 보입니다; 그러나 의미있는 키와 값이 담긴 사전을 미리 가지고 있으면 정말 아주 유용합니다. <a href="#dialect.locals" title="8.5.&nbsp;locals and globals"><tt class="function">locals</tt></a>처럼 말입니다.
+               </p>
+               <div class="example"><a name="dialect.unknownstarttag"></a><h3 class="title">예제&nbsp;8.14.&nbsp;<tt class="filename">BaseHTMLProcessor.py</tt>에 있는 사전-기반의 문자열 형식화 </h3><pre class="programlisting">
+    def handle_comment(self, text):        
+        self.pieces.append("&lt;!--%(text)s--&gt;" % locals()) <a name="dialect.dictsub.2.1"></a><span class="round">①</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dictsub.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">사전-기반의 문자열 형식화가 가장 많이 사용되는 예는 내장 <tt class="function">locals</tt> 함수를 사용하는 것입니다. 즉 지역 변수의 이름을 문자열 안에서 사용할 수 있다는 뜻이고 (이 경우 클래스 메쏘드에 인자로 건네진 <tt class="varname">text</tt>임) 이름붙은 변수마다 그의 값으로 교체된다는 뜻입니다. <tt class="varname">text</tt>가 <tt class="literal">'Begin page footer'</tt>이면 문자열 형식화 <tt class="literal">"&lt;!--%(text)s--&gt;" % locals()</tt>는 다음 <tt class="literal">'&lt;!--Begin page footer--&gt;'</tt> 문자열로 결정됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e21622"></a><h3 class="title">예제&nbsp;8.15.&nbsp;사전-기반의 문자열 형식화 심화연구</h3><pre class="programlisting">
+    def unknown_starttag(self, tag, attrs):
+        strattrs = "".join([' %s="%s"' % (key, value) for key, value in attrs])     <a name="dialect.dictsub.3.1"></a><span class="round">①</span>
+        self.pieces.append("&lt;%(tag)s%(strattrs)s&gt;" % locals())                      <a name="dialect.dictsub.3.2"></a><span class="round">②</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dictsub.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 메쏘드가 호출되면 <tt class="varname">attrs</tt>는 키/값 터플이 담긴 리스트이며, 사전의 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.items" title="Example&nbsp;3.25.&nbsp;The keys, values, and items Functions"><tt class="function">items</tt>와 똑 같습니다</a>. 이는 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.multiassign" title="3.4.2.&nbsp;Assigning Multiple Values at Once">다중-변수 할당</a>을 사용하여 그를 순회할 수 있다는 뜻입니다. 이제 이 패턴은 익숙하리라 믿지만, 여기에는 더 많은 일이 진행중입니다. 그래서 분석해 보겠습니다:
+                              <div class="orderedlist">
+                                 <ol type="a">
+                                    <li><tt class="varname">attrs</tt>는 <tt class="literal">[('href', 'index.html'), ('title', 'Go to home page')]</tt>이라고 간주합니다.
+                                    </li>
+                                    <li>지능형 리스트를 첫 회 순회하면서, <tt class="varname">key</tt>는 <tt class="literal">'href'</tt>를 얻고, <tt class="varname">value</tt>는 <tt class="literal">'index.html'</tt>을 얻습니다.
+                                    </li>
+                                    <li>문자열 형식화 <tt class="literal">'&nbsp;%s="%s"' % (key, value)</tt>는 <tt class="literal">'&nbsp;href="index.html"'</tt>로 결정됩니다. 이 문자열은 지능형 리스트가 돌려주는 반환 값의 첫 원소가 됩니다.
+                                    </li>
+                                    <li>두 번째 돌 때, <tt class="varname">key</tt>는 <tt class="literal">'title'</tt>을 얻고, <tt class="varname">value</tt>는 <tt class="literal">'Go to home page'</tt>를 얻습니다.
+                                    </li>
+                                    <li>문자열 형식화는 <tt class="literal">' title="Go to home page"'</tt>로 결정됩니다.
+                                    </li>
+                                    <li>지능형 리스트는 이렇게 결정된 두 개의 문자열을 리스트에 담아 돌려주며, <tt class="varname">strattrs</tt>은 이 리스트에 있는 두 원소를 결합해 <tt class="literal">'&nbsp;href="index.html" title="Go to home page"'</tt>를 형성합니다.
+                                    </li>
+                                 </ol>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dictsub.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 사전-기반의 문자열 형식화를 사용하여, <tt class="varname">tag</tt>와 <tt class="varname">strattrs</tt>의 값을 문자열에 삽입합니다. 그래서 <tt class="varname">tag</tt>가 <tt class="literal">'a'</tt>라면 최종 결과는 <tt class="literal">'&lt;a href="index.html" title="Go to home page"&gt;'</tt>가 되고, 그것이 바로 <tt class="varname">self.pieces</tt>에 추가됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="d0e21731"></a><table class="important" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundImportant">★</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">사전-기반의 문자열 형식화를 <tt class="function">locals</tt>와 함께 사용하면 복잡한 문자열 형식화 표현식을 편리하게 만들 수 있지만, 거기에는 대가가 따릅니다. <tt class="function">locals</tt>를 호출하려면 약간 수행성능에 충격이 있습니다. 왜냐하면 <a href="#dialect.locals.readonly.example" title="Example&nbsp;8.12.&nbsp;locals is read-only, globals is not"><tt class="function">locals</tt>는 지역 이름공간의 사본을 구축하기</a> 때문입니다.
+                     </td>
+                  </tr>
+               </table>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.quoting"></a>8.7.&nbsp;속성 값에 인용부호 붙이는 법
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><a href="http://groups.google.com/groups?group=comp.lang.python">comp.lang.python</a>에 자주 올라오는 질문이 있습니다. &#8220;<span class="quote">엄청나게 <span class="acronym">HTML</span> 문서가 많은데 속성에 인용부호가 안 붙었어요. 적절하게 모두 인용부호를 붙이고 싶어요. 어떻게 하면 이렇게 할 수 있을까요?</span>&#8221;<sup>[<a name="d0e21764" href="#ftn.d0e21764">4</a>]</sup>  (이런 과제는 보통 다음과 같은 프로젝트 관리자가 봉착하는 문제입니다. 그는 <span class="acronym">HTML</span>을-표준으로-하여 방대한 프로젝트를 묶고 모든 페이지가 <span class="acronym">HTML</span> 평가기를 통과시켜야 합니다.  인용부호가 붙지 않은 속성 값은 보통 <span class="acronym">HTML</span> 표준을 위반합니다.)  어떤 이유든, 인용부호가 붙지 않은 속성은 <tt class="classname">BaseHTMLProcessor</tt>에에 <span class="acronym">HTML</span>을 먹이면 쉽게 고칠 수 있습니다.
+                  </p>
+               </div>
+               <p>(<tt class="classname">SGMLParser</tt>의 자손이기 때문에) <tt class="classname">BaseHTMLProcessor</tt>는 <span class="acronym">HTML</span>을 소비합니다 그리고 동등한 <span class="acronym">HTML</span>을 뱉아내지만, 그 <span class="acronym">HTML</span> 출력이 입력과 동일한 것은 아닙니다. 태그와 속성은 대문자 또는 섞어서 시작되더라도 이름이 소문자로 바뀝니다. 그리고 속성 이름은 홑 따옴표 또는 따옴표가 전혀 없이 시작되더라도 겹 따옴표로 둘러싸입니다. 이 마지막 부작용을 이용할 수 있습니다.
+               </p>
+               <div class="example"><a name="dialect.quoting.example"></a><h3 class="title">예제&nbsp;8.16.&nbsp;속성 값에 인용부호 붙이기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">htmlSource = """</span>        <a name="dialect.basehtml.3.1"></a><span class="round">①</span>
+<tt class="prompt">...     </tt>&lt;html&gt;
+<tt class="prompt">...     </tt>&lt;head&gt;
+<tt class="prompt">...     </tt>&lt;title&gt;Test page&lt;/title&gt;
+<tt class="prompt">...     </tt>&lt;/head&gt;
+<tt class="prompt">...     </tt>&lt;body&gt;
+<tt class="prompt">...     </tt>&lt;ul&gt;
+<tt class="prompt">...     </tt>&lt;li&gt;&lt;a href=index.html&gt;Home&lt;/a&gt;&lt;/li&gt;
+<tt class="prompt">...     </tt>&lt;li&gt;&lt;a href=toc.html&gt;Table of contents&lt;/a&gt;&lt;/li&gt;
+<tt class="prompt">...     </tt>&lt;li&gt;&lt;a href=history.html&gt;Revision history&lt;/a&gt;&lt;/li&gt;
+<tt class="prompt">...     </tt>&lt;/body&gt;
+<tt class="prompt">...     </tt>&lt;/html&gt;
+<tt class="prompt">...     </tt><span class="userinput">"""</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from BaseHTMLProcessor import BaseHTMLProcessor</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">parser = BaseHTMLProcessor()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">parser.feed(htmlSource)</span> <a name="dialect.basehtml.3.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print parser.output()</span>   <a name="dialect.basehtml.3.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Test page&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="index.html"&gt;Home&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="toc.html"&gt;Table of contents&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="history.html"&gt;Revision history&lt;/a&gt;&lt;/li&gt;
+&lt;/body&gt;
+&lt;/html&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="sgmltag-element">&lt;a&gt;</tt> 태그에 있는 <tt class="literal">href</tt> 속성의 값이 적절하게 인용부호 처리가 되어 있지 않음을 주목하세요. (또 주목하세요. 문서화 문자열(<tt class="literal">doc string</tt>) 말고 다른 것에 삼중 인용부호(<a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.triplequotes" title="Example&nbsp;2.2.&nbsp;Defining the buildConnectionString Function's doc string">triple quotes</a>)를 사용하고 있습니다. 놀랍게도 <span class="acronym">IDE</span>에서 직접 사용하고 있습니다. 아주 유용합니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">해석기에 먹입니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.basehtml.3.3"><span class="round">③</span></a> 
+                           </td><td valign="top" align="left"><tt class="classname">BaseHTMLProcessor</tt>에 정의된 <tt class="function">output</tt> 함수를 사용하여 출력을 한개의 문자열로 얻어서, 인용부호 처리된 속성 값을 완성합니다. 이것이 실망스러워 보인다면 실제로 여기에서 얼마나 많은 일이 일어나는지 생각해 보세요: <tt class="classname">SGMLParser</tt>는 전체 <span class="acronym">HTML</span> 문서를 해석하여, 태그와 참조 데이터 등등으로 분할합니다; <tt class="classname">BaseHTMLProcessor</tt>는 그렇게 조각난 원소들을 사용하여 <span class="acronym">HTML</span> 조각을 재구성합니다 (이를 보고 싶다면 여전히 <tt class="varname">parser.pieces</tt>에 저장되어 있습니다.); 마지막으로, <tt class="function">parser.output</tt>을 호출했습니다. 이는 모든 <span class="acronym">HTML</span> 조각들을 하나의 문자열로 결합합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.dialectizer"></a>8.8.&nbsp;<tt class="filename">dialect.py</tt> 소개</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><tt class="classname">Dialectizer</tt>는 <tt class="classname">BaseHTMLProcessor</tt>의 단순한 (하잘 것 없는) 자손입니다. 일련의 교체를 통하여 텍스트 블록을 실행하지만, <tt class="literal"><tt class="sgmltag-element">&lt;pre&gt;</tt>...<tt class="sgmltag-element">&lt;/pre&gt;</tt></tt> 블록 안에 있는 것이면 무엇이든 그대로 통과시킵니다.
+                  </p>
+               </div>
+               <p><tt class="sgmltag-element">&lt;pre&gt;</tt> 블록을 처리하기 위하여, 두 개의 메쏘드를 <tt class="classname">Dialectizer</tt>에 정의합니다: <tt class="function">start_pre</tt> 메쏘드와 <tt class="function">end_pre</tt> 메쏘드를 정의하겠습니다.
+               </p>
+               <div class="example"><a name="dialect.specifictags.example"></a><h3 class="title">예제&nbsp;8.17.&nbsp;특정한 태그 처리하는 법</h3><pre class="programlisting">
+    def start_pre(self, attrs):             <a name="dialect.dialectizer.1.1"></a><span class="round">①</span>
+        self.verbatim += 1                  <a name="dialect.dialectizer.1.2"></a><span class="round">②</span>
+        self.unknown_starttag("pre", attrs) <a name="dialect.dialectizer.1.3"></a><span class="round">③</span>
+
+    def end_pre(self):                      <a name="dialect.dialectizer.1.4"></a><span class="round">④</span>
+        self.unknown_endtag("pre")          <a name="dialect.dialectizer.1.5"></a><span class="round">⑤</span>
+        self.verbatim -= 1                  <a name="dialect.dialectizer.1.6"></a><span class="round">⑥</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">start_pre</tt>는 <tt class="classname">SGMLParser</tt>가 <tt class="sgmltag-element">&lt;pre&gt;</tt> 태그를 <span class="acronym">HTML</span> 소스에서 발견할 때마다 호출됩니다.  (잠시 후에, 이런 일이 정확하게 어떻게 일어나는지 보여 드리겠습니다.)  이 메쏘드는 매개변수 <tt class="varname">attrs</tt>를 하나 취합니다. 이 매개변수에는 (있다면) 태그의 속성이 담깁니다. <a href="#dialect.unknownstarttag" title="Example&nbsp;8.14.&nbsp;Dictionary-based string formatting in BaseHTMLProcessor.py"><tt class="function">unknown_starttag</tt></a> 메쏘드가 취하는 것과 마찬가지로 <tt class="varname">attrs</tt>는 키/값 터플로 구성된 리스트입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">reset</tt> 메쏘드에서, <tt class="sgmltag-element">&lt;pre&gt;</tt> 태그에 대한 계수기로 기여하는 데이터 속성을 초기화합니다. <tt class="sgmltag-element">&lt;pre&gt;</tt> 태그를 만날 때마다, 카운터를 증가시킵니다; <tt class="sgmltag-element">&lt;/pre&gt;</tt> 태그를 만날 때마다, 카운터를 감소시킵니다.  (그냥 플래그를 사용하여 <tt class="constant">1</tt>로 설정하고 <tt class="constant">0</tt>으로 재설정해도 되지만, 이렇게 하는 편이 더 쉬운 방법입니다. 이렇게 하면 내포된 <tt class="sgmltag-element">&lt;pre&gt;</tt> 태그 같이 괴이한 (그러나 나타날 가능성이 있는) 사례도 처리할 수 있습니다.) 잠시 후에, 이 카운터가 어떻게 활용되는지 살펴보겠습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">바로 그것입니다. 그것이 <tt class="sgmltag-element">&lt;pre&gt;</tt>에 대하여 오직 유일하게 특별하게 처리해야 할 것입니다. 이제 속성이 담긴 리스트를 <tt class="function">unknown_starttag</tt>에 건네서 기본 처리를 시킵니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">end_pre</tt>는 <tt class="classname">SGMLParser</tt>가 <tt class="sgmltag-element">&lt;/pre&gt;</tt> 태그를 발견할 때마다 호출됩니다. 끝 태그에는 속성이 담길 수 없기 때문에, 이 메쏘드는 매개변수를 취하지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">먼저 다른 끝 태그와 마찬가지로 기본 처리를 하고 싶습니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.1.6"><span class="round">⑥</span></a> 
+                           </td>
+                           <td valign="top" align="left">둘째, 카운터를 감소시켜 이 <tt class="sgmltag-element">&lt;pre&gt;</tt> 블록이 닫혔다는 신호를 보냅니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이 시점에서 좀 더 깊이 <tt class="classname">SGMLParser</tt>에 들어가 볼 가치가 있습니다. 반복적으로 강조했습니다 (지금쯤이면 여러분도 신념처럼 믿고 있을 것입니다). <tt class="classname">SGMLParser</tt>는 각 태그에 대하여 특정한 메소드를 찾아 호출한다고 말입니다. 예를 들면 방금 <tt class="sgmltag-element">&lt;pre&gt;</tt> 태그와 <tt class="sgmltag-element">&lt;/pre&gt;</tt>를 처리하기 위한 <tt class="function">start_pre</tt> 메쏘드와 <tt class="function">end_pre</tt> 메쏘드의 정의를 보셨습니다. 그러나 어떻게 이런 일이 일어나는가?  자, 마법이 아닙니다. 단지 <span class="application">파이썬</span>의 훌륭한 코딩일 뿐입니다.
+               </p>
+               <div class="example"><a name="dialect.dialectizer.example"></a><h3 class="title">예제&nbsp;8.18.&nbsp;<tt class="classname">SGMLParser</tt></h3><pre class="programlisting">
+    def finish_starttag(self, tag, attrs):               <a name="dialect.dialectizer.2.1"></a><span class="round">①</span>
+        try:                                            
+            method = getattr(self, 'start_' + tag)       <a name="dialect.dialectizer.2.2"></a><span class="round">②</span>
+        except AttributeError:                           <a name="dialect.dialectizer.2.3"></a><span class="round">③</span>
+            try:                                        
+                method = getattr(self, 'do_' + tag)      <a name="dialect.dialectizer.2.4"></a><span class="round">④</span>
+            except AttributeError:                      
+                self.unknown_starttag(tag, attrs)        <a name="dialect.dialectizer.2.5"></a><span class="round">⑤</span>
+                return -1                               
+            else:                                       
+                self.handle_starttag(tag, method, attrs) <a name="dialect.dialectizer.2.6"></a><span class="round">⑥</span>
+                return 0                                
+        else:                                           
+            self.stack.append(tag)                      
+            self.handle_starttag(tag, method, attrs)    
+            return 1                                     <a name="dialect.dialectizer.2.7"></a><span class="round">⑦</span>
+
+    def handle_starttag(self, tag, method, attrs):      
+        method(attrs)                                    <a name="dialect.dialectizer.2.8"></a><span class="round">⑧</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 시점에서, <tt class="classname">SGMLParser</tt>는 이미 시작 태그를 발견했고 속성 리스트를 해석했습니다. 남은 일은 오직 이 태그에 대하여 특정 처리자 메쏘드가 있는지 알아보는 것입니다. 즉 기본 메쏘드(<tt class="function">unknown_starttag</tt>)에 의존해야 할지 말지를 알아봅니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">SGMLParser</tt>의 &#8220;<span class="quote">마법</span>&#8221;은 바로 오랜 친구 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.getattr" title="4.4.&nbsp;Getting Object References With getattr"><tt class="function">getattr</tt></a>에 있습니다. 앞서 깨닫지 못한 것이 있다면 <tt class="function">getattr</tt> 메쏘드가 객체 자신뿐만 아니라 그 자손에 정의된 메쏘드를 찾는다는 것입니다. 여기에서 그 개체는 <tt class="literal">self</tt>, 즉 현재 실체입니다. 그래서 <tt class="varname">tag</tt>가 <tt class="literal">'pre'</tt>일 경우, 이렇게 <tt class="function">getattr</tt>을 호출하면 현재 실체에서 <tt class="function">start_pre</tt> 메쏘드를 찾습니다. 현재 실체는 <tt class="classname">Dialectizer</tt> 클래스의 실체입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">getattr</tt>은 자신이 찾고 있는 메쏘드가 객체에 (즉 그의 자손에도) 존재하지 않으면 <tt class="errorcode">AttributeError</tt>를 일으킵니다. 그러나 그래도 괜찮습니다. 왜냐하면 <tt class="function">getattr</tt> 호출을  <a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.exception" title="6.1.&nbsp;Handling Exceptions"><tt class="literal">try...except</tt></a> 블록 안에 싸 넣었고 명시적으로 <tt class="errorcode">AttributeError</tt>를 잡았기 때문입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">start_xxx</tt> 메쏘드를 발견하지 못했으므로, 포기하기 전에 <tt class="function">do_xxx</tt> 메쏘드도 찾아 봅니다. 이런 대안적인 이름짓기 체계는 일반적으로 <tt class="sgmltag-element">&lt;br&gt;</tt> 같은 독립 태그에 사용됩니다. 이런 태그는 상응하는 끝 태그가 없습니다. 그러나 어떤 이름짓기 관례도 사용할 수 있습니다; 보시다시피, <tt class="classname">SGMLParser</tt>는 태그마다 두 관례를 모두 시도합니다.  (그렇지만 같은 태그에 대하여 <tt class="function">start_xxx</tt> 메쏘드와 <tt class="function">do_xxx</tt> 메쏘드를 모두 정의하면 안됩니다; 그러면 오직 <tt class="function">start_xxx</tt> 메쏘드만 호출됩니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.2.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">또 <tt class="errorcode">AttributeError</tt>가 일어납니다. 이 에러는 <tt class="function">getattr</tt>를 호출한 것이 <tt class="function">do_xxx</tt>에 실패했다는 뜻입니다. 이 태그에 대하여 <tt class="function">start_xxx</tt> 메쏘드도 <tt class="function">do_xxx</tt> 메쏘드도 발견하지 못했으므로, 예외를 잡고 기본 메쏘드, 즉 <tt class="function">unknown_starttag</tt> 메쏘드에 의지합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.2.6"><span class="round">⑥</span></a> 
+                           </td>
+                           <td valign="top" align="left">기억하십니까? <tt class="literal">try...except</tt> 블록은 <tt class="literal">else</tt> 절을 가질 수 있습니다. 이는 <tt class="literal">try...except</tt> 블록을 지나는 동안 <a href="http://coreapython.hosting.paran.com/dive/chap06.html#crossplatform.example" title="Example&nbsp;6.2.&nbsp;Supporting Platform-Specific Functionality">아무 예외도 일어나지 않으면</a> 호출됩니다. 논리적으로 말해, 이 태그에 대하여 <tt class="function">do_xxx</tt>를 <span class="emphasis"><em>발견했다</em></span>는 뜻입니다. 그래서 그 메쏘드를 호출하고 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.2.7"><span class="round">⑦</span></a> 
+                           </td>
+                           <td valign="top" align="left">그런데, 이렇게 다양하게 값이 반환되더라도 걱정하지 마세요; 이론적으로 무언가 뜻이 있을 수 있지만, 실제로 사용되지는 않습니다. <tt class="literal">self.stack.append(tag)</tt>도 역시 신경쓰지 마세요; <tt class="classname">SGMLParser</tt>는 시작 태그가 적절하게 끝 태그와 짝을 이루는지 내부적으로 추적 유지합니다. 그러나 그것은 이 정보와도 전혀 관계가 없습니다. 이론적으로 이 모듈을 사용하여 태그가 제대로 균형이 맞는지 평가할수 있지만, 그럴 가치가 없을 것입니다. 그리고 그것은 이 장의 범위를 넘어섭니다. 정작 신경써야 할 일은 따로 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.2.8"><span class="round">⑧</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">start_xxx</tt> 메쏘드와 <tt class="function">do_xxx</tt> 메쏘드는 직접적으로 호출되지 않습니다; 태그와 메쏘드 그리고 속성이 이 함수, 즉 <tt class="function">handle_starttag</tt>에 건네집니다. 그래서 자손들이 그를 오버라이드하고 <span class="emphasis"><em>모든 시작 태그</em></span>가 분배되는 방법을 변화시킵니다. 그 정도 수준의 제어는 필요가 없습니다. 그래서 그냥 이 메쏘드가 자신의 일을 하도록 내버려 둡니다. 이 메소드는 속성 리스트를 가지고 메쏘드를 호출합니다 (<tt class="function">start_xxx</tt> 또는 <tt class="function">do_xxx</tt>). 기억하십니까? <tt class="function">getattr</tt>이 돌려주는 <tt class="varname">method</tt>는 함수입니다. 그리고 함수는 객체입니다. (귀가 따갑도록 들으셨겠지만, 더 써 먹을 때가 없어지면 바로 언급을 멈추겠습니다.)  여기에서, 함수 객체가 이 분배 메소드에 인자로 건네집니다. 그리고 이 메쏘드는 그 함수를 받아 호출합니다. 이 시점에서 함수가 무엇인지, 이름이 무엇인지 또는 어디에 정의되어 있는지 알 필요가 없습니다; 함수에 관하여 유일하게 알 필요가 있는 것은 <tt class="varname">attrs</tt>이라는 인자 하나로 호출된다는 것입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이제 다시 교재 프로그램으로 돌아가 보겠습니다: <tt class="classname">Dialectizer</tt>로 말입니다.  떠나 올 때 <tt class="sgmltag-element">&lt;pre&gt;</tt> 태그와 <tt class="sgmltag-element">&lt;/pre&gt;</tt> 태그에 대하여 특정 처리자 메쏘드를 정의하던 중이었습니다. 이제 할 일이 한 가지만 남아 있습니다. 미리-정의된 교체로 텍스트 블록을 처리하는 것이 바로 그것입니다. 그를 위하여, <tt class="function">handle_data</tt> 메쏘드를 오버라이드할 필요가 있습니다.
+               </p>
+               <div class="example"><a name="d0e22310"></a><h3 class="title">예제&nbsp;8.19.&nbsp;<tt class="function">handle_data</tt> 메쏘드 오버라이드&nbsp;</h3><pre class="programlisting">
+    def handle_data(self, text):                                         <a name="dialect.dialectizer.3.1"></a><span class="round">①</span>
+        self.pieces.append(self.verbatim and text or self.process(text)) <a name="dialect.dialectizer.3.2"></a><span class="round">②</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">handle_data</tt>는 오직 하나의 인자로 호출됩니다. 즉, 처리할 텍스트가 그것입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.dialectizer.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">조상인 <a href="#dialect.basehtml.intro" title="Example&nbsp;8.8.&nbsp;Introducing BaseHTMLProcessor"><tt class="classname">BaseHTMLProcessor</tt></a>에서, <tt class="function">handle_data</tt> 메쏘드는 그냥 텍스트를 출력 버퍼 <tt class="varname">self.pieces</tt>에 추가했습니다. 여기에서는 로직이 약간 더 복잡할 뿐입니다. <tt class="literal"><tt class="sgmltag-element">&lt;pre&gt;</tt>...<tt class="sgmltag-element">&lt;/pre&gt;</tt></tt> 블록 사이에 있다면 <tt class="varname">self.verbatim</tt>는 <tt class="constant">0</tt>보다 큰 숫자가 될 것이고, 텍스트를 출력 버퍼에 그대로 넣고 싶습니다. 그렇지 않으면 따로 교체를 처리할 메쏘드를 호출해서, 그 결과를 출력 버퍼에 넣습니다. <span class="application">파이썬</span>에서, 이런 일은 한 줄, <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.andortrick.intro" title="Example&nbsp;4.17.&nbsp;Introducing the and-or Trick"><tt class="literal">and-or</tt> 트릭</a>을 사용하면 됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p><tt class="classname">Dialectizer</tt>를 거의 완전하게 이해하게 되었습니다. 유일하게 남은 일은 텍스트 교체 그 자체의 성질입니다. 펄(<span class="application">Perl</span>)을 조금이라도 아신다면 복잡한 텍스트 교체가 필요할 때, 유일한 해결책은 정규 표현식이라는 것을 아실 겁니다. <tt class="filename">dialect.py</tt>의 후반부에 있는 클래스에 일련의 정규 표현식이 정의되어 있습니다. 이 정규식은 <span class="acronym">HTML</span> 태그 사이의 텍스트를 처리합니다. 그러나 <a href="http://coreapython.hosting.paran.com/dive/chap07.html#re" title="Chapter&nbsp;7.&nbsp;Regular Expressions">정규 표현식만 따로 다룬 장</a>이 있었습니다.  다시 정규 표현식을 살펴보고 싶지는 않을 겁니다. 그렇지요? 한 장이면 충분히 배웠을 것이라고 생각합니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.alltogether"></a>8.9.&nbsp;모두 하나로 합치기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>지금까지 배운 것들을 활용할 시간입니다. 주의를 기울여 주시기를 바랍니다.</p>
+               </div>
+               <div class="example"><a name="d0e22387"></a><h3 class="title">예제&nbsp;8.20.&nbsp; <tt class="function">translate</tt> 함수, 제 1 부
+                  </h3><pre class="programlisting">
+def translate(url, dialectName="chef"): <a name="dialect.alltogether.1.1"></a><span class="round">①</span>
+    import urllib                       <a name="dialect.alltogether.1.2"></a><span class="round">②</span>
+    sock = urllib.urlopen(url)          <a name="dialect.alltogether.1.3"></a><span class="round">③</span>
+    htmlSource = sock.read()           
+    sock.close()                       
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.alltogether.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">translate</tt> 함수는 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.optional" title="4.2.&nbsp;Using Optional and Named Arguments">선택적 인자</a>로 <tt class="varname">dialectName</tt>이 있는데, 이는 사용할 방언을 지정하는 문자열입니다. 잠시 후에 어떻게 이것이 사용되는지 보여드립니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.alltogether.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">자, 잠시 기다리세요. 이 함수에는 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.import" title="Example&nbsp;2.3.&nbsp;Accessing the buildConnectionString Function's doc string"><tt class="literal">import</tt></a> 서술문이 있습니다!  <span class="application">파이썬</span>에서는 완벽하게 합법적입니다.  프로그램의 상단에서 <tt class="literal">import</tt> 서술문을 보아 왔는데, 이는 반입된 모듈이 프로그램의 어디에서나 사용이 가능하다는 뜻입니다. 그러나 함수 안에서도 모듈을 반입할 수 있는데, 이는 반입된 모듈이 그 함수 안에서만 사용 가능하다는 뜻입니다. 함수 안에서만 모듈을 사용할 수 있다면 이는 코드를 더욱 모듈화하는 손쉬운 방법입니다. (주말에 노고를 들여 800-줄이 넘는 코드를 작성했고 열댓 개의 모듈로 나누기로 결정한 상황에 마주해 보면 이에 고마움을 느낄 것입니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.alltogether.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 <a href="#dialect.extract.urllib" title="Example&nbsp;8.5.&nbsp;Introducing urllib">주어진 URL의 소스를 얻었습니다</a>.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e22433"></a><h3 class="title">예제&nbsp;8.21.&nbsp; <tt class="function">translate</tt> 함수, 제 2 부: 흥미진진&nbsp;
+                  </h3><pre class="programlisting">
+    parserName = "%sDialectizer" % dialectName.capitalize() <a name="dialect.alltogether.2.1"></a><span class="round">①</span>
+    parserClass = globals()[parserName]                     <a name="dialect.alltogether.2.2"></a><span class="round">②</span>
+    parser = parserClass()                                  <a name="dialect.alltogether.2.3"></a><span class="round">③</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.alltogether.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">capitalize</tt>는 아직 보지 못한 문자열 메쏘드입니다; 그냥 문자열에서 첫 글자를 대문자로 바꾸며, 나머지 모든 것은 소문자로 바꿉니다. <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.stringformatting" title="3.5.&nbsp;Formatting Strings">문자열 형식화</a>와 조합하여, 방언의 이름을 취했고 그에 상응하는 Dialectizer 클래스의 이름으로 변환합니다. <tt class="varname">dialectName</tt>은 <tt class="literal">'chef'</tt>라는 문자열이고, <tt class="varname">parserName</tt>는 <tt class="literal">'ChefDialectizer'</tt>이라는 문자열이 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.alltogether.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">문자열로 클래스의 이름이 있고 (<tt class="varname">parserName</tt>), 사전으로 전역 이름공간이 있습니다 (<tt class="function">globals</tt>()). 두개를 조합하면 문자열 이름이 가리키는 클래스의 참조점을 얻을 수 있습니다.  (기억하십니까? <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.classattributes" title="5.8.&nbsp;Introducing Class Attributes">클래스는 객체이며</a>, 다른 객체들처럼 변수에 할당될 수 있습니다.)  <tt class="varname">parserName</tt>이 <tt class="literal">'ChefDialectizer'</tt>이라는 문자열이라면 <tt class="varname">parserClass</tt>는 <tt class="literal">ChefDialectizer</tt>라는 클래스가 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.alltogether.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">마지막으로, 클래스 객체가 있고 (<tt class="varname">parserClass</tt>), 그 클래스의 실체가 필요합니다. 자, 이미 그렇게 하는 법을 압니다: <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.create" title="5.4.&nbsp;Instantiating Classes">함수처럼 그 클래스를 호출하기만 하면 됩니다</a>. 클래스는 지역 변수에 저장될 수 있으므로 절대로 아무 차이가 없습니다; 그냥 함수처럼 지역 변수를 호출하면 클래스의 실체가 튀어 나옵니다. <tt class="varname">parserClass</tt>가 <tt class="literal">ChefDialectizer</tt>이라는 클래스라면 <tt class="varname">parser</tt>는 <tt class="literal">ChefDialectizer</tt>이라는 클래스의 실체가 됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>왜 고민하십니까?  어쨌거나, 겨우 세개의 <tt class="classname">Dialectizer</tt> 클래스가 있을 뿐입니다; 그냥 <tt class="function">case</tt> 서술문을 사용하면 안 될까요?  (음,  <span class="application">파이썬</span>에는 <tt class="function">case</tt> 서술문이 없습니다. 그러나 그냥 일련의 <tt class="literal">if</tt> 서술문을 사용하면 안될까요?) 한가지 이유는: 확장성 때문입니다. <tt class="function">translate</tt> 함수는 얼마나 많은 Dialectizer 클래스가 정의되어 있는지 전혀 모릅니다. 내일 새로 <tt class="classname">FooDialectizer</tt>를 정의한다고 생각해 보세요; <tt class="function">translate</tt>는 <tt class="varname">dialectName</tt>으로 <tt class="literal">'foo'</tt>를 건네겠지요.
+               </p>
+               <p>더 좋은 예를 들어 보면 <tt class="classname">FooDialectizer</tt>를 따로 모듈에 두고, <tt class="literal">from <i class="replaceable">module</i> import</tt>로 반입한다고 생각해 보세요.  이미 본 바에 의하면 <a href="#dialect.globals.example" title="Example&nbsp;8.11.&nbsp;Introducing globals"><tt class="function">globals</tt>()</a>에 포함됩니다. 그래서 <tt class="function">translate</tt>는 아무 수정이 없이 그대로 작동할 것입니다. 비록 <tt class="classname">FooDialectizer</tt>가 따로 파일에 있다고 할지라도 말입니다.
+               </p>
+               <p>이제 방언의 이름이 프로그램 밖 어딘가로부터 온다고 생각해 보세요. 예를 들어, 데이터베이스나 사용자가-폼에-입력한 값으로부터 온다고 말입니다. 얼마든지 서버-쪽 <span class="application">파이썬</span> 스크립팅 골격구조를 사용하여 웹 페이지를 동적으로 만들어 낼 수 있습니다; 이 함수는 웹 페이지 요청의 질의 문자열에서 <span class="acronym">URL</span>과 방언 이름을 (둘다 문자열로) 받아서, &#8220;<span class="quote">번역된</span>&#8221; 웹 페이지를 출력할 수 있습니다.
+               </p>
+               <p>마지막으로, 끼워-넣기(plug-in) 골격구조를 갖춘 <tt class="classname">Dialectizer</tt> 작업틀을 상상해 보세요. 오직 <tt class="function">translate</tt> 함수만 <tt class="filename">dialect.py</tt>에 남겨두고 <tt class="classname">Dialectizer</tt> 클래스마다 따로따로 파일에 둘 수 있습니다. 이름짓기 체계가 일관성이 있다고 간주하면 <tt class="function">translate</tt> 함수는 방언 이름만 주어져도 적절한 클래스를 적절한 파일에서 동적으로 반입할 수 있습니다. (아직 동적으로 반입하는 것은 보지 못했지만, 나중에 다루어 보겠습니다.)  새로 방언을 추가하려면 그냥 (<tt class="classname">FooDialectizer</tt> 클래스가 담긴 <tt class="filename">foodialect.py</tt>같이) 적절하게-이름 붙인 파일을 플러그-인 디렉토리에 두면 됩니다. <tt class="literal">'foo'</tt>라는 방언 이름으로 <tt class="function">translate</tt> 함수를 호출하면 <tt class="filename">foodialect.py</tt>라는 모듈을 찾아 <tt class="classname">FooDialectizer</tt> 클래스를 반입하고, 그리고 갈 길을 가는 거지요.
+               </p>
+               <div class="example"><a name="d0e22614"></a><h3 class="title">예제&nbsp;8.22.&nbsp; <tt class="function">translate</tt> 함수, 제 3 부&nbsp;
+                  </h3><pre class="programlisting">
+    parser.feed(htmlSource) <a name="dialect.alltogether.3.1"></a><span class="round">①</span>
+    parser.close()          <a name="dialect.alltogether.3.2"></a><span class="round">②</span>
+    return parser.output()  <a name="dialect.alltogether.3.3"></a><span class="round">③</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.alltogether.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이모저모 살펴본 바에 의하면 이는 아주 따분해 보이지만, <tt class="function">feed</tt> 함수가 바로 <a href="#dialect.feed.example" title="Example&nbsp;8.7.&nbsp;Using urllister.py">전체 변환을 담당합니다</a>.  전체 <span class="acronym">HTML</span> 소스를 하나의 문자열로 확보하였으므로, <tt class="function">feed</tt>를 한 번만 호출하면 됩니다. 그렇지만, 얼마든지 <tt class="function">feed</tt>를 호출할 수 있으며, 해석기는 여전히 해석을 수행합니다. 그래서 메모리가 모자랄까 걱정이 되면 (즉 아주 방대한 <span class="acronym">HTML</span> 페이지를 다루게 될 것이라는 사실을 알고 있으므로), 회돌이 안에서 이렇게 설정하면 됩니다. 필요한 만큼만 <span class="acronym">HTML</span> 바이트를 읽어서 해석기에 먹입니다. 그 결과는 같습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.alltogether.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">feed</tt> 함수는 내부 버퍼를 유지하고 있으므로, 일이 끝나면 언제나 해석기의 <tt class="function">close</tt> 메쏘드를 호출해야 합니다. (원하는대로 한 번에 모두 다 먹였다고 할지라도 말입니다). 그렇지 않으면 출력에서 맨 뒤의 몇 바이트가 없는 것을 보게 될 수도 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#dialect.alltogether.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">기억하세요. <tt class="function">output</tt>은 <tt class="classname">BaseHTMLProcessor</tt>에 정의한 함수입니다. 이 함수는 <a href="#dialect.output.example" title="Example&nbsp;8.9.&nbsp;BaseHTMLProcessor output">버퍼에 있는 모든 출력 조각들을 모아서</a> 한-개짜리 문자열로 돌려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이와 같이 웹 페이지 하나를 &#8220;<span class="quote">번역했습니다</span>&#8221;. 주어진 <span class="acronym">URL</span>과 사투리 이름으로 말입니다.
+               </p>
+               <div class="itemizedlist">
+                  <h3 class="title">더 읽어야 할 것</h3>
+                  <ul>
+                     <li>여러분은 서버-쪽 스크립팅 아이디어에 관하여 제가 농담하고 있다고 생각하셨을 겁니다. 저도 <a href="http://rinkworks.com/dialect/">이런 웹-기반의 방언처리기</a>를 발견하기 전까지는 그랬습니다. 불행하게도, 소스 코드는 얻을 수 없는 것 같습니다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="dialect.summary"></a>8.10.&nbsp;요약</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>이 제공하는 강력한 도구인 <tt class="filename">sgmllib.py</tt>를 사용하면 <span class="acronym">HTML</span>의 구조를 객체 모델로 변환함으로써 <span class="acronym">HTML</span>을 조작할 수 있습니다. 이 도구를 여러모로 사용할 수 있습니다.
+                  </p>
+               </div>
+               <div class="itemizedlist">
+                  <ul>
+                     <li>무언가 특정한 것을 찾기 위해 <span class="acronym">HTML</span>을 해석한다
+                     </li>
+                     <li><a href="#dialect.extract.links" title="Example&nbsp;8.6.&nbsp;Introducing urllister.py"><span class="acronym">URL</span> 목록자</a>와 같이, 결과를 모은다.</li>
+                     <li><a href="#dialect.quoting.example" title="Example&nbsp;8.16.&nbsp;Quoting attribute values">속성에 인용부호 붙이기</a>와 같이, 따라 가면서 구조를 바꾼다</li>
+                     <li><a href="#dialect.dialectizer" title="8.8.&nbsp;Introducing dialect.py">방언처리기<tt class="classname"></tt></a>와 같이, 태그는 그대로 두고 텍스트를 조작함으로써, <span class="acronym">HTML</span>을 뭔가 다른 것으로 변환한다.</li>
+                  </ul>
+               </div>
+               <p>다음 예제들과 더불어, 다음과 같은 것들을 편안하게 할 수 있어야 합니다:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><a href="#dialect.locals" title="8.5.&nbsp;locals and globals"><tt class="function">locals</tt>() 그리고 <tt class="function">globals</tt>()</a>를 사용하여 이름공간에 접근하기
+                     </li>
+                     <li>사전-기반의 교체를 이용한 <a href="#dialect.dictsub" title="8.6.&nbsp;Dictionary-based string formatting">문자열 형식화</a>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="footnotes"><br><hr width="100" align="left">
+               <div class="footnote">
+                  <p><sup>[<a name="ftn.d0e20503" href="#d0e20503">1</a>] </sup><tt class="classname">SGMLParser</tt>와 같은 해석기에 대한 기술적 용어는 <span class="emphasis"><em>소비자</em></span>입니다: 소비자는 <span class="acronym">HTML</span>을 먹어서 조각조각 분해합니다. 짐작하시듯이 감(<tt class="function">feed</tt>)이라는 이름은 &#8220;<span class="quote">소비자</span>&#8221;라는 모티프에 온전히 맞추기 위해 선택되었습니다. 개인적으로 그 때문에 나는 동물원의 전시회가 생각납니다. 캄캄한 철장만 있을 뿐 나무도 없고 풀도 없으며 아무런 생명도 느껴지지 않지만, 몸을 곧추 세우고 주의 깊게 살펴보면 반짝이는 두 개의 눈이 저 뒤 멀리 왼쪽 모퉁이에서 노려보고 있다고 느낍니다. 그러나 그것은 그냥 마음이 홀리는 것일 뿐이라고 마음을 다잡습니다. 울타리에 걸린 평범한 작은 경고판에 &#8220;<span class="quote">해석기에 먹이를 주지 마시오</span>&#8221;라고 씌여 있는 것을 보고서야 진실은 그냥 빈 철장일 뿐이라는 것을 알 수 있을 뿐입니다. 그러나 그가 바로 나일 수 있습니다. 어쨌든, 흥미로운 심상입니다.
+                  </p>
+               </div>
+               <div class="footnote">
+                  <p><sup>[<a name="ftn.d0e20702" href="#d0e20702">2</a>] </sup><span class="application">파이썬</span>이 문자열보다 리스트를 더 잘 다루는 이유는 리스트는 수정가능하지만 문자열은 수정이 불가능하기 때문입니다. 이는 리스트에 추가하면 그냥 원소가 추가되고 인덱스만 갱신된다는 뜻입니다. 문자열은 생성된 후 수정이 불가능하므로, <tt class="literal">s = s + newpiece</tt>과 같은 코드는 원래 문자열과 새 문자열을 결합하여 완전히 새로운 문자열을 생성합니다. 다음 원래 문자열을 버립니다. 이 때문에 메모리 관리가 너무 비싸게 먹히며 문자열이 길어질 수록 관련 노력이 증가합니다. 그래서 회돌이 안에서 <tt class="literal">s = s + newpiece</tt>를 시행하면 치명적입니다. 기술적 용어로, 리스트에 <tt class="varname">n</tt>개의 원소를 추가하면 <tt class="literal">O(n)</tt> 시간이 걸리는 반면에, 문자열에 <tt class="varname">n</tt>개의 원소를 추가하면 <tt class="literal">O(n<sup>2</sup>)</tt> 시간이 걸립니다.
+                  </p>
+               </div>
+               <div class="footnote">
+                  <p><sup>[<a name="ftn.d0e21226" href="#d0e21226">3</a>] </sup>나는 밖에 잘 나가지 않는다.
+                  </p>
+               </div>
+               <div class="footnote">
+                  <p><sup>[<a name="ftn.d0e21764" href="#d0e21764">4</a>] </sup>좋습니다. 그렇게 흔한 질문은 아닙니다. 이런 질문 보다는 못합니다. &#8220;<span class="quote"><span class="application">파이썬</span> 코드를 작성하려면 어떤 편집기를 사용해야 하는가?</span>&#8221; (답: <span class="application">Emacs</span>) 
+				  또는 &#8220;<span class="quote"><span class="application">파이썬</span>은 펄(<span class="application">Perl</span>)보다 좋은가 나쁜가?</span>&#8221; (답: &#8220;펄(<span class="quote"><span class="application">Perl</span>)이 <span class="application">파이썬</span> 보다 나쁘다. 사람들이 그러기를 바라기 때문이다.</span>&#8221; - 래리 월(Larry Wall), 10/14/1998). 그러나 <span class="acronym">HTML</span> 처리와 관한 질문이 이런 저런 형태로 한 달에 한 번 꼴로 올라오며, 그런 질문 중에서 이 질문이 자주 올라옵니다.
+                  </p>
+               </div>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap07.html">☜ 제 07 장 정규표현식</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap09.html">제 09 장 XML 처리 ☞</A></TD>
+</TR>
+</TABLE>
+   </body>
+</html>

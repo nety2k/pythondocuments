@@ -1,0 +1,993 @@
+        <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap15.html">http://coreapython.hosting.paran.com/dive/chap15.html</a><br>
+<b>Title:</b> 15. 요소화(Refactoring) &nbsp;&bull;&nbsp; <b>Size:</b> 75424<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap14.html">☜ 제 14 장 테스트-먼저 프로그래밍</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap16.html">제 16 장 기능적 프로그래밍 ☞</A></TD>
+</TR>
+</TABLE>
+		 <div name="15장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="roman2"></a>제&nbsp;15 장&nbsp;리팩토링</h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.bugs"></a>15.1.&nbsp;버그를 처리하는 방법</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>최선을 다해 종합적인 유닛 테스트를 작성하더라도 버그는 일어납니다. 본인이 생각하는 &#8220;<span class="quote">버그</span>&#8221;란 무슨 뜻일까요? 여기에서 버그란 아직 작성하지 않은 테스트 사례입니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e34158"></a><h3 class="title">예제&nbsp;15.1.&nbsp;버그의 예</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import roman5</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">roman5.fromRoman("")</span> <a name="roman.bugs.1.1"></a><span class="round">①</span>
+<span class="computeroutput">0</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.bugs.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">기억하십니까? <a href="http://coreapython.hosting.paran.com/dive/chap14.html#roman.stage5" title="14.5.&nbsp;roman.py, stage 5">앞 섹션</a>에서 유효한 로마 숫자인지 점검하는데 사용한 정규 표현식에 빈 문자열이 부합하는지 지켜보았습니다. 자, 알고보니 최종 버전의 정규 표현식에도 여전히 참입니다. 그것이 바로 버그입니다; 유효한 로마 숫자를 나타내지 못하는 다른 문자열과 마찬가지로 빈 문자열도 <tt class="errorcode">InvalidRomanNumeralError</tt> 예외를 일으키기를 바랍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>버그가 나타난 후 그리고 그 버그를 수정하기 전에,  실패하는 테스트 사례를 작성해서 그 버그를 예시하여야 합니다.</p>
+               <div class="example"><a name="d0e34188"></a><h3 class="title">예제&nbsp;15.2.&nbsp;버그 테스트 (<tt class="filename">romantest61.py</tt>)
+                  </h3><pre class="programlisting">
+class FromRomanBadInput(unittest.TestCase):                                      
+
+    # 앞의 테스트 사례는 명쾌하게 하기 위해 생략함 (바뀌지 않고 그대로임)
+
+    def testBlank(self):
+        """fromRoman은 빈 문자열에 실패해야 한다"""
+        self.assertRaises(roman.InvalidRomanNumeralError, roman.fromRoman, "") <a name="roman.bugs.2.1"></a><span class="round">①</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.bugs.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">아주 간단합니다.  빈 문자열을 가지고 <tt class="function">fromRoman</tt>을 호출해서 <tt class="errorcode">InvalidRomanNumeralError</tt> 예외를 일으키는지 확인하세요. 버그를 발견하는 부분이 어려웠습니다; 이제 그에 관하여 알았으므로 테스트하는 일은 쉽습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>코드에 버그가 있고, 이제 이 버그를 테스트하는 테스트 사례가 있으므로 테스트 사례는 실패합니다:</p>
+               <div class="example"><a name="d0e34210"></a><h3 class="title">예제&nbsp;15.3.&nbsp; <tt class="filename">roman61.py</tt>에 대하여 <tt class="filename">romantest61.py</tt>를 출력</h3><pre class="screen"><span class="computeroutput">fromRoman should only accept uppercase input ... ok
+toRoman should always return uppercase ... ok
+fromRoman should fail with blank string ... FAIL
+fromRoman should fail with malformed antecedents ... ok
+fromRoman should fail with repeated pairs of numerals ... ok
+fromRoman should fail with too many repeated numerals ... ok
+fromRoman should give known result with known input ... ok
+toRoman should give known result with known input ... ok
+fromRoman(toRoman(n))==n for all n ... ok
+toRoman should fail with non-integer input ... ok
+toRoman should fail with negative input ... ok
+toRoman should fail with large input ... ok
+toRoman should fail with 0 input ... ok
+
+======================================================================
+FAIL: fromRoman should fail with blank string
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage6\romantest61.py", line 137, in testBlank
+    self.assertRaises(roman61.InvalidRomanNumeralError, roman61.fromRoman, "")
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+----------------------------------------------------------------------
+Ran 13 tests in 2.864s
+
+FAILED (failures=1)</span></pre></div>
+               <p><span class="emphasis"><em>이제</em></span> 버그를 수정할 수 있습니다.
+               </p>
+               <div class="example"><a name="d0e34229"></a><h3 class="title">예제&nbsp;15.4.&nbsp;버그 수정하기 (<tt class="filename">roman62.py</tt>)
+                  </h3>
+                  <p>다음 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage6/</tt>에 있습니다.
+                  </p><pre class="programlisting">
+def fromRoman(s):
+    """로마 숫자를 정수로 변환한다"""
+    if not s: <a name="roman.bugs.4.1"></a><span class="round">①</span>
+        raise InvalidRomanNumeralError, 'Input can not be blank'
+    if not re.search(romanNumeralPattern, s):
+        raise InvalidRomanNumeralError, 'Invalid Roman numeral: %s' % s
+
+    result = 0
+    index = 0
+    for numeral, integer in romanNumeralMap:
+        while s[index:index+len(numeral)] == numeral:
+            result += integer
+            index += len(numeral)
+    return result
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.bugs.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">오직 두 줄의 코드만 필요합니다: 빈 문자열을 명시적으로 점검하고, <tt class="literal">raise</tt> 서술문이 있으면 됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e34251"></a><h3 class="title">예제&nbsp;15.5.&nbsp; <tt class="filename">roman62.py</tt>에 대하여 <tt class="filename">romantest62.py</tt> 출력</h3><pre class="screen"><span class="computeroutput">fromRoman should only accept uppercase input ... ok
+toRoman should always return uppercase ... ok
+fromRoman should fail with blank string ... ok </span><a name="roman.bugs.5.1"></a><span class="round">①</span><span class="computeroutput">
+fromRoman should fail with malformed antecedents ... ok
+fromRoman should fail with repeated pairs of numerals ... ok
+fromRoman should fail with too many repeated numerals ... ok
+fromRoman should give known result with known input ... ok
+toRoman should give known result with known input ... ok
+fromRoman(toRoman(n))==n for all n ... ok
+toRoman should fail with non-integer input ... ok
+toRoman should fail with negative input ... ok
+toRoman should fail with large input ... ok
+toRoman should fail with 0 input ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 2.834s
+
+OK</span> <a name="roman.bugs.5.2"></a><span class="round">②</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.bugs.5.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">빈 문자열 테스트 사례는 이제 통과합니다. 그래서 버그는 수정되었습니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.bugs.5.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">다른 테스트도 모두 통과하는데, 이는 이 버그 수정이 어떤 것도 망가트리지 않았다는 뜻입니다. 코딩을 멈추세요.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이런 식으로 코딩한다고 하더라도 더 쉽게 버그를 수정할 수 있는 것은 아닙니다. (이와 같이) 간단한 버그는 간단한 테스트 사례를 요구합니다; 복잡한 버그라면 복잡한 테스트 사례가 요구됩니다. 테스트-중심적 환경에서, 버그를 수정하는데 시간이 <span class="emphasis"><em>더 걸리는 듯 보이는데</em></span>, 정확하게 버그가 무엇인지 코드에 규정하고 (즉, 테스트 사례를 만들고), 버그 자체를 수정해야 하기 때문입니다. 다음으로 테스트 사례가 곧바로 통과하지 못하면 수정을 잘못했는지 아니면 테스트 사례 자체에 버그가 있는지 알아볼 필요가 있습니다. 그렇지만 장기적인 관점에서 보면 이렇게 테스트하는 코드와 테스트되는 코드 사이를 왔다갔다 하는 것은 그 자체로 효과가 있습니다. 왜냐하면 버그가 처음 발견되자 마자 올바르게 수정될 가능성이 더 높아지기 때문입니다. 또한, 새로운 테스트 사례와 함께 <span class="emphasis"><em>모든 테스트 사례</em></span>를 쉽게 재실행할 수 있으므로, 새로운 코드를 수정할 때 예전 코드를 망가트릴 가능성이 훨씬 더 적습니다. 오늘의 유닛 테스트는 내일의 회귀 테스트입니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.change"></a>15.2.&nbsp;요구조건 변경을 처리하는 법</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>고객을 뉘여 놓고 가위와 뜨거운 왁스로 고문해서 최선을 다해 요구조건을 짜냈을지라도 요구조건은 변합니다. 대부분의 고객은 보기 전까지는 무엇을 원하는지 알지 못하며, 심지어 보더라도 무엇이면 충분히 유용할지 정밀하게 조목조목 규정하지 못합니다. 정밀하게 규정한다고 할지라도 어쨌든 다음 배포본에는 더 많은 것을 원합니다. 그래서 요구 조건이 변함에 따라 테스트 사례를 갱신할 준비를 해야 합니다. 
+                  </p>
+               </div>
+               <p>예를 들면 로마 숫자 변환 함수의 변환 범위를 확대하고 싶다고 해봅시다. 기억하십니까? <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.divein" title="13.2.&nbsp;Diving in">규칙에 의하면</a> 어떤 문자도 세번을 넘어 반복할 수 없습니다. 자, 로마 숫자는 얼마든지 그 규칙에 예외를 두어 4개의 <tt class="literal">M</tt> 문자를 일렬로 두어 <tt class="literal">4000</tt>을 표현할 수 있습니다.  이를 바꾸면 변환한 가능한 숫자 범위를 <tt class="literal">1..3999</tt>에서 <tt class="literal">1..4999</tt>로 확대할 수 있습니다. 그러나, 먼저 테스트 사례에 몇가지 변경을 가할 필요가 있습니다.
+               </p>
+               <div class="example"><a name="d0e34307"></a><h3 class="title">예제&nbsp;15.6.&nbsp;새로운 요구조건에 맞추기 위하여 테스트 사례 수정하기 (<tt class="filename">romantest71.py</tt>)
+                  </h3>
+                  <p>이 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage7/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">예제를</a> 내려받을 수 있습니다.
+                  </p><pre class="programlisting">
+import roman71
+import unittest
+
+class KnownValues(unittest.TestCase):
+    knownValues = ( (1, 'I'),
+                    (2, 'II'),
+                    (3, 'III'),
+                    (4, 'IV'),
+                    (5, 'V'),
+                    (6, 'VI'),
+                    (7, 'VII'),
+                    (8, 'VIII'),
+                    (9, 'IX'),
+                    (10, 'X'),
+                    (50, 'L'),
+                    (100, 'C'),
+                    (500, 'D'),
+                    (1000, 'M'),
+                    (31, 'XXXI'),
+                    (148, 'CXLVIII'),
+                    (294, 'CCXCIV'),
+                    (312, 'CCCXII'),
+                    (421, 'CDXXI'),
+                    (528, 'DXXVIII'),
+                    (621, 'DCXXI'),
+                    (782, 'DCCLXXXII'),
+                    (870, 'DCCCLXX'),
+                    (941, 'CMXLI'),
+                    (1043, 'MXLIII'),
+                    (1110, 'MCX'),
+                    (1226, 'MCCXXVI'),
+                    (1301, 'MCCCI'),
+                    (1485, 'MCDLXXXV'),
+                    (1509, 'MDIX'),
+                    (1607, 'MDCVII'),
+                    (1754, 'MDCCLIV'),
+                    (1832, 'MDCCCXXXII'),
+                    (1993, 'MCMXCIII'),
+                    (2074, 'MMLXXIV'),
+                    (2152, 'MMCLII'),
+                    (2212, 'MMCCXII'),
+                    (2343, 'MMCCCXLIII'),
+                    (2499, 'MMCDXCIX'),
+                    (2574, 'MMDLXXIV'),
+                    (2646, 'MMDCXLVI'),
+                    (2723, 'MMDCCXXIII'),
+                    (2892, 'MMDCCCXCII'),
+                    (2975, 'MMCMLXXV'),
+                    (3051, 'MMMLI'),
+                    (3185, 'MMMCLXXXV'),
+                    (3250, 'MMMCCL'),
+                    (3313, 'MMMCCCXIII'),
+                    (3408, 'MMMCDVIII'),
+                    (3501, 'MMMDI'),
+                    (3610, 'MMMDCX'),
+                    (3743, 'MMMDCCXLIII'),
+                    (3844, 'MMMDCCCXLIV'),
+                    (3888, 'MMMDCCCLXXXVIII'),
+                    (3940, 'MMMCMXL'),
+                    (3999, 'MMMCMXCIX'),
+                    (4000, 'MMMM'),                                       <a name="roman.change.1.1"></a><span class="round">①</span>
+                    (4500, 'MMMMD'),
+                    (4888, 'MMMMDCCCLXXXVIII'),
+                    (4999, 'MMMMCMXCIX'))
+
+    def testToRomanKnownValues(self):
+        """toRoman should give known result with known input"""
+        for integer, numeral in self.knownValues:
+            result = roman71.toRoman(integer)
+            self.assertEqual(numeral, result)
+
+    def testFromRomanKnownValues(self):
+        """fromRoman should give known result with known input"""
+        for integer, numeral in self.knownValues:
+            result = roman71.fromRoman(numeral)
+            self.assertEqual(integer, result)
+
+class ToRomanBadInput(unittest.TestCase):
+    def testTooLarge(self):
+        """toRoman should fail with large input"""
+        self.assertRaises(roman71.OutOfRangeError, roman71.toRoman, 5000) <a name="roman.change.1.2"></a><span class="round">②</span>
+
+    def testZero(self):
+        """toRoman should fail with 0 input"""
+        self.assertRaises(roman71.OutOfRangeError, roman71.toRoman, 0)
+
+    def testNegative(self):
+        """toRoman should fail with negative input"""
+        self.assertRaises(roman71.OutOfRangeError, roman71.toRoman, -1)
+
+    def testNonInteger(self):
+        """toRoman should fail with non-integer input"""
+        self.assertRaises(roman71.NotIntegerError, roman71.toRoman, 0.5)
+
+class FromRomanBadInput(unittest.TestCase):
+    def testTooManyRepeatedNumerals(self):
+        """fromRoman should fail with too many repeated numerals"""
+        for s in ('MMMMM', 'DD', 'CCCC', 'LL', 'XXXX', 'VV', 'IIII'):     <a name="roman.change.1.3"></a><span class="round">③</span>
+            self.assertRaises(roman71.InvalidRomanNumeralError, roman71.fromRoman, s)
+
+    def testRepeatedPairs(self):
+        """fromRoman should fail with repeated pairs of numerals"""
+        for s in ('CMCM', 'CDCD', 'XCXC', 'XLXL', 'IXIX', 'IVIV'):
+            self.assertRaises(roman71.InvalidRomanNumeralError, roman71.fromRoman, s)
+
+    def testMalformedAntecedent(self):
+        """fromRoman should fail with malformed antecedents"""
+        for s in ('IIMXCC', 'VX', 'DCM', 'CMM', 'IXIV',
+                  'MCMC', 'XCX', 'IVI', 'LM', 'LD', 'LC'):
+            self.assertRaises(roman71.InvalidRomanNumeralError, roman71.fromRoman, s)
+
+    def testBlank(self):
+        """fromRoman should fail with blank string"""
+        self.assertRaises(roman71.InvalidRomanNumeralError, roman71.fromRoman, "")
+
+class SanityCheck(unittest.TestCase):
+    def testSanity(self):
+        """fromRoman(toRoman(n))==n for all n"""
+        for integer in range(1, 5000):                                    <a name="roman.change.1.4"></a><span class="round">④</span>
+            numeral = roman71.toRoman(integer)
+            result = roman71.fromRoman(numeral)
+            self.assertEqual(integer, result)
+
+class CaseCheck(unittest.TestCase):
+    def testToRomanCase(self):
+        """toRoman should always return uppercase"""
+        for integer in range(1, 5000):
+            numeral = roman71.toRoman(integer)
+            self.assertEqual(numeral, numeral.upper())
+
+    def testFromRomanCase(self):
+        """fromRoman should only accept uppercase input"""
+        for integer in range(1, 5000):
+            numeral = roman71.toRoman(integer)
+            roman71.fromRoman(numeral.upper())
+            self.assertRaises(roman71.InvalidRomanNumeralError,
+                              roman71.fromRoman, numeral.lower())
+
+if __name__ == "__main__":
+    unittest.main()
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.change.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">기존의 알려진 값은 변하지 않았지만 (모두 여전히 테스트할 이유가 있는 값들입니다), <tt class="literal">4000</tt> 범위에서 몇개 더 추가할 필요가 있습니다. 여기에서는 <tt class="literal">4000</tt> (가장 길이가 짧음), <tt class="literal">4500</tt> (두 번째로 짧음), <tt class="literal">4888</tt> (가장 길이가 김), 그리고 <tt class="literal">4999</tt> (가장 큰 수)를 포함시켰습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.change.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">&#8220;<span class="quote">큰 입력의 정의</span>&#8221;가 변했습니다. 이 테스트는 <tt class="literal">4000</tt>을 가지고 <tt class="function">toRoman</tt>을 호출하고 에러를 기대했었습니다; 이제 <tt class="literal">4000-4999</tt>가 좋은 값이므로, 이 범위를 <tt class="literal">5000</tt>까지 확대할 필요가 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.change.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">&#8220;<span class="quote">너무 많이 반복된 숫자</span>&#8221;의 정의도 바뀌었습니다. 이 테스트는  <tt class="literal">'MMMM'</tt>을 가지고 <tt class="function">fromRoman</tt>을 호출하고 에러를 기대했었습니다; 이제는 <tt class="literal">MMMM</tt>이 유요한 로마 숫자이므로 <tt class="literal">'MMMMM'</tt>까지 확대할 필요가 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.change.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">위생 점검과 대소문자 점검은 <tt class="constant">1</tt>에서 <tt class="literal">3999</tt>까지의 모든 숫자를 회돌이합니다. 그 범위가 이제 확대되었으므로, 이 <tt class="literal">for</tt> 회돌이도 갱신하여 <tt class="literal">4999</tt>까지 처리할 필요가 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이제 테스트 사례가 새로운 요구조건으로 갱신되었지만 코드는 그렇지 않습니다. 그래서 여러 테스트 사례가 실패할 것입니다.
+               </p>
+               <div class="example"><a name="d0e34405"></a><h3 class="title">예제&nbsp;15.7.&nbsp; <tt class="filename">roman71.py</tt>에 대하여 <tt class="filename">romantest71.py</tt> 출력</h3><pre class="screen"><span class="computeroutput">
+fromRoman should only accept uppercase input ... ERROR        </span><a name="roman.change.2.1"></a><span class="round">①</span><span class="computeroutput">
+toRoman should always return uppercase ... ERROR
+fromRoman should fail with blank string ... ok
+fromRoman should fail with malformed antecedents ... ok
+fromRoman should fail with repeated pairs of numerals ... ok
+fromRoman should fail with too many repeated numerals ... ok
+fromRoman should give known result with known input ... ERROR </span><a name="roman.change.2.2"></a><span class="round">②</span><span class="computeroutput">
+toRoman should give known result with known input ... ERROR   </span><a name="roman.change.2.3"></a><span class="round">③</span><span class="computeroutput">
+fromRoman(toRoman(n))==n for all n ... ERROR                  </span><a name="roman.change.2.4"></a><span class="round">④</span><span class="computeroutput">
+toRoman should fail with non-integer input ... ok
+toRoman should fail with negative input ... ok
+toRoman should fail with large input ... ok
+toRoman should fail with 0 input ... ok
+</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.change.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">대소문자 점검은 이제 실패합니다. 왜냐하면 회돌이가 <tt class="constant">1</tt>에서 <tt class="literal">4999</tt>까지 돌지만 <tt class="function">toRoman</tt>은 오직 <tt class="constant">1</tt>에서 <tt class="literal">3999</tt>까지의 숫자만 받아들이기 때문입니다. 그래서 테스트 사례가 <tt class="literal">4000</tt>에 도달하면 바로 실패합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.change.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">fromRoman</tt> 알려진 값 테스트는 <tt class="literal">'MMMM'</tt>에 도달하자 마자 실패합니다. 왜냐하면 <tt class="function">fromRoman</tt>은 여전히 이것이 유효한 로마 숫자가 아니라고 생각하기 때문입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.change.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">toRoman</tt> 알려진 값 테스트는 <tt class="literal">4000</tt>에 도달하면 바로 실패합니다. 왜냐하면 <tt class="function">toRoman</tt>은 여전히 이 숫자가 범위를 벗어난다고 생각하기 때문입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.change.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">4000</tt>에 도달하면 위생 점검도 실패합니다. 왜냐하면 <tt class="function">toRoman</tt>은 여전히 이 숫자가 범위를 벗어난다고 생각하기 때문입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div><pre class="screen"><span class="computeroutput">
+======================================================================
+ERROR: fromRoman should only accept uppercase input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage7\romantest71.py", line 161, in testFromRomanCase
+    numeral = roman71.toRoman(integer)
+  File "roman71.py", line 28, in toRoman
+    raise OutOfRangeError, "number out of range (must be 1..3999)"
+OutOfRangeError: number out of range (must be 1..3999)</span><span class="computeroutput">
+======================================================================
+ERROR: toRoman should always return uppercase
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage7\romantest71.py", line 155, in testToRomanCase
+    numeral = roman71.toRoman(integer)
+  File "roman71.py", line 28, in toRoman
+    raise OutOfRangeError, "number out of range (must be 1..3999)"
+OutOfRangeError: number out of range (must be 1..3999)</span><span class="computeroutput">
+======================================================================
+ERROR: fromRoman should give known result with known input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage7\romantest71.py", line 102, in testFromRomanKnownValues
+    result = roman71.fromRoman(numeral)
+  File "roman71.py", line 47, in fromRoman
+    raise InvalidRomanNumeralError, 'Invalid Roman numeral: %s' % s
+InvalidRomanNumeralError: Invalid Roman numeral: MMMM</span><span class="computeroutput">
+======================================================================
+ERROR: toRoman should give known result with known input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage7\romantest71.py", line 96, in testToRomanKnownValues
+    result = roman71.toRoman(integer)
+  File "roman71.py", line 28, in toRoman
+    raise OutOfRangeError, "number out of range (must be 1..3999)"
+OutOfRangeError: number out of range (must be 1..3999)</span><span class="computeroutput">
+======================================================================
+ERROR: fromRoman(toRoman(n))==n for all n
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage7\romantest71.py", line 147, in testSanity
+    numeral = roman71.toRoman(integer)
+  File "roman71.py", line 28, in toRoman
+    raise OutOfRangeError, "number out of range (must be 1..3999)"
+OutOfRangeError: number out of range (must be 1..3999)</span><span class="computeroutput">
+----------------------------------------------------------------------
+Ran 13 tests in 2.213s
+
+FAILED (errors=5)</span></pre></div>
+               <p>이제 새로운 요구조건 때문에 실패하는 테스트 사례들이 있으므로, 그 요구조건이 다른 테스트 사례들과 조화를 이루도록 코드를 수정할 생각을 가져도 좋습니다. (유닛 테스트를 처음 코딩할 때 익숙해 진 한 가지는 테스트 중인 코드는 절대로 테스트 사례보다 &#8220;<span class="quote">먼저</span>&#8221;가 아니라는 것입니다. 테스트 중인 코드가 뒤에 있는 한, 여전히 해야 할 일이 있는 것이고, 테스트 사례를 따라 잡는 순간, 코딩을 멈춥니다.)
+               </p>
+               <div class="example"><a name="d0e34511"></a><h3 class="title">예제&nbsp;15.8.&nbsp;새로운 요구조건을 코딩하는 법 (<tt class="filename">roman72.py</tt>)
+                  </h3>
+                  <p>다음 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage7/</tt>에 있습니다.
+                  </p><pre class="programlisting">
+"""Convert to and from Roman numerals"""
+import re
+
+#Define exceptions
+class RomanError(Exception): pass
+class OutOfRangeError(RomanError): pass
+class NotIntegerError(RomanError): pass
+class InvalidRomanNumeralError(RomanError): pass
+
+#Define digit mapping
+romanNumeralMap = (('M',  1000),
+                   ('CM', 900),
+                   ('D',  500),
+                   ('CD', 400),
+                   ('C',  100),
+                   ('XC', 90),
+                   ('L',  50),
+                   ('XL', 40),
+                   ('X',  10),
+                   ('IX', 9),
+                   ('V',  5),
+                   ('IV', 4),
+                   ('I',  1))
+
+def toRoman(n):
+    """convert integer to Roman numeral"""
+    if not (0 &lt; n &lt; 5000):                                                         <a name="roman.change.3.1"></a><span class="round">①</span>
+        raise OutOfRangeError, "number out of range (must be 1..4999)"
+    if int(n) &lt;&gt; n:
+        raise NotIntegerError, "non-integers can not be converted"
+
+    result = ""
+    for numeral, integer in romanNumeralMap:
+        while n &gt;= integer:
+            result += numeral
+            n -= integer
+    return result
+
+#Define pattern to detect valid Roman numerals
+romanNumeralPattern = '^M?M?M?M?(CM|CD|D?C?C?C?)(XC|XL|L?X?X?X?)(IX|IV|V?I?I?I?)$' <a name="roman.change.3.2"></a><span class="round">②</span>
+
+def fromRoman(s):
+    """convert Roman numeral to integer"""
+    if not s:
+        raise InvalidRomanNumeralError, 'Input can not be blank'
+    if not re.search(romanNumeralPattern, s):
+        raise InvalidRomanNumeralError, 'Invalid Roman numeral: %s' % s
+
+    result = 0
+    index = 0
+    for numeral, integer in romanNumeralMap:
+        while s[index:index+len(numeral)] == numeral:
+            result += integer
+            index += len(numeral)
+    return result
+</pre></div>
+               <div class="calloutlist">
+                  <table border="0" summary="Callout list">
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#roman.change.3.1"><span class="round">①</span></a> 
+                        </td>
+                        <td valign="top" align="left"><tt class="function">toRoman</tt>을 범위 점검에서 조금만 바꾸면 됩니다. 예전에는 <tt class="literal">0 &lt; n &lt; 4000</tt>을 점검했지만 이제 <tt class="literal">0 &lt; n &lt; 5000</tt>를 점검합니다. 그리고 새로 받아들일 수 있는 범위(<tt class="literal">1..3999</tt>대신 <tt class="literal">1..4999</tt>)를 반영하기 위하여 일으킨(<tt class="literal">raise</tt>) 에러 메시지를 바꿉니다. 함수의 나머지 부분은 전혀 바꿀 필요가 없습니다; 이미 새로운 사례를 처리합니다. (천의 자리를 만나면 즐겁게 <tt class="literal">'M'</tt>을 추가합니다; <tt class="literal">4000</tt>이 주어지면 <tt class="literal">'MMMM'</tt>을 뱉아냅니다.  앞에서 이렇게 하지 않은 유일한 이유는 범위 점검에서 명시적으로 멈추도록 지정했기 때문입니다.)
+                        </td>
+                     </tr>
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#roman.change.3.2"><span class="round">②</span></a> 
+                        </td>
+                        <td valign="top" align="left"><tt class="function">fromRoman</tt>은 전혀 고칠 필요가 없습니다. <tt class="varname">romanNumeralPattern</tt>만 바꾸면 됩니다; 세심하게 살펴보면 정규 표현식의 첫 부분에 선택적인 <tt class="literal">M</tt>을 하나 더 추가했다는 것을 아실 수 있습니다.  이렇게 하면 <tt class="literal">M</tt> 문자를 3개가 아니라 4개까지 추가할 수 있는데, 다시 말해 <tt class="literal">3999</tt> 대신에 <tt class="literal">4999</tt>와 동등한 로마 숫자를 쓸 수 있다는 뜻입니다. 실제 <tt class="function">fromRoman</tt> 함수는 완벽하게 일반적입니다; 얼마나 많이 반복되는지 신경쓰지 않고 반복된 로마 숫자 문자를 그냥 찾아서 추가합니다. 예전에 <tt class="literal">'MMMM'</tt>을 처리하지 않은 것은 정규 표현식 패턴 매칭으로 명시적으로 중지시켰기 때문입니다.
+                        </td>
+                     </tr>
+                  </table>
+               </div>
+               <p>이렇게 두 개만 조금 바꾸면 된다는 사실이 믿어지지 않을 수 있습니다. 여러분, 제 말을 곧이 곧대로 믿지 말고; 스스로 알아 보세요:</p>
+               <div class="example"><a name="roman.roman72.output"></a><h3 class="title">예제&nbsp;15.9.&nbsp;<tt class="filename">roman72.py</tt>에 대한 <tt class="filename">romantest72.py</tt>의 출력</h3><pre class="screen"><span class="computeroutput">fromRoman should only accept uppercase input ... ok
+toRoman should always return uppercase ... ok
+fromRoman should fail with blank string ... ok
+fromRoman should fail with malformed antecedents ... ok
+fromRoman should fail with repeated pairs of numerals ... ok
+fromRoman should fail with too many repeated numerals ... ok
+fromRoman should give known result with known input ... ok
+toRoman should give known result with known input ... ok
+fromRoman(toRoman(n))==n for all n ... ok
+toRoman should fail with non-integer input ... ok
+toRoman should fail with negative input ... ok
+toRoman should fail with large input ... ok
+toRoman should fail with 0 input ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.685s
+
+OK</span> <a name="roman.change.4.1"></a><span class="round">①</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.change.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">모든 테스트 사례가 통과합니다. 코딩을 멈추세요.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>종합적인 유닛 테스트는 &#8220;<span class="quote">나를 믿어요</span>&#8221;라고 말하는 프로그래머에게 절대로 의존하지 않습니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.refactoring"></a>15.3.&nbsp;리팩토링</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>유닛 테스트에 관하여 가장 좋은 것은 마침내 테스트 사례가 모두 통과할 때 느끼는 기쁨도 아니며, 심지어 코드를 망가트렸다고 다른 사람이 나를 비난했지만 실제로는 그렇지 않다는 것을 <span class="emphasis"><em>증명했을</em></span> 때의 기쁨도 아닙니다. 유닛 테스트에 관하여 가장 좋은 것은 바로 철저하게 마음대로 리팩토링을 할 수 있다는 것입니다.
+                  </p>
+               </div>
+               <p>리팩토링은 작동하는 코드를 취해 더 잘 작동하도록 처리하는 것입니다. 보통, &#8220;<span class="quote">더 잘 작동한다</span>&#8221;는 의미는 &#8220;<span class="quote">더 빠르다</span>&#8221;는 뜻입니다. 물론, &#8220;<span class="quote">메모리를 덜 사용한다거나</span>&#8221; &#8220;<span class="quote">디스크 공간을 덜 사용한다거나</span>&#8221;  또는 그냥 &#8220;<span class="quote">더 우아하게 작동한다</span>&#8221;는 뜻이기도 합니다. 여러분의 상황에서 어떤 의미를 가지든, 리팩토링은 장기간의 관점에서 프로그램이 건강하려면 중요합니다.
+               </p>
+               <p>여기에서 &#8220;<span class="quote">더 좋다</span>&#8221;라는 의미는 &#8220;<span class="quote">더 빠르다</span>&#8221;는 뜻입니다. 구체적으로 말해, <tt class="function">fromRoman</tt> 함수는 필요 이상 느립니다. 성가신 커다란 정규 표현식을 사용하여 로마 숫자를 평가하기 때문입니다. 정규 표현식을 없애려는 시도는 가치가 없어 보입니다 (어려울 뿐만 아니라 더 빠르게 될지도 의문입니다). 그러나 정규 표현식을 컴파일하면 함수를 더 빠르게 만들 수 있습니다.
+               </p>
+               <div class="example"><a name="d0e34647"></a><h3 class="title">예제&nbsp;15.10.&nbsp;정규 표현식 컴파일하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import re</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M?M?M?$'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'M')</span>               <a name="roman.refactoring.1.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;SRE_Match object at 01090490&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">compiledPattern = re.compile(pattern)</span> <a name="roman.refactoring.1.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">compiledPattern</span>
+<span class="computeroutput">&lt;SRE_Pattern object at 00F06E28&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">dir(compiledPattern)</span>                  <a name="roman.refactoring.1.3"></a><span class="round">③</span>
+<span class="computeroutput">['findall', 'match', 'scanner', 'search', 'split', 'sub', 'subn']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">compiledPattern.search('M')</span>           <a name="roman.refactoring.1.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;SRE_Match object at 01104928&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 구문은 앞서 보았습니다: <tt class="function">re.search</tt>는 정규 표현식을 문자열(<tt class="varname">pattern</tt>)로 취해 그에 상응하는 문자열(<tt class="literal">'M'</tt>)을 돌려줍니다. 패턴이 일치하면 함수는 일치 객체를 돌려줍니다. 이 객체에 질의하면 정확하게 무엇이 부합하는지 그리고 어떻게 부합하는지 알 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 새로운 구문입니다: <tt class="function">re.compile</tt>은 정규 표현식을 문자열로 취해 패턴 객체를 돌려줍니다. 여기에 부합하는 문자열이 없음을 주목하세요. 정규 표현식을 컴파일하는 것은 (예를 들면 <tt class="literal">'M'</tt> 같은) 특정한 문자열에 대하여 일치시키는 것과 전혀 관계가 없습니다; 오직 정규 그 자체에만 관련이 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">re.compile</tt>이 돌려주는 컴파일된 패턴 객체는 유용해 보이는 함수가 여럿 있습니다. 여기에는 <tt class="filename">re</tt> 모듈에서 (<tt class="function">search</tt> 그리고 <tt class="function">sub</tt> 같이) 직접적으로 사용하능한 여러 함수가 포함되어 있습니다. 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">문자열  <tt class="literal">'M'</tt>을 가지고 컴파일된 패턴 객체의 <tt class="function">search</tt> 함수를 호출하면 정규표현식과 문자열 <tt class="literal">'M'</tt>을 가지고 <tt class="function">re.search</tt> 함수를 호출한 것과 똑 같은 효과가 있습니다. 오직 더 빠를 뿐입니다.  (실제로, <tt class="function">re.search</tt> 함수는 여러분 대신 그냥 정규 표현식을 컴파일해서 그 결과 패턴 객체의 <tt class="function">search</tt> 메쏘드를 호출합니다.)
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="d0e34764"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">정규 표현식을 여러 번 사용할 생각이라면 컴파일해서 패턴 객체를 얻은 다음, 그 패턴 객체에 직접 메쏘드를 요청해야 합니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="d0e34769"></a><h3 class="title">예제&nbsp;15.11.&nbsp;<tt class="filename">roman81.py</tt>의 컴파일된 정규 표현식</h3>
+                  <p>이 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage8/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">예제를</a> 내려받을 수 있습니다.
+                  </p><pre class="programlisting">
+# toRoman 그리고 나머지 모듈은 깨끗하게 생략함.
+
+romanNumeralPattern = \
+    re.compile('^M?M?M?M?(CM|CD|D?C?C?C?)(XC|XL|L?X?X?X?)(IX|IV|V?I?I?I?)$') <a name="roman.refactoring.2.1"></a><span class="round">①</span>
+
+def fromRoman(s):
+    """로마 숫자를 정수로 변환한다"""
+    if not s:
+        raise InvalidRomanNumeralError, 'Input can not be blank'
+    if not romanNumeralPattern.search(s):                                    <a name="roman.refactoring.2.2"></a><span class="round">②</span>
+        raise InvalidRomanNumeralError, 'Invalid Roman numeral: %s' % s
+
+    result = 0
+    index = 0
+    for numeral, integer in romanNumeralMap:
+        while s[index:index+len(numeral)] == numeral:
+            result += integer
+            index += len(numeral)
+    return result
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">아주 비슷하게 보이지만 사실은 많은 것이 바뀌었습니다.  <tt class="varname">romanNumeralPattern</tt>은 더 이상 문자열이 아닙니다; <tt class="function">re.compile</tt>로부터 반환된 패턴 객체입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">즉 <tt class="varname">romanNumeralPattern</tt>에 직접적으로 메쏘드를 요청할 수 있다는 뜻입니다. 매번  <tt class="function">re.search</tt>를 호출하는 것보다 이 편이 훨씬 더 빠릅니다. 모듈이 처음 도입될 때 정규 표현식은 한번 컴파일되어 <tt class="varname">romanNumeralPattern</tt>에 저장됩니다; 그러면 <tt class="function">fromRoman</tt>을 호출할 때마다, 정규 표현식에 대하여 입력 문자열을 즉시 일치시킬 수 있습니다. 뚜껑 아래에서 일어나는 중간 단계를 거칠 필요가 없습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>그래서 정규 표현식을 컴파일하면 얼마나 빠른가? 스스로 알아 보세요:</p>
+               <div class="example"><a name="roman.stage8.1.output"></a><h3 class="title">예제&nbsp;15.12.&nbsp;<tt class="filename">roman81.py</tt>에 대한 <tt class="filename">romantest81.py</tt>의 출력</h3><pre class="screen"><span class="computeroutput">.............          </span><a name="roman.refactoring.3.1"></a><span class="round">①</span><span class="computeroutput">
+----------------------------------------------------------------------
+Ran 13 tests in 3.385s </span><a name="roman.refactoring.3.2"></a><span class="round">②</span><span class="computeroutput">
+
+OK</span>                     <a name="roman.refactoring.3.3"></a><span class="round">③</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">지나는 길에 한마디 하자면: 이번에는 유닛 테스트를 <tt class="option">-v</tt> 옵션 <span class="emphasis"><em> 없이</em></span> 실행했습니다. 그래서 각 테스트마다 통과하면 완전한 문서화 문자열<tt class="literal"></tt> 대신에 점만 나옵니다.  (테스트가 실패하면 <tt class="literal">F</tt>가 나오고, 에러이면 <tt class="literal">E</tt>를 얻었습니다. 여전히 에러와 실패마다 완벽하게 역추적을 얻을 수 있으므로, 어떤 문제든지 추적해 들어갈 수 있습니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">13</tt>개의 테스트가 <tt class="literal">3.385</tt> 초에 실행되었습니다. 정규 표현식을 미리 컴파일하지 않았을 경우 <a href="#roman.roman72.output" title="Example&nbsp;15.9.&nbsp;Output of romantest72.py against roman72.py"><tt class="literal">3.685</tt> 초</a>가 걸린 것에 비해서 말입니다. 전반적으로 <tt class="literal">8%</tt>가 개선되었습니다. 그리고 기억하세요. 유닛 테스트 중에 소비된 시간은 대부분 다른 일을 하는데 소비된 시간입니다. (나머지 유닛 테스트와 떼어서, 별도로 정규 표현식만 시간을 재어 보았는데, 이 정규 표현식을 컴파일하면 검색(<tt class="function">search</tt>) 속도가 평균 <tt class="literal">54%</tt>가량 증가되었습니다.)  간단히 고친 정도에 비해 나쁘지 않은 결과입니다. 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">혹 궁금하시다면 정규 표현식을 미리 컴파일하더라도 아무것도 망가트리지 않습니다. 방금 증명되었듯이 말입니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>시도해 보고 싶은 최적화가 한가지 더 있습니다. 정규 표현식은 복잡하므로, 같은 표현식을 작성하는데 여러가지 방법이 있다고 하더라도 별로 놀라운 일은 아닙니다. 이 모듈에 관하여 <a href="http://groups.google.com/groups?group=comp.lang.python">comp.lang.python</a>에서 토론이 있은 후, 어떤 사람이 저에게 선택적인 반복 문자대신에 <tt class="literal">{<i class="replaceable">m</i>,<i class="replaceable">n</i>}</tt> 구문을 시도해 보라고 제안하였습니다.
+               </p>
+               <div class="example"><a name="d0e34895"></a><h3 class="title">예제&nbsp;15.13.&nbsp;<tt class="filename">roman82.py</tt></h3>
+                  <p>이 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage8/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">예제를 내려받을 수 있습니다</a>.
+                  </p><pre class="programlisting">
+# 나머지 프로그램은 깨끗하게 생략함.
+
+# 예전 버전.
+#romanNumeralPattern = \
+#   re.compile('^M?M?M?M?(CM|CD|D?C?C?C?)(XC|XL|L?X?X?X?)(IX|IV|V?I?I?I?)$')
+
+# 새로운 버전.
+romanNumeralPattern = \
+    re.compile('^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$') <a name="roman.refactoring.4.1"></a><span class="round">①</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">M?M?M?M?</tt>가 <tt class="literal">M{0,4}</tt>로 교체되었습니다. 둘 다 같은 것을 의미합니다: &#8220;<span class="quote">0 개에서 4 개까지의 <tt class="literal">M</tt> 문자에 부합한다</span>&#8221;는 뜻입니다. 비슷하게, <tt class="literal">C?C?C?</tt>는 <tt class="literal">C{0,3}</tt>이 되었습니다 (&#8220;<span class="quote">0개 3개 까지의 <tt class="literal">C</tt> 문자</span>&#8221;). 그리고 등등 <tt class="literal">X</tt>와 <tt class="literal">I</tt>도 마찬가지입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이런 형태의 정규 표현식이 약간 더 짧습니다 (물론 가독성은 현저히 떨어지지만 말입니다). 큰 문제가 있습니다. 과연 더 빠른가?</p>
+               <div class="example"><a name="d0e34949"></a><h3 class="title">예제&nbsp;15.14.&nbsp;<tt class="filename">roman82.py</tt>에 대한 <tt class="filename">romantest82.py</tt>의 출력</h3><pre class="screen"><span class="computeroutput">.............
+----------------------------------------------------------------------
+Ran 13 tests in 3.315s </span><a name="roman.refactoring.5.1"></a><span class="round">①</span><span class="computeroutput">
+
+OK</span>                     <a name="roman.refactoring.5.2"></a><span class="round">②</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.5.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">전반적으로, 유닛 테스트는 이 형태의 정규 표현식으로 2% 더 빠르게 실행됩니다. 그렇게 들뜰 일은 아니지만 <tt class="function">search</tt> 함수는 전체 유닛 테스트에서 작은 부분임을 기억하세요; 대부분의 시간은 다른 일을 하는 데 소비됩니다.  (따로, 이 정규 표현식의 시간을 재어보았는데, <tt class="function">search</tt> 함수가 이 구문으로 하면 <tt class="literal">11%</tt> 더 빨랐습니다.)  정규 표현식을 컴파일하고 그 일부를 재작성하여 이 새로운 구문을 사용하였더니, 정규 표현식의 수행성능이 <tt class="literal">60%</tt>가 넘게 개선되었으며, 전체 유닛 테스트의 성능이 전반적으로 <tt class="literal">10%</tt> 이상 개선되었습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.5.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">수행 속도의 개선보다 더 중요한 것은 모듈이 여전히 완벽하게 작동한다는 사실입니다. 이것이 바로 이전에 제가 언급했던 자유로움입니다: 자유롭게 조작하고 바꾸며 또는 그 일부를 마음대로 재작성하더라도 그 과정에서 아무것도 어지럽히지 않는다는 것을 확신할 수 있습니다. 그렇지만 이것이 오직 조작을 위한 조작으로 코드를 끊임없이 바꾸어도 된다는 뜻은 아닙니다; (&#8220;<span class="quote"><tt class="function">fromRoman</tt>을 더 빠르게 한다는</span>&#8221;) 구체적인 목적이 있었고, 그 과정에서 새로운 버그를 야기할지에 관하여 한 점 의혹없이 목표를 달성할 수 있었습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>한가지 더 조작하고 싶은 것이 남아 있습니다. 이것만 끝나면 리팩토링을 멈추고 이 모듈을 잠재우기로 약속합니다. 반복적으로 보셨듯이, 정규 표현식은 순식간에 난잡해져서 읽기 어려워집니다. 6개월 후 이 모듈을 다시 보면서 유지보수하고 싶지 않습니다. 물론, 테스트 사례는 통과합니다. 그래서 작동한다는 것은 알지만 <span class="emphasis"><em>어떻게</em></span> 작동하는지는 알지 못하며, 새로운 특징을 추가하거나 새로운 버그를 수정하거나 그렇지 않으면 유지보수하는 일은 여전히 어려운 일입니다. <a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.verbose" title="7.5.&nbsp;Verbose Regular Expressions">섹션&nbsp;7.5, &#8220;상세한 정규 표현식&#8221;</a>에서 보셨듯이, <span class="application">파이썬</span>은 로직을 줄 단위로 설명하는 방법을 제공합니다.
+               </p>
+               <div class="example"><a name="d0e35003"></a><h3 class="title">예제&nbsp;15.15.&nbsp;<tt class="filename">roman83.py</tt></h3>
+                  <p>이 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage8/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">예제를 내려받을 수 있습니다</a>.
+                  </p><pre class="programlisting">
+# 깨끗하게 나머지 프로그램은 생략.
+
+# 예전 버전
+#romanNumeralPattern = \
+#   re.compile('^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$')
+
+# 새로운 버전
+romanNumeralPattern = re.compile('''
+    ^                   # 문자열의 처음,
+    M{0,4}              # 천의 자리 - 0 to 4 M's
+    (CM|CD|D?C{0,3})    # 백의 자리 - 900 (CM), 400 (CD), 0-300 (0개에서 3개 까지의 C),
+                        #           또는 500-800 (D, 다음 0개에서 3개까지의 C가 따른다)
+    (XC|XL|L?X{0,3})    # 십의 자리 - 90 (XC), 40 (XL), 0-30 (0개에서 3개 까지의 X),
+                        #           또는 50-80 (L, 다음에 0개에서 3개까지의 X가 따른다)
+    (IX|IV|V?I{0,3})    # 일의 자리 - 9 (IX), 4 (IV), 0-3 (0개에서 3개까지의 I),
+                        #           또는 5-8 (V, 다음에 0개에서 3개까지의 I이 따른다)
+    $                   # 문자열의 끝.
+    ''', re.VERBOSE) <a name="roman.refactoring.6.1"></a><span class="round">①</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.6.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">re.compile</tt> 함수는 선택적으로 두 번째 인자를 받을 수 있습니다. 이는 컴파일된 정규 표현식을 통제하는 다양한 옵션이 지정된 플래그 집합입니다. 여기에서 <tt class="literal">re.VERBOSE</tt> 플래그를 지정하는데, 이는 정규 표현식 안에 인-라인 주석이 있다고 <span class="application">파이썬</span>에게 알려줍니다. 주석과 그를 둘러싼 모든 공백은 정규 표현식에 <span class="emphasis"><em>포함되지 않는다고</em></span> 간주됩니다; <tt class="function">re.compile</tt> 함수는 정규 표현식을 컴파일할 때 단순히 그 모든 공백을 걷어냅니다. 이 새로운 &#8220;<span class="quote">상세(verbose)</span>&#8221; 버전은 예전 버전과 동일하지만 읽기가 확실히 더 좋습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e35043"></a><h3 class="title">예제&nbsp;15.16.&nbsp;<tt class="filename">roman83.py</tt>에 대한 <tt class="filename">romantest83.py</tt>의 출력</h3><pre class="screen"><span class="computeroutput">.............
+----------------------------------------------------------------------
+Ran 13 tests in 3.315s </span><a name="roman.refactoring.7.1"></a><span class="round">①</span><span class="computeroutput">
+
+OK</span>                     <a name="roman.refactoring.7.2"></a><span class="round">②</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.7.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 새로운 &#8220;<span class="quote">상세(verbose)</span>&#8221; 버전은 예전 버전과 똑 같은 속도로 실행됩니다. 실제로, 컴파일된 패턴 객체는 똑같습니다. 왜냐하면  <tt class="function">re.compile</tt> 함수가 추가된 모든 것들을 걷어내기 때문입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.refactoring.7.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 새로운 &#8220;<span class="quote">상세(verbose)</span>&#8221; 버전은 예전 버전과 똑 같이 테스트를 모두 통과합니다. 아무 것도 변한 것이 없습니다. 단, 이를 작성한 프로그래머가 6개월 후에 이 모듈을 다시 보게되면 함수가 어떻게 작동하는지 이해에 도전해 볼 기회가 주어집니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.postscript"></a>15.4.&nbsp;맺는 말
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>총명한 독자라면 <a href="#roman.refactoring" title="15.3.&nbsp;Refactoring">앞 섹션</a>을 읽고 더 높은 수준으로 끌어 올리실 수 있을 것입니다. 현재 작성된 프로그램에서 심각한 골치거리 (그리고 수행성능의 저하 요인)는 정규 표현식입니다. 정규 표현식이 필요한 이유는 로마 숫자를 분해할 방법이 없기 때문입니다. 그러나 로마 숫자는 여기에서 겨우 5000개에 불과합니다; 검색 테이블을 한 번 만들어 놓고, 그냥 읽으면 안될까요? 정규 표현식이 전혀 필요하지 않다는 사실을 생각해 보면  이 생각은 더 좋습니다. 정수를 로마 숫자로 변환하는 검색 테이블을 구축하다 보면 로마 숫자를 정수로 변환하는 역검색 테이블도 구축할 수 있습니다.
+                  </p>
+               </div>
+               <p>무엇보다도 이미 완벽하게 유닛 테스트를 갖추었습니다. 모듈에서 코드의 반 이상을 바꾸었지만 유닛 테스트는 여전히 그대로입니다. 그래서 코드가 원래와 똑 같이 작동한다는 것을 증명할 수 있습니다.
+               </p>
+               <div class="example"><a name="d0e35088"></a><h3 class="title">예제&nbsp;15.17.&nbsp;<tt class="filename">roman9.py</tt></h3>
+                  <p>이 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage9/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">예제를 내려받을 수 있습니다</a>.
+                  </p><pre class="programlisting">
+# 예외를 정의한다
+class RomanError(Exception): pass
+class OutOfRangeError(RomanError): pass
+class NotIntegerError(RomanError): pass
+class InvalidRomanNumeralError(RomanError): pass
+
+# 로마 숫자는 5000 미만이어야 한다
+MAX_ROMAN_NUMERAL = 4999
+
+# 자리수 짝짓기를 정의한다
+romanNumeralMap = (('M',  1000),
+                   ('CM', 900),
+                   ('D',  500),
+                   ('CD', 400),
+                   ('C',  100),
+                   ('XC', 90),
+                   ('L',  50),
+                   ('XL', 40),
+                   ('X',  10),
+                   ('IX', 9),
+                   ('V',  5),
+                   ('IV', 4),
+                   ('I',  1))
+
+# 로마 숫자를 빠르게 변환하기 위해 표를 만든다.
+# 아래의 fillLookupTables() 참조.
+toRomanTable = [ None ]  # 로마 숫자는 0이 없으므로 지표를 건너뛴다
+fromRomanTable = {}
+
+def toRoman(n):
+    """정수를 로마 숫자로 변환한다"""
+    if not (0 &lt; n &lt;= MAX_ROMAN_NUMERAL):
+        raise OutOfRangeError, "number out of range (must be 1..%s)" % MAX_ROMAN_NUMERAL
+    if int(n) &lt;&gt; n:
+        raise NotIntegerError, "non-integers can not be converted"
+    return toRomanTable[n]
+
+def fromRoman(s):
+    """로마 숫자를 정수로 변환한다"""
+    if not s:
+        raise InvalidRomanNumeralError, "Input can not be blank"
+    if not fromRomanTable.has_key(s):
+        raise InvalidRomanNumeralError, "Invalid Roman numeral: %s" % s
+    return fromRomanTable[s]
+
+def toRomanDynamic(n):
+    """동적 프로그래밍을 사용하여 정수를 로마 숫자로 변환한다"""
+    result = ""
+    for numeral, integer in romanNumeralMap:
+        if n &gt;= integer:
+            result = numeral
+            n -= integer
+            break
+    if n &gt; 0:
+        result += toRomanTable[n]
+    return result
+
+def fillLookupTables():
+    """가능한 모든 로마 숫자를 계산한다"""
+    # 정수로 상호 변환하기 위하여 값을 두 개의 전역 테이블에 저장한다.
+    for integer in range(1, MAX_ROMAN_NUMERAL + 1):
+        romanNumber = toRomanDynamic(integer)
+        toRomanTable.append(romanNumber)
+        fromRomanTable[romanNumber] = integer
+
+fillLookupTables()
+</pre></div>
+               <p>그래서 얼마나 더 빠른가?</p>
+               <div class="example"><a name="d0e35106"></a><h3 class="title">예제&nbsp;15.18.&nbsp;<tt class="filename">roman9.py</tt>에 대한 <tt class="filename">romantest9.py</tt>의 출력</h3><pre class="screen">
+<span class="computeroutput">
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 0.791s
+
+OK
+</span>
+</pre></div>
+               <p>기억하세요. 원래 버전에서 얻은 최고의 수행성능은 13개의 테스트를 3.315 초에 실행한 것이었습니다. 물론, 전적으로 공정한 비교는 아닙니다. 왜냐하면 이 버전은 (검색 테이블을 채울 때) 반입에 시간이 더 걸리기 때문입니다. 그러나 반입은 한 번만 하면 되고, 장기적인 관점에서 무시해도 좋습니다.
+               </p>
+               <p>이야기에서 얻는 교훈은 무엇인가?</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li>단순함이 미덕이다.</li>
+                     <li>특히 정규 표현식이 관련되면 더 그렇다.</li>
+                     <li>유닛 테스트를 사용하면 확신을 가지고 방대한-크기의 리팩토링을 할 수 있다... 비록 원래 코드가 작성되어 있지 않더라도 말이다.</li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.summary"></a>15.5.&nbsp;요약
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>유닛 테스트는 강력한 개념입니다. 제대로 구현하면 유지관리 비용도 줄고 장기 프로젝트에서 유연성도 향상됩니다. 그러나 유닛 테스트는 만병통치약이 아닙니다. 마법의 문제 해결사 또는 은빛 탄환이 아니라는 것을 이해하는 것도 중요합니다. 좋은 테스트 사례를 작성하는 일은 어려우며, 최신으로 갱신하는 일은 (특히 고객이 심각한 버그 수정을 요구할 때) 절제가 필요합니다. 유닛 테스트는 기능적 테스팅과 통합 테스팅 그리고 사용자 승인 테스팅을 비롯하여, 기타 다른 형태의 테스트를 대신하지 못합니다. 그러나 그럴싸해 보이고 작동하며 일단 작동시켜 보면 그 동안 유닛 테스트 없이 어떻게 살아왔는지 감탄할 것입니다.
+                  </p>
+               </div>
+               <p>이 장은 기초를 많이 다루었으며, 상당수는 심지어 <span class="application">파이썬</span>에-특정한 것도 아니었습니다. 많은 언어에 유닛 테스트 작업틀이 있습니다. 그 모든 작업틀에서 똑같이 요구하는 기본적인 개념은 다음과 같습니다:
+               </p>
+               <div class="highlights">
+                  <div class="itemizedlist">
+                     <ul>
+                        <li>구체적이고 자동화되었으며 독립적인 테스트 사례를 디자인하는 법</li>
+                        <li>테스트할 코드보다 <span class="emphasis"><em>먼저</em></span> 테스트 사례를 작성하는 법</li>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.success" title="13.4.&nbsp;Testing for success">좋은 입력을 테스트하고</a> 적절한 결과인지 점검하는 테스트를 작성하기
+                        </li>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.failure" title="13.5.&nbsp;Testing for failure">나쁜 입력을 테스트하고</a> 적절하게 실패하는지 점검하기
+                        </li>
+                        <li><a href="#roman.bugs" title="15.1.&nbsp;Handling bugs">버그를 예시하거나</a> <a href="#roman.change" title="15.2.&nbsp;Handling changing requirements">새로운 요구조건을 반영하기 위해서</a> 테스트 사례를 작성하고 갱신하기</li>
+                        <li><a href="#roman.refactoring" title="15.3.&nbsp;Refactoring">리팩토링</a>은 철저하게 수행성능과 신축성 그리고 가독성과 유지보수성 또는 모자라는 기타 모든 가능성을 개선시켜 준다.
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+               <p>또한, 다음과 같이 <span class="application">파이썬</span>-종속적인 일들을 편안하게 할 수 있어야 합니다:
+               </p>
+               <div class="highlights">
+                  <div class="itemizedlist">
+                     <ul>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.testtoromanknownvalues.example" title="Example&nbsp;13.2.&nbsp;testToRomanKnownValues"><tt class="literal">unittest.TestCase</tt></a>를 상속받아 개별적인 테스트 사례를 위한 메쏘드를 작성하기
+                        </li>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.testtoromanknownvalues.example" title="Example&nbsp;13.2.&nbsp;testToRomanKnownValues"><tt class="function">assertEqual</tt></a>을 사용하여 함수가 알려진 값을 돌려주는지 점검하기
+                        </li>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.tobadinput.example" title="Example&nbsp;13.3.&nbsp;Testing bad input to toRoman"><tt class="function">assertRaises</tt></a>를 사용하여 함수가 알려진 예외를 일으키는지 점검하기
+                        </li>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap14.html#roman.stage1.output" title="Example&nbsp;14.2.&nbsp;Output of romantest1.py against roman1.py"><tt class="literal">unittest.main()</tt></a>을 <tt class="literal">if __name__</tt> 절 안에서 호출하여 모든 테스트 사례를 한꺼번에 실행하기
+                        </li>
+                        <li>유닛 테스트를 <a href="http://coreapython.hosting.paran.com/dive/chap14.html#roman.stage1.output" title="Example&nbsp;14.2.&nbsp;Output of romantest1.py against roman1.py">상세 모드</a>나 <a href="#roman.stage8.1.output" title="Example&nbsp;15.12.&nbsp;Output of romantest81.py against roman81.py">일반</a> 모드에서 실행하기
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+               <div class="itemizedlist">
+                  <h3 class="title">더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.xprogramming.com/">XProgramming.com</a>에 다양안 언어에 대한 <a href="http://www.xprogramming.com/software.htm">유닛 테스트 작업틀</a>을 내려받을 수 있는 링크가 많다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap14.html">☜ 제 14 장 테스트-먼저 프로그래밍</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap16.html">제 16 장 기능적 프로그래밍 ☞</A></TD>
+</TR>
+</TABLE>
+     </body>
+</html>

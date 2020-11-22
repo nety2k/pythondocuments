@@ -1,0 +1,1293 @@
+        <!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap05.html">http://coreapython.hosting.paran.com/dive/chap05.html</a><br>
+<b>Title:</b> 5. 객체와 객체-지향 &nbsp;&bull;&nbsp; <b>Size:</b> 133319<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap04.html">☜ 제 04 장 강력한 내부검사</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap06.html">제 06 장 예외와 파일처리 ☞</A></TD>
+</TR>
+</TABLE>
+       <div name="05장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="fileinfo"></a>제&nbsp;5 장&nbsp;객체 그리고 객체-지향
+                     </h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="abstract">
+               <p>이 장부터 앞으로는 객체 지향적인 <span class="application">파이썬</span> 프로그래밍을 상당히 많이 다룹니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.divein"></a>5.1.&nbsp;뛰어 들기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>다음은 완벽하게 작동하는  <span class="application">파이썬</span> 프로그램입니다.  모듈과 클래스 그리고 함수의 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.docstring" title="2.3.&nbsp;Documenting Functions">문서화 문자열(<tt class="literal">doc string</tt>)</a>을 읽고, 이 프로그램이 무슨 일을 하는지 그리고 어떻게 작동하는지 알아 보세요. 언제나 그렇듯이 이해하지 못하더라도 걱정하지 마세요; 그것을 바로 이 장에서 알려 드리겠습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e11177"></a><h3 class="title">예제&nbsp;5.1.&nbsp;<tt class="filename">fileinfo.py</tt></h3>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">예제</a>를 내려 받을 수 있습니다.
+                  </p><pre class="programlisting">
+"""파일유형-종속적인 메타데이터를 얻기 위한 작업틀.
+
+파일이름을 가지고 적절한 클래스를 실체화한다. 반환된 객체는 사전처럼 행위한다
+각각의 메타데이터에 대하여 키-값 쌍을 가진다.
+    import fileinfo
+    info = fileinfo.MP3FileInfo("/music/ap/mahadeva.mp3")
+    print "\\n".join(["%s=%s" % (k, v) for k, v in info.items()])
+
+또는 listDirectory 함수를 사용하여 디렉토리에 있는 모든 파일에 관한 정보를 얻는다.
+    for info in fileinfo.listDirectory("/music/ap/", [".mp3"]):
+        ...
+
+예를 들어 HTMLFileInfo와 MPGFileInfo 그리고 DOCFileInfo와 같이 
+특정한 파일 유형에 대하여 클래스를 추가하면 작업틀을 확장할 수 있다. 
+각 클래스는 그의 파일을 적절하게 해석할 책임을 진다; 
+예제는 MP3FileInfo를 참고하라.
+"""
+import os
+import sys
+from UserDict import UserDict
+
+def stripnulls(data):
+    "공간문자와 널문자를 걷어낸다"
+    return data.replace("\00", "").strip()
+
+class FileInfo(UserDict):
+    "파일 메타데이터를 저장한다"
+    def __init__(self, filename=None):
+        UserDict.__init__(self)
+        self["name"] = filename
+
+class MP3FileInfo(FileInfo):
+    "ID3v1.0 MP3 태그를 저장한다"
+    tagDataMap = {"title"   : (  3,  33, stripnulls),
+                  "artist"  : ( 33,  63, stripnulls),
+                  "album"   : ( 63,  93, stripnulls),
+                  "year"    : ( 93,  97, stripnulls),
+                  "comment" : ( 97, 126, stripnulls),
+                  "genre"   : (127, 128, ord)}
+
+    def __parse(self, filename):
+        "MP3 파일로부터 가져온 ID3v1.0 태그를 해석한다"
+        self.clear()
+        try:                               
+            fsock = open(filename, "rb", 0)
+            try:                           
+                fsock.seek(-128, 2)        
+                tagdata = fsock.read(128)  
+            finally:                       
+                fsock.close()              
+            if tagdata[:3] == "TAG":
+                for tag, (start, end, parseFunc) in self.tagDataMap.items():
+                    self[tag] = parseFunc(tagdata[start:end])               
+        except IOError:                    
+            pass                           
+
+    def __setitem__(self, key, item):
+        if key == "name" and item:
+            self.__parse(item)
+        FileInfo.__setitem__(self, key, item)
+
+def listDirectory(directory, fileExtList):                                        
+    "특정한 확장자를 가진 파일에 대하여 파일 정보 객체 리스트를 얻는다"
+    fileList = [os.path.normcase(f)
+                for f in os.listdir(directory)]           
+    fileList = [os.path.join(directory, f) 
+               for f in fileList
+                if os.path.splitext(f)[1] in fileExtList] 
+    def getFileInfoClass(filename, module=sys.modules[FileInfo.__module__]):      
+        "파일이름 확장자로부터 파일 정보 클래스를 얻는다"                             
+        subclass = "%sFileInfo" % os.path.splitext(filename)[1].upper()[1:]       
+        return hasattr(module, subclass) and getattr(module, subclass) or FileInfo
+    return [getFileInfoClass(f)(f) for f in fileList]                             
+
+if __name__ == "__main__":
+    for info in listDirectory("/music/_singles/", [".mp3"]): <a name="fileinfo_divein.1.1"></a><span class="round">①</span>
+        print "\n".join(["%s=%s" % (k, v) for k, v in info.items()])
+        print</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo_divein.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 프로그램의 출력은 하드 드라이브에 있는 파일에 따라 다릅니다. 의미 있는 출력을 얻으려면 MP3 파일이 있는 디렉토리를 가리키도록 디렉토리 경로를 바꿀 필요가 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="informalexample">
+                  <p>다음은 나의 머신에서 얻은 출력입니다.  여러분은 출력이 다를 것입니다. 그렇지 않다면 놀랍게도 여러분과 저는 음악에 대한 취향이 같은 셈입니다.
+                  </p><pre class="screen"><span class="computeroutput">album=
+artist=Ghost in the Machine
+title=A Time Long Forgotten (Concept
+genre=31
+name=/music/_singles/a_time_long_forgotten_con.mp3
+year=1999
+comment=http://mp3.com/ghostmachine
+
+album=Rave Mix
+artist=***DJ MARY-JANE***
+title=HELLRAISER****Trance from Hell
+genre=31
+name=/music/_singles/hellraiser.mp3
+year=2000
+comment=http://mp3.com/DJMARYJANE
+
+album=Rave Mix
+artist=***DJ MARY-JANE***
+title=KAIRO****THE BEST GOA
+genre=31
+name=/music/_singles/kairo.mp3
+year=2000
+comment=http://mp3.com/DJMARYJANE
+
+album=Journeys
+artist=Masters of Balance
+title=Long Way Home
+genre=31
+name=/music/_singles/long_way_home1.mp3
+year=2000
+comment=http://mp3.com/MastersofBalan
+
+album=
+artist=The Cynic Project
+title=Sidewinder
+genre=18
+name=/music/_singles/sidewinder.mp3
+year=2000
+comment=http://mp3.com/cynicproject
+
+album=Digitosis@128k
+artist=VXpanded
+title=Spinning
+genre=255
+name=/music/_singles/spinning.mp3
+year=2000
+comment=http://mp3.com/artists/95/vxp</span></pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.fromimport"></a>5.2.&nbsp;<tt class="literal">from <i class="replaceable">module</i> import</tt>를 사용하여 모듈 반입하기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>은 두 가지 방식으로 모듈을 반입합니다.  둘 모두 쓸모가 있으며, 언제 무엇을 사용해야 할지 알아야 합니다. 한 가지 방식은 <tt class="literal">import <i class="replaceable">module</i></tt>인데, 이미 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.objects" title="2.4.&nbsp;Everything Is an Object">섹션&nbsp;2.4, &#8220;모든 것은 객체이다&#8221;</a>에서 본 것입니다.  다른 방식도 같은 일을 하지만, 미묘하고 중요한 차이가 있습니다.
+                  </p>
+               </div>
+               <div class="informalexample">
+                  <p>다음은 기본적인 <tt class="literal">from <i class="replaceable">module</i> import</tt> 구문입니다:
+                  </p><pre class="programlisting">
+from UserDict import UserDict
+</pre></div>
+               <p>이 구문은 여러분이 잘 알고 즐겨 쓰시는 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.import" title="Example&nbsp;2.3.&nbsp;Accessing the buildConnectionString Function's doc string"><tt class="literal">import <i class="replaceable">module</i></tt></a> 구문과 비슷하지만 중요한 차이점이 있습니다: 반입된 모듈 유형(<tt class="filename">types</tt>)의 속성과 메쏘드가 직접적으로 지역 이름공간 안으로 반입됩니다. 그래서 모듈 이름으로 자격을 부여할 필요없이 직접 사용할 수 있습니다. 항목을 따로따로 반입할 수 있으며 또는 <tt class="literal">from <i class="replaceable">module</i> import *</tt>를 사용하여 모조리 반입할 수도 있습니다.
+               </p><a name="compare.fromimport.perl"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬의</span> <tt class="literal">from <i class="replaceable">module</i> import *</tt> 구문은 <span class="application">Perl</span>의 <tt class="literal">use <i class="replaceable">module</i></tt>과 비슷합니다; <span class="application">파이썬</span>의 <tt class="literal">import <i class="replaceable">module</i></tt>은 <span class="application">Perl</span>의 <tt class="literal">require <i class="replaceable">module</i></tt>과 비슷합니다.
+                     </td>
+                  </tr>
+               </table><a name="compare.fromimport.java"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬</span>의 <tt class="literal">from <i class="replaceable">module</i> import *</tt> 구문은 자바(<span class="application">Java</span>)의 <tt class="literal">import <i class="replaceable">module</i>.*</tt>와 비슷합니다; <span class="application">파이썬</span>의 <tt class="literal">import <i class="replaceable">module</i></tt>는 자바(<span class="application">Java</span>)의 <tt class="literal">import <i class="replaceable">module</i></tt>과 비슷합니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="d0e11355"></a><h3 class="title">예제&nbsp;5.2.&nbsp;<tt class="literal">import <i class="replaceable">module</i></tt> <span class="foreignphrase"><i class="foreignphrase"><span class="acronym">vs.</span></i></span> <tt class="literal">from <i class="replaceable">module</i> import</tt></h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import types</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">types.FunctionType</span>             <a name="fileinfo.import.1.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;type 'function'&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">FunctionType</span>                   <a name="fileinfo.import.1.2"></a><span class="round">②</span>
+<span class="traceback">Traceback (innermost last):
+  File "&lt;interactive input&gt;", line 1, in ?
+NameError: There is no variable named 'FunctionType'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from types import FunctionType</span> <a name="fileinfo.import.1.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">FunctionType</span>                   <a name="fileinfo.import.1.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;type 'function'&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.import.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">types</tt> 모듈에는 아무 메쏘드도 없습니다; 그저 각 <span class="application">파이썬</span> 객체 유형에 대하여 속성만 있을 뿐입니다. <tt class="constant">FunctionType</tt> 속성에 모듈 이름(<tt class="filename">types</tt>)으로 자격을 부여하고 있음을 주목하세요 .
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.import.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="constant">FunctionType</tt> 그 자체는 이 이름공간에 정의되어 있지 않습니다; 오직 <tt class="filename">types</tt>라는 문맥에서만 존재합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.import.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 구문은 <tt class="constant">FunctionType</tt> 속성을 <tt class="filename">types</tt> 모듈로부터 직접적으로 지역 이름공간 안으로 반입합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.import.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 <tt class="constant">FunctionType</tt>에 직접 접근할 수 있습니다. <tt class="filename">types</tt>를 참조할 필요가 없습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>언제 <tt class="literal">from <i class="replaceable">module</i> import</tt> 구문을 사용해야 할까요?
+               </p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li>속성과 메쏘드에 자주 접근한다면 그리고 모듈 이름을 반복해서 타자하고 싶지 않다면 <tt class="literal">from <i class="replaceable">module</i> import</tt>를 사용하세요.
+                     </li>
+                     <li>선택적으로 어떤 속성과 메쏘드는 반입하고 싶지만 다른 것들은 반입하고 싶지 않다면  <tt class="literal">from <i class="replaceable">module</i> import</tt>를 사용하세요.
+                     </li>
+                     <li>반입할 모듈에 같은 이름의 속성이나 함수가 있다면 이름 충돌을 막기 위하여 <tt class="literal">import <i class="replaceable">module</i></tt>를 사용해야 합니다.
+                     </li>
+                  </ul>
+               </div>
+               <p>그런 것 말고는 그냥 스타일의 문제일 뿐이라서 두 가지 방식 모두를 사용한 <span class="application">파이썬</span> 코드를 자주 보실 겁니다.
+               </p><a name="d0e11495"></a><table class="caution" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundCaution">◈</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">되도록이면 <tt class="literal">from module import *</tt> 구문을 아껴 사용하세요. 왜냐하면 특정 함수나 속성이 어디로 부터 왔는지 알기 어렵게 되며 디버깅과 리팩토링이 더욱 어려워지기 때문입니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="itemizedlist">
+                  <h3 class="title">모듈 반입 테크닉에 관하여 더 읽어야 할 것</h3>
+                  <ul>
+                     <li>에프-보트(<a href="http://www.effbot.org/guides/">eff-bot</a>)는 <a href="http://www.effbot.org/guides/import-confusion.htm"><tt class="literal">import <i class="replaceable">module</i></tt> <span class="foreignphrase"><i class="foreignphrase"><span class="acronym">vs.</span></i></span> <tt class="literal">from <i class="replaceable">module</i> import</tt></a>에 관하여 더 자세하게 언급한다.
+                     </li>
+                     <li><a href="http://www.python.org/doc/current/tut/tut.html"><i class="citetitle"><span class="application">파이썬</span> 자습서에서</i></a> 고급스런 반입 테크닉을 다룬다. 여기에는 <a href="http://www.python.org/doc/current/tut/node8.html#SECTION008410000000000000000"><tt class="literal">from <i class="replaceable">module</i> import *</tt></a>이 있다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.class"></a>5.3.&nbsp;클래스 정의하기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>은 완전하게 객체-지향적입니다: 자신만의 클래스를 정의할 수 있으며 내장 클래스나 자신의 클래스로부터 상속을 받을 수 있고 또한 그렇게 정의한 클래스를 실체화시킬 수 있습니다.
+                  </p>
+               </div>
+               <p>
+			   <span class="application">파이썬</span>에서 클래스를 정의하는 일은 쉽습니다. 함수와 마찬가지로 인터페이스 정의가 따로 없습니다. 그냥 클래스를 정의하고 코딩을 시작하면 됩니다.  <span class="application">파이썬</span> 클래스는 예약어 <tt class="literal">class</tt>로 시작하고 다음에 클래스 이름이 따라옵니다. 기술적으로 그것이면 다 된 것입니다. 왜냐하면 클래스는 다른 클래스로부터 상속받을 필요가 없기 때문입니다.
+               </p>
+               <div class="example"><a name="fileinfo.class.simplest"></a><h3 class="title">예제&nbsp;5.3.&nbsp;가장 단순한 <span class="application">파이썬</span> 클래스
+                  </h3><pre class="programlisting">
+class Loaf: <a name="fileinfo.class.1.1"></a><span class="round">①</span>
+    pass    <a name="fileinfo.class.1.2"></a><span class="round">②</span> <a name="fileinfo.class.1.3"></a><span class="round">③</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.class.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 클래스의 이름은 <tt class="classname">Loaf</tt>이며 다른 클래스부터 상속을 받지 않습니다. 클래스 이름은 보통 첫 문자가 대문자가 되어 <tt class="classname">EachWordLikeThis</tt>와 같은 형태가 되지만, 이는 그저 관례일 뿐 필수는 아닙니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.class.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 클래스는 속성이나 메쏘드를 정의하지 않지만 구문적으로 무엇인가 정의에 필요한 것이 있습니다. 그래서 <tt class="literal">pass</tt>를 사용합니다.  이 서술어는 <span class="application">파이썬</span> 예약어로서 그냥 &#8220;<span class="quote">여기에서 아무것도 볼 것이 없으니 그냥 지나가라는 뜻입니다</span>&#8221;.  아무것도 하지 않는 서술문입니다. 그리고 함수나 클래스를 세울 때 훌륭한 위치보유자입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.class.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">아마도 짐작하셨겠지만 클래스에서 모든 것은 들여쓰기 됩니다. 마치 함수 안이나 <tt class="literal">if</tt> 서술문 또는 <tt class="literal">for</tt>  회돌이 등등의 안의 코드가 그런 것처럼 말입니다. 들여쓰기 되지 않는 것은 클래스 안에 있지 않습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="compare.pass.java"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"> 
+					 <span class="application">파이썬</span>의 <tt class="literal">pass</tt> 서술문은 마치 자바(<span class="application">Java</span>)나 <span class="application"><span class="acronym">C</span></span>에서의 비어 있는 괄호(<tt class="literal">{}</tt>)와 같습니다.
+                     </td>
+                  </tr>
+               </table>
+               <p>물론 현실적으로 대부분의 클래스는 다른 클래스로부터 상속되며 자신만의 클래스 메쏘드와 속성을 정의합니다.  그러나 보시다시피 이름 말고는 클래스가 절대적으로로 갖추어야 할 것은 없습니다.  특히         <span class="application"><span class="acronym">C++</span></span> 프로그래머라면 <span class="application">파이썬</span> 클래스에 명시적으로 구성자와 파괴자가 없다는 사실이 기묘하게 느껴질 것입니다.  <span class="application">파이썬</span> 클래스는 구성자와 비슷한 것이 있습니다: <tt class="function">__init__</tt> 메쏘드가 바로 그것입니다.
+               </p>
+               <div class="example"><a name="fileinfo.class.example"></a><h3 class="title">예제&nbsp;5.4.&nbsp;<tt class="classname">FileInfo</tt> 클래스 정의하기
+                  </h3><pre class="programlisting">
+from UserDict import UserDict
+
+class FileInfo(UserDict): <a name="fileinfo.class.2.1"></a><span class="round">①</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.class.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><span class="application">파이썬</span>에서 클래스의 조상은 클래스 이름 다음에 바로 괄호 안에 나열됩니다.  그래서 <tt class="classname">FileInfo</tt> 클래스는 <tt class="classname">UserDict</tt> 클래스로부터 상속을 받습니다 (이는 <a href="#fileinfo.fromimport" title="5.2.&nbsp;Importing Modules Using from module import"><tt class="filename">UserDict</tt> 모듈로부터 반입되었습니다</a>).  <tt class="classname">UserDict</tt>는 사전처럼 행위하는 클래스로서, 사전 데이터 유형을 본질적으로 하위클래스화하여 거기에 여러분만의 행위를 덧붙일 수 있습니다.                               (비슷하게 <tt class="classname">UserList</tt> 클래스와 <tt class="classname">UserString</tt> 클래스도 있어서 리스트와 문자열을 하위클래스화할 수 있습니다.)  이 뒤에는 약간 어둠의 마법이 있는데, 나중에 이 장에서 <tt class="classname">UserDict</tt> 클래스를 좀 더 깊게 탐험하면서 그 비밀을 파헤쳐 보겠습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="compare.extends.java"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬</span>에서 한 클래스의 조상은 단순히 클래스 이름 뒤에 바로 괄호 안에 나열됩니다. 자바(<span class="application">Java</span>)의 <tt class="literal">extends</tt>와 같은 특별한 키워드는 없습니다.
+                     </td>
+                  </tr>
+               </table>
+               <p><span class="application">파이썬</span>은 다중 상속을 지원합니다. 클래스 이름 다음에 오는 반괄호 안에다 얼마든지 원하는 만큼 쉼표로 분리하여 조상을 나열할 수 있습니다.
+               </p>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e11720"></a>5.3.1.&nbsp;클래스 초기화와 코딩
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>이 예제는 <tt class="function">__init__</tt> 메쏘드를 사용하여 <tt class="classname">FileInfo</tt> 클래스를 초기화하는 법을 보여줍니다.
+                  </p>
+                  <div class="example"><a name="fileinfo.init.example"></a><h3 class="title">예제&nbsp;5.5.&nbsp;<tt class="classname">FileInfo</tt> 클래스 초기화하기
+                     </h3><pre class="programlisting">
+class FileInfo(UserDict):
+    "store file metadata"              <a name="fileinfo.class.2.2"></a><span class="round">①</span>
+    def __init__(self, filename=None): <a name="fileinfo.class.2.3"></a><span class="round">②</span> <a name="fileinfo.class.2.4"></a><span class="round">③</span> <a name="fileinfo.class.2.5"></a><span class="round">④</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.class.2.2"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">클래스도 문서화 문자열(<tt class="literal">doc string</tt>)이 있습니다 (<a href="http://coreapython.hosting.paran.com/dive/chap02.html#tip.docstring">그리고 모듈과 함수처럼 꼭 있어야 합니다</a>).
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.class.2.3"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">__init__</tt>은 클래스의 실체가 생성되자 마자 즉시 호출됩니다. 이를 클래스의 구성자라고 말하고 싶지만 올바르지 않습니다. 그런 유혹이 드는 이유는 마치 (관례적으로 <tt class="function">__init__</tt>은 클래스에 제일 먼저 정의되는 메쏘드이므로) 구성자처럼 보이며, (새로 생성된 클래스 실체에서 제일 먼저 실행되는 코드이며 그리고 심지어 구성자처럼 발음되므로) 구성자처럼 행위하기 때문입니다 (&#8220;<span class="quote">init</span>&#8221; 메쏘드는 확실히 구성자-다운 본성이 있습니다). 그것이 올바르지 않은 이유는 그 객체가 이미 구성되고 난 후에 <tt class="function">__init__</tt> 메쏘드가 호출되고,  클래스의 새 실체를 가리키는 유효한 참조점을 이미 확보했기 때문입니다. 그러나 <tt class="function">__init__</tt> 메쏘드는 <span class="application">파이썬</span>에서 구성자에 가장 가까운 것이며 거의 같은 역할을 수행합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.class.2.4"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">__init__</tt>을 비롯하여 클래스 메쏘드에 건네지는 첫 인자는 언제나 클래스의 현재 실체를 가리키는 참조점입니다. 관례적으로 이 인자는 언제나 이름이 <tt class="literal">self</tt>입니다.  <tt class="function">__init__</tt> 메쏘드에서 <tt class="literal">self</tt>는 새로 만들어진 객체를 가리킵니다; 다른 클래스 메쏘드에서는 그 메쏘드가 호출된 실체를 가리킵니다. 비록 메쏘드를 정의할 때는 명시적으로 <tt class="literal">self</tt>를 지정해야 하지만, 그 메쏘드를 호출할 때는 <span class="emphasis"><em>지정하지 않습니다</em></span>; <span class="application">파이썬</span>이 자동으로 여러분 대신 그것을 추가해 줍니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.class.2.5"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">__init__</tt> 메쏘드는 인자를 얼마든지 취할 수 있습니다. 함수와 마찬가지로 인자에 기본 값을 정의할 수 있으며, 호출자는 선택적으로 정의하면 됩니다.  이 경우, <tt class="varname">filename</tt>은 <tt class="literal">None</tt>이라는 기본 값을 가지는데, 이는 <span class="application">파이썬</span>의 널 값입니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div><a name="compare.self.java"></a><table class="note" border="0" summary="">
+                     <tr>
+                        <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                     </tr>
+                     <tr>
+                        <td colspan="2" align="left" valign="top" width="99%">관례적으로 <span class="application">파이썬</span> 클래스 메쏘드의 첫 인자는 (현재 실체를 가리키는 참조점)  <tt class="literal">self</tt>라고 부릅니다.  이 인자는 <span class="application"><span class="acronym">C++</span></span>  또는 자바(<span class="application">Java</span>)에서의 <tt class="literal">this</tt>라는 예약어의 역할을 수행합니다. 그러나 <tt class="literal">self</tt> 는 <span class="application">파이썬</span>에서 예약어가 아니며, 단지 관례상 그렇게 이름을 지었을 뿐입니다. 그럼에도 불구하고 <tt class="literal">self</tt> 말고 다른 이름으로 부르지 맙시다; 이는 아주 강력한 관례입니다.
+                        </td>
+                     </tr>
+                  </table>
+                  <div class="example"><a name="fileinfo.init.code.example"></a><h3 class="title">예제&nbsp;5.6.&nbsp;<tt class="classname">FileInfo</tt> 클래스 코딩하기
+                     </h3><pre class="programlisting">
+class FileInfo(UserDict):
+    "store file metadata"
+    def __init__(self, filename=None):
+        UserDict.__init__(self)        <a name="fileinfo.class.2.6"></a><span class="round">①</span>
+        self["name"] = filename        <a name="fileinfo.class.2.7"></a><span class="round">②</span>
+                                       <a name="fileinfo.class.2.8"></a><span class="round">③</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.class.2.6"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">파워빌더(<span class="application">Powerbuilder</span>) 같은 유사-객체-지향 언어는 구성자와 기타 이벤트를 &#8220;<span class="quote">확장한다</span>&#8221;는 개념이 있습니다. 여기에서 조상의 메쏘드는 자손의 메쏘드가 실행되기 전에 자동으로 호출됩니다. <span class="application">파이썬</span>은 이렇게 하지 않습니다; 항상 명시적으로 조상클래스에서 적절한 메쏘드를 호출해야 합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.class.2.7"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">이 클래스는 사전처럼 행위한다고 말씀 드린 바 있습니다. 그리고 여기에 그 첫 징후가 있습니다. 인자 <tt class="varname">filename</tt>을 이 객체의 <tt class="literal">name</tt> 키의 값으로 할당하고 있습니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.class.2.8"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">__init__</tt> 메쏘드는 값을 돌려 주지 않음에 주목하세요.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e11896"></a>5.3.2.&nbsp;<tt class="literal">self</tt>와 <tt class="function">__init__</tt>를 사용할 때를 알기</h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>
+				  클래스 메쏘드를 정의할 때 <tt class="function">__init__</tt>을 포함하여 각 메쏘드에 대하여 <span class="emphasis"><em>반드시</em></span> <tt class="literal">self</tt>를 첫 인자로 명시적으로 나열해야 합니다. 클래스 안에서 조상 클래스의 메쏘드를 호출할 경우 <span class="emphasis"><em>반드시</em></span> <tt class="literal">self</tt> 인자를 포함시켜야 합니다. 그러나 클래스 메쏘드를 바깥으로부터 호출할 경우에는 <tt class="literal">self</tt> 인자에 대하여 아무것도 지정할 필요가 없습니다; 완전히 무시더라라도 <span class="application">파이썬</span>이 여러분 대신 자동으로 실체 참조를 추가해 줍니다. 처음에는 이 때문에 혼란스럽습니다; 실제로 일관성이 없는 것은 아니지만, 일관성이 없어 보이는 이유는 아직 배우지 않은 (묶인 메쏘드와 안묶인 메쏘드 사이의) 구별에 의존하고 있기 때문입니다.
+                  </p>
+                  <p>휴.  흡수하기에는 너무 양이 많다는 것을 압니다. 그러나 요점을 이해하실 겁니다. 모든 <span class="application">파이썬</span> 클래스는 같은 방식으로 작동합니다. 그래서 하나를 배우면 모든 것을 안 셈입니다. 다른 것은 다 잊어 버리더라도, 이것 하나만은 기억하세요. 왜냐하면 언젠가는 이 때문에 걸려 넘어질 때가 있기 때문입니다:
+                  </p><a name="tip.initoptional"></a><table class="note" border="0" summary="">
+                     <tr>
+                        <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                     </tr>
+                     <tr>
+                        <td colspan="2" align="left" valign="top" width="99%"><tt class="function">__init__</tt> 메쏘드는 선택적입니다. 그러나 정의해 둘 경우, 잊지 말고 꼭 명시적으로 (정의되어 있다면) 조상의 <tt class="function">__init__</tt> 메쏘드를 호출해야 합니다. 이는 일반적으로 맞습니다: 자손이 조상의 행위를 확장하고 싶으면 자손의 메쏘드는 명시적으로 조상의 메쏘드를 적절한 시기에 적절한 인자를 가지고 호출해야 합니다. 
+                        </td>
+                     </tr>
+                  </table>
+                  <div class="itemizedlist">
+                     <h3 class="title"><span class="application">파이썬</span> 클래스에 관하여 더 읽어야 할 것
+                     </h3>
+                     <ul>
+                        <li><a href="http://www.freenetpages.co.uk/hp/alan.gauld/" title="Python book for first-time programmers"><i class="citetitle">프로그램하는 법 배우기</i></a>는 클래스를 더 부드럽게 <a href="http://www.freenetpages.co.uk/hp/alan.gauld/tutclass.htm">소개한다</a>.
+                        </li>
+                        <li><a href="http://www.ibiblio.org/obp/thinkCSpy/" title="Python book for computer science majors"><i class="citetitle">컴퓨터 과학자처럼 생각하는 법</i></a>은 <a href="http://www.ibiblio.org/obp/thinkCSpy/chap12.htm">클래스를 사용하여 복합 데이터 유형을 모델링하는 법을 보여준다</a>.
+                        </li>
+                        <li><a href="http://www.python.org/doc/current/tut/tut.html"><i class="citetitle"><span class="application">파이썬</span> 자습서</i></a>는 깊이 있게 <a href="http://www.python.org/doc/current/tut/node11.html">클래스와 이름공간 그리고 상속에 관하여 다루고 있다</a>.
+                        </li>
+                        <li><a href="http://www.faqts.com/knowledge-base/index.phtml/fid/199/"><span class="application">파이썬</span> 지식 기지</a>는 클래스에 관하여 <a href="http://www.faqts.com/knowledge-base/index.phtml/fid/242">흔히 제기되는 질문들에 대한 해답이 있다</a>.
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.create"></a>5.4.&nbsp;클래스 실체화하기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>클래스를 <span class="application">파이썬에서</span> 실체화하는 일은 눈에 보이는 그대로 이해됩니다.  클래스를 실체화하려면 그냥 <tt class="function">__init__</tt> 메쏘드에 정의된 인자들을 건네고 클래스를 마치 함수처럼 호출하면 됩니다. 반환 값은 새로 만들어진 객체가 될 것입니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e12003"></a><h3 class="title">예제&nbsp;5.7.&nbsp;<tt class="classname">FileInfo</tt> 실체 만들기
+                  </h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import fileinfo</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f = fileinfo.FileInfo("/music/_singles/kairo.mp3")</span> <a name="fileinfo.create.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.__class__</span>                                        <a name="fileinfo.create.1.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;class fileinfo.FileInfo at 010EC204&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.__doc__</span>                                          <a name="fileinfo.create.1.3"></a><span class="round">③</span>
+<span class="computeroutput">'store file metadata'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f</span>                                                  <a name="fileinfo.create.1.4"></a><span class="round">④</span>
+<span class="computeroutput">{'name': '/music/_singles/kairo.mp3'}</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.create.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"> (<tt class="filename">fileinfo</tt> 모듈에 정의된) <tt class="classname">FileInfo</tt> 클래스의 실체를 하나 만들고 그 새로 만든 실체를 변수 <tt class="varname">f</tt>에 할당합니다.  매개변수 하나, <tt class="literal">/music/_singles/kairo.mp3</tt>를 건네는데, 이 매개변수는 <tt class="classname">FileInfo</tt> 클래스의 <tt class="function">__init__</tt> 메쏘드의 <tt class="varname">filename</tt> 인자가 될 것입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.create.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">클래스 실체라면 내장 속성으로 <tt class="literal">__class__</tt>가 있는데, 이 속성은 그 객체의 클래스입니다.  (이 표현에 머신에서의 실체의 물리적 주소도 포함됨에 주의하세요; 여러분의 표현은 다를 것입니다.)  자바(<span class="application">Java</span>) 프로그래머는 <tt class="classname">Class</tt> 클래스에 익숙할 텐데, 여기에는 객체에 관한 메타데이터 정보를 얻기 위한 <tt class="function">getName</tt> 메쏘드와 <tt class="function">getSuperclass</tt> 메쏘드가 포함됩니다.  <span class="application">파이썬</span>에서, 이런 종류의 메타데이터는 <tt class="literal">__class__</tt>와 <tt class="literal">__name__</tt> 그리고 <tt class="literal">__bases__</tt> 같은 속성들을 통하여 객체 그 자체에 직접적으로 사용가능합니다. 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.create.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">함수나 모듈에서와 마찬가지로 실체의 문서화 문자열(<tt class="literal">doc string</tt>)에 접근할 수 있습니다.  클래스의 모든 실체들은 똑같은 문서화 문자열(<tt class="literal">doc string</tt>)을 공유합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.create.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">__init__</tt> 메쏘드가 <a href="#fileinfo.class.example" title="Example&nbsp;5.4.&nbsp;Defining the FileInfo Class">자신의 <tt class="varname">filename</tt> 인자를 <tt class="literal">self["name"]</tt></a>에 할당하던 때를 기억하십니까? 자, 다음은 그 결과입니다.  클래스 실체를 만들 때 건넨 인자들은 곧바로 <tt class="function">__init__</tt> 메쏘드에 보내집니다 (<span class="application">파이썬</span>이 무료로 더해주는, 객체 참조점 <tt class="literal">self</tt>와 함께 말입니다).
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="compare.new.java"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">
+					 <span class="application">파이썬</span>에서, 클래스의 실체를 하나 새로 만들려면 그냥 함수처럼 클래스를 호출하면 됩니다. <span class="application"><span class="acronym">C++</span></span>이나 자바(<span class="application">Java</span>)처럼 명시적인 <tt class="literal">new</tt> 연산자는 없습니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e12165"></a>5.4.1.&nbsp;쓰레가 수거
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>
+				  새로운 실체를 만드는 것이 쉽다면 없애는 것은 더 쉽습니다. 보통은 실체를 명시적으로 풀어줄 필요가 없습니다. 그 이유는 실체에 할당된 변수가 영역을 벗어나면 자동으로 풀리기 때문입니다. <span class="application">파이썬</span>에서 메모리 누수는 거의 없습니다.
+                  </p>
+                  <div class="example"><a name="fileinfo.scope"></a><h3 class="title">예제&nbsp;5.8.&nbsp;메모리 누수 시도해 보기</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">def leakmem():</span>
+<tt class="prompt">...     </tt><span class="userinput">f = fileinfo.FileInfo('/music/_singles/kairo.mp3')</span> <a name="fileinfo.create.2.1"></a><span class="round">①</span>
+<tt class="prompt">...     </tt>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">for i in range(100):</span>
+<tt class="prompt">...     </tt><span class="userinput">leakmem()</span>                                          <a name="fileinfo.create.2.3"></a><span class="round">②</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.create.2.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">leakmem</tt> 함수가 호출될 때마다, <tt class="classname">FileInfo</tt> 클래스의 실체를 만들어 그것을 변수 <tt class="varname">f</tt>에 할당합니다. 이 변수는 그 함수 안에 존재하는 지역 변수입니다. 함수는 <tt class="varname">f</tt> 변수를 풀어주지 않고 종료합니다. 그래서 메모리 누수가 있지 않을까 예상하지만, 그렇지 않습니다. 함수가 끝나면 지역 변수 <tt class="varname">f</tt>는 영역을 벗어납니다.  이 시점에서는 <tt class="classname">FileInfo</tt> 클래스로부터 새로 만들어진 그 실체를 더 이상 참조하지 않으므로 (<tt class="varname">f</tt> 말고는 다른 곳에 할당한 바가 없으므로), <span class="application">파이썬</span>이 우리 대신에 그 실체를 파괴합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.create.2.3"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">leakmem</tt> 함수를 얼마를 호출하든 상관없이, 메모리 누수는 없습니다. 왜냐하면 매번 <span class="application">파이썬</span>은 새로 만들어진 <tt class="classname">FileInfo</tt> 클래스의 실체를 파괴하고 나서 <tt class="function">leakmem</tt>으로부터 돌아오기 때문입니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>
+				  이런 형태의 쓰레기 수거를 일컫는 기술적 용어는 &#8220;<span class="quote">참조횟수 세기(reference counting)</span>&#8221;입니다.  <span class="application">파이썬</span>은 생성된 실체마다 참조 목록을 유지합니다. 위의 예제에서는 <tt class="classname">FileInfo</tt> 실체에 대한 참조점이 오직 하나만 있습니다: 지역 변수 <tt class="varname">f</tt>만 있습니다.  함수가 종료하면 변수 <tt class="varname">f</tt>는 범위를 벗어납니다. 그래서 참조 횟수는 <tt class="constant">0</tt>으로 떨어지고, <span class="application">파이썬</span>은 그 실체를 자동으로 파괴합니다.
+                  </p>
+                  <p>
+				  이전의 <span class="application">파이썬</span> 버전에서는 참조횟수 세기가 실패해서,  <span class="application">파이썬</span>이 여러분을 따라다니며 정리해 줄 수 없는 상황이 있었습니다. 서로를 참조하는 실체를 두 개 만들었다면 (예를 들면 이중-링크 리스트 같은 경우, 각 노드는 리스트에서 앞노드와 다음 노드를 가리키는 포인터를 가집니다), 두 실체 어느 것도 자동으로 파괴되지 않습니다. 왜냐하면 <span class="application">파이썬</span>이 각 실체를 가리키는 참조점이 항상 있다고 (올바르게) 믿기 때문입니다. <span class="application">파이썬</span> 2.0에는 쓰레기 수거에 &#8220;<span class="quote">mark-and-sweep</span>&#8221;이라고 부르는 형태가 추가되었습니다. 이는 똑똑하게도 이런 사실상의 격자잠금을 인지하고 순환 참조를 올바르게 정리합니다.
+                  </p>
+                  <p>
+				  철학이 전공인 본인은 아무도 보아주지 않으면 사물은 사라진다고 생각하는 것이 혼란스러웠습니다. 그러나 그런 일이 바로 <span class="application">파이썬</span>에서 일어나는 일입니다. 일반적으로 그냥 메모리 관리에 관하여 잊어 버리고 <span class="application">파이썬</span>이 여러분을 따라 다니며 정리하도록 두면 됩니다.
+                  </p>
+                  <div class="itemizedlist">
+                     <h3 class="title">쓰레가 수거에 관하여 더 읽어야 할 것</h3>
+                     <ul>
+                        <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>에 <tt class="literal">__class__</tt></a> 같은 <a href="http://www.python.org/doc/current/lib/specialattrs.html">내장 속성들이 요약되어 있다.
+                        </li>
+                        <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>에 <a href="http://www.python.org/doc/current/lib/module-gc.html"><tt class="filename">gc</tt> 모듈을 문서화해 두었는데</a>, 이 모듈로 <span class="application">파이썬</span>의 쓰레기 수거를 낮은-수준에서 제어할 수 있다.
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.userdict"></a>5.5.&nbsp;<tt class="classname">UserDict</tt> 탐험: 포장 클래스
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>보시다시피 <tt class="classname">FileInfo</tt>는 사전처럼 행동하는 클래스입니다. 더 탐험해 보기 위해, <tt class="filename">UserDict</tt> 모듈에서 <tt class="classname">UserDict</tt> 클래스를 살펴보겠습니다. 이 클래스는 <tt class="classname">FileInfo</tt> 클래스의 조상입니다.  이는 특별한 것이 아닙니다; 클래스는 <span class="application">파이썬</span>으로 작성되고 <tt class="literal">.py</tt> 파일에 저장됩니다. 다른 <span class="application">파이썬</span> 코드와 똑같이 말입니다. 특히, <span class="application">파이썬</span> 배포 디렉토리의 <tt class="filename">lib</tt> 디렉토리에 저장되어 있습니다.
+                  </p>
+               </div><a name="tip.locate"></a><table class="tip" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundTip">√</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">윈도우즈의 <span class="application">ActivePython</span> <span class="acronym">IDE</span>라면 라이브러리 경로에 있는 모듈을 신속하게 열 수 있습니다. <span class="guimenu">File</span>-&gt;<span class="guimenuitem"><span class="accel">L</span>ocate...</span>를 선택하면 됩니다 (<span><b class="shortcut"><span><b class="keycap">Ctrl</b></span>-<span class="keysym">L</span></b></span>).
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="fileinfo.userdict.init.example"></a><h3 class="title">예제&nbsp;5.9.&nbsp;<tt class="classname">UserDict</tt> 클래스 정의하기
+                  </h3><pre class="programlisting">
+class UserDict:                                <a name="fileinfo.userdict.1.1"></a><span class="round">①</span>
+    def __init__(self, dict=None):             <a name="fileinfo.userdict.1.2"></a><span class="round">②</span>
+        self.data = {}                         <a name="fileinfo.userdict.1.3"></a><span class="round">③</span>
+        if dict is not None: self.update(dict) <a name="fileinfo.userdict.1.4"></a><span class="round">④</span> <a name="fileinfo.userdict.1.5"></a><span class="round">⑤</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">UserDict</tt>가 바탕 클래스임에 주의하세요. 다른 클래스로부터 상속받지 않았습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이것이 <tt class="classname">FileInfo</tt> 클래스에서 <a href="#fileinfo.class.example" title="Example&nbsp;5.4.&nbsp;Defining the FileInfo Class"> 오버라이드 한</a> <tt class="function">__init__</tt> 메쏘드입니다.  이 조상 클래스의 인자 리스트는 자손 클래스의 인자 리스트와 다름에 주의하세요. 좋습니다; 각 하위클래스는 올바른 인자를 가지고 조상을 호출하는 한 자신만의 인자 세트를 가질 수 있습니다. 여기에서 조상 클래스는 (<tt class="varname">dict</tt> 인자에 사전을 건넴으로써) 초기 값을 정의하는 방법이 있습니다. <tt class="classname">FileInfo</tt> 클래스는 이 방법을 사용하지 않았습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><span class="application">파이썬</span>은 데이터 속성을 지원합니다 (자바(<span class="application">Java</span>)와 파워빌더(<span class="application">Powerbuilder</span>)에서는 &#8220;<span class="quote">실체 변수(instance variables)</span>&#8221;라고 부르며, <span class="application"><span class="acronym">C++</span></span>에서는 &#8220;<span class="quote">멤버 변수(member variables)</span>&#8221;라고 부릅니다 ).  데이터 속성은 한 클래스의 특정 실체가 보유한 데이터 조각입니다.  이 경우, 각 <tt class="classname">UserDict</tt> 실체는 데이터 속성으로 <tt class="varname">data</tt>를 가질 것입니다.  이 속성을 클래스 바깥의 코드로부터 참조하려면 실체 이름으로 <tt class="literal"><i class="replaceable">instance</i>.data</tt>와 같이 자격을 부여하면 됩니다. 함수에 모듈 이름으로 자격을 부여하는 방식과 똑 같이 말입니다. 데이터 속성을 클래스 안에서 참조하려면 <tt class="literal">self</tt>를 자격부여자로 사용합니다. 관례상, 모든 데이터 속성은 <tt class="function">__init__</tt> 메쏘드에서 합리적인 값으로 초기화됩니다. 그렇지만, 이것이 필수적인 것은 아닙니다. 왜냐하면 지역 변수 같은 데이터 속성은 처음 값을 할당하자 마자 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.vardef" title="3.4.&nbsp;Declaring variables">갑자기 존재하기 때문입니다</a>.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">update</tt> 메쏘드는 사전을 복사합니다: 한 사전의 값과 키를 또다른 사전에 모두 복사합니다. 이는 목표 사전을 먼저 <span class="emphasis"><em>지우지 않습니다</em></span>; 목표 사전에 이미 키가 있으면 소스 사전의 키들로 덮어쓰기 됩니다. 그러나 다른 것들은 그대로 남아 있을 것입니다. <tt class="function">update</tt>를 복사 함수가 아니라 합병 함수로 생각하세요.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 구문은 이전에 본 적이 없을 겁니다 (이 책에서는 예제에 사용한 적이 없습니다). <tt class="literal">if</tt> 서술문이지만, 다음 줄에서 들여쓰기 블록을 시작하는 대신에, 그냥 같은 줄 쌍점 다음에 서술문 하나가 있을 뿐입니다.  이는 완벽하게 합법적인 구문이며, 블록에 서술문이 달랑 하나 있을 경우 사용할 수 있는 지름길입니다. (마치 <span class="application"><span class="acronym">C++</span></span>에서 괄호 없이 단 한개의 서술문을 지정한 것과 비슷합니다.)  이 구문을 사용하거나 또는 다음 줄에 연이어서 코드를 들여쓰기 해도 되지만, 같은 블록에 두 구문을 모두 사용할 수는 없습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="compare.overloading"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">자바(<span class="application">Java</span>)와 파워빌더(<span class="application">Powerbuilder</span>)는 인자 리스트로 함수 오버로딩을 지원합니다.  <span class="foreignphrase"><i class="foreignphrase"><span class="acronym">다시 말해</span></i></span>, 클래스는 이름은 같지만 인자 개수가 다르거나 인자 유형이 다르게 여러 메쏘드를 가질 수 있습니다.  다른 언어들은 (특히 <span class="acronym">PL/SQL</span>는) 심지어 인자 이름으로 함수 오버로딩도 지원합니다; <span class="foreignphrase"><i class="foreignphrase"><span class="acronym">즉,</span></i></span> 클래스는 이름도 같고 인자 유형도 같지만 인자 이름은 다른 메쏘드를 여럿 가질 수 있습니다. <span class="application">파이썬</span>은 이 중 어느 것도 지원하지 않습니다; 함수 오버로딩 같은 형태는 전혀 없습니다.  메쏘드는 오직 이름만으로 정의되며, 주어진 이름으로 클래스 당 하나의 클래스만 있을 수 있습니다. 그래서 자손 클래스에 <tt class="function">__init__</tt> 메쏘드가 있으면 <span class="emphasis"><em>언제나</em></span> 조상의 <tt class="function">__init__</tt> 메쏘드를 오버라이드 합니다. 자손 클래스에 다른 인자 리스트를 가지고 정의되어 있더라도 말입니다. 그리고 같은 규칙이 다른 메쏘드에도 적용됩니다.
+                     </td>
+                  </tr>
+               </table><a name="fileinfo.derivedclasses"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">처음 <span class="application">파이썬</span>을 만든 귀도(Guido)는 메쏘드 오버라이딩을 다음과 같이 설명합니다: "파생된 클래스는 바탕 클래스의 메쏘드를 오버라이드할 수 있습니다. 메쏘드는 같은 객체의 다른 메쏘드를 호출할  때 특별한 권한이 없기 때문에, 바탕 클래스의 메쏘드가 같은 바탕 클래스 안에 정의된 또다른 메쏘드를 호출할 경우 실제로 그를 오버라이드한 파생 클래스의 메쏘드를 호출할 가능성이 높습니다. (<span class="application"><span class="acronym">C++</span></span> 프로그래머에게 드리는 주의: <span class="application">파이썬</span>에서 모든 메쏘드는 효과상 가상적입니다.)"  이해가 되지 않으면 무시해도 좋습니다. (정신이 하나도 없군요) 저는 그냥 무시하고 지나쳐도 된다고 생각했습니다.
+                     </td>
+                  </tr>
+               </table><a name="note.dataattributes"></a><table class="caution" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundCaution">◈</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"> <tt class="function">__init__</tt> 메쏘드에서 실체의 데이터 속성 모두에 언제나 최초값을 할당하세요.  나중에 디버깅 시간을 줄여주고, <tt class="classname">AttributeError</tt> 예외를 찾아 내려가는 수고를 덜어줄 것입니다. 초기화되지 않은 (그러므로 존재하지 않는) 속성을 참조하려고 하기 때문에 말입니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="fileinfo.userdict.normalmethods"></a><h3 class="title">예제&nbsp;5.10.&nbsp;<tt class="classname">UserDict</tt> 정상 메쏘드&nbsp;
+                  </h3>
+				  <pre class="programlisting">
+    def clear(self): self.data.clear()          <a name="fileinfo.userdict.2.1"></a><span class="round">①</span>
+    def copy(self):                             <a name="fileinfo.userdict.2.2"></a><span class="round">②</span>
+        if self.__class__ is UserDict:          <a name="fileinfo.userdict.2.3"></a><span class="round">③</span>
+            return UserDict(self.data)         
+        import copy                             <a name="fileinfo.userdict.2.4"></a><span class="round">④</span>
+        return copy.copy(self)                 
+    def keys(self): return self.data.keys()     <a name="fileinfo.userdict.2.5"></a><span class="round">⑤</span>
+    def items(self): return self.data.items()  
+    def values(self): return self.data.values()
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">clear</tt>는 보통의 클래스 메쏘드입니다; 공개적으로 언제든지 누구나 호출할 수 있습니다.  주목하세요. 다른 모든 클래스와 마찬가지로 <tt class="function">clear</tt>는 <tt class="literal">self</tt>가 그의 첫 인자입니다. (메쏘드를 호출할 때 <tt class="literal">self</tt>를 포함시키지 마세요; <span class="application">파이썬이</span> 여러분 대신 추가해 준답니다.)  또 이 포장자 클래스의 기본 테크닉에 주목하세요: 실제 사전(<tt class="varname">data</tt>)을 데이터 속성으로 저장하고, 실제 사전에 있는 모든 메쏘드를 정의하며, 그리고 각 클래스 메쏘드를 그에 상응하는 실제 사전의 메쏘드로 방향전환합니다. (혹 잊으셨다면 사전의 <tt class="function">clear</tt> 메쏘드는 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.dict.del" title="Example&nbsp;3.5.&nbsp;Deleting Items from a Dictionary">모든 키와 그의 연관 값을 삭제합니다</a>.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">
+						   실제 사전의 <tt class="filename">copy</tt> 메쏘드는 원래 사전과 정확하게 똑 같은 복제본을 새로 돌려줍니다 (모든 키-값 쌍이 똑 같습니다). 그러나 <tt class="classname">UserDict</tt> 는 손쉽게 <tt class="function">self.data.copy</tt>로 방향전환될 수 없습니다. 그 이유는 그 메쏘드가 진짜 사전을 돌려주기 때문입니다. <tt class="literal">self</tt>와 클래스가 같은 새로운 실체를 돌려주고 싶습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">
+						   <tt class="literal">__class__</tt> 속성을 사용하여 <tt class="literal">self</tt>가 <tt class="classname">UserDict</tt>인지 알아봅니다; 그렇다면 다행입니다. 왜냐하면 <tt class="classname">UserDict</tt>를 복사하는 법을 알기 때문인데: 그냥 새로 <tt class="classname">UserDict</tt>를 만들어서 거기에다 <tt class="varname">self.data</tt>에 저장해 둔 실제 사전을 주면 됩니다. 즉시 그 새로운  <tt class="classname">UserDict</tt>를 돌려주고 다음 줄의 <tt class="literal">import copy</tt>에는 도달조차 하지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal"><span class="literal">self</span>.<span class="literal">__class__</span></tt>가 <tt class="classname">UserDict</tt>가 아니라면 <tt class="literal">self</tt>는 (어쩌면 <tt class="classname">FileInfo</tt> 같이) <tt class="classname">UserDict</tt>의 하위클래스임에 틀림없습니다. 그런 경우라면 좀 피곤해집니다.  <tt class="classname">UserDict</tt>는 자신의 자손을 정확하게 복사하는 법을 모릅니다; 예를 들면 그 하위클래스에 다른 데이터 속성이 정의되어 있을 수 있습니다. 그래서 그 속성들을 회돌이하면서 반드시 모두 복사할 필요가 있을 것입니다. 다행스럽게도 <span class="application">파이썬</span>에는 정확하게 이 일을 해주는 모듈이 따라옵니다. 이른바 <tt class="filename">copy</tt>라고 부르는 모듈이 그것입니다. (스스로 깊이 연구해 보셨다면 물론 멋진 모듈이기는 하지만) 깊이 다루지는 않겠습니다. 여기에서 <tt class="filename">copy</tt>는 <span class="application">파이썬</span> 객체라면 무엇이든 복사할 수 있으며 여기에서 사용하고 있는 것이라는 사실을 언급하는 정도로 마치겠습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.2.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">나머지 메쏘드는 눈에 보이는 그대로입니다. 호출을 <tt class="varname">self.data</tt>의 내장 메쏘드로 방향전환합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="d0e12692"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬</span>  2.2 이전의 버전에서는 리스트와 문자열 그리고 사전 같은 내장 데이터유형을 직접 하위클래스화할 수 없었습니다. 이를 보충하기 위하여 <span class="application">파이썬</span>에는 이런 내장 유형을 흉내내는 포장 클래스가 따라옵니다: <tt class="classname">UserString</tt>과 <tt class="classname">UserList</tt> 그리고 <tt class="classname">UserDict</tt>가 그것입니다. 표준 메쏘드와 특수 메쏘드를 조합해 사용하여 <tt class="classname">UserDict</tt> 클래스는 훌륭하게 사전을 흉내냅니다. <span class="application">파이썬</span> 2.2 이후부터는 <tt class="classname">dict</tt> 같은 내장 데이터 유형으로부터 클래스를 바로 상속받을 수 있습니다. 이에 관한 예제는 이 책에 따라오는 예제인 <tt class="filename">fileinfo_fromdict.py</tt>에 있습니다.
+                     </td>
+                  </tr>
+               </table>
+               <p><span class="application">파이썬</span>에서는 이 예제에서 보여준 바와 같이 직접 <tt class="classname">dict</tt> 내장 데이터유형으로부터 상속받을 수 있습니다. <tt class="filename">UserDict</tt> 버전에 비해 세 가지 차이점이 있습니다.
+               </p>
+               <div class="example"><a name="fileinfo.userdict.fromdict"></a><h3 class="title">예제&nbsp;5.11.&nbsp;내장 데이터 유형인 <tt class="classname">dict</tt>로부터 직접 상속받는 법</h3><pre class="programlisting">
+class FileInfo(dict):                  <a name="fileinfo.userdict.3.1"></a><span class="round">①</span>
+    "store file metadata"
+    def __init__(self, filename=None): <a name="fileinfo.userdict.3.2"></a><span class="round">②</span>
+        self["name"] = filename
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">첫 번째 차이점은  <tt class="filename">UserDict</tt> 모듈을 반입할 필요가 없습니다.  <tt class="classname">dict</tt>는 내장 데이터유형이고 언제나 사용가능하기 때문입니다. 두 번째 차이점은 <tt class="function">UserDict.UserDict</tt>가 아니라 <tt class="classname">dict</tt>로부터 바로 상속받습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.userdict.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">세 번째 차이점은 미묘하지만 중요합니다. <tt class="filename">UserDict</tt>는 내부적으로 작동하는 방식 때문에 손수 그의 <tt class="function">__init__</tt> 메쏘드를 호출해 주어야 제대로 그의 내부 데이터 구조를 초기화할 수 있습니다.  <tt class="classname">dict</tt>는 이와 같이 작동하지 않습니다; 포장자가 아니므로 명시적으로 초기화할 필요가 없습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="itemizedlist">
+                  <h3 class="title"><tt class="filename">UserDict</tt>에 관하여 더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>에 <a href="http://www.python.org/doc/current/lib/module-UserDict.html"><tt class="filename">UserDict</tt> 모듈</a>과 <a href="http://www.python.org/doc/current/lib/module-copy.html"><tt class="filename">copy</tt> 모듈에 관한 문서가 있다</a>.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.specialmethods"></a>5.6.&nbsp;특수한 클래스 메쏘드
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>은 보통의 클래스 메쏘드 외에도 수 많은 특수 메쏘드를 정의할 수 있습니다.  (보통의 메쏘드처럼) 코드에서 직접적으로 호출되는 대신에 특수 메쏘드는 특별한 상황 또는 특정한 구문이 사용되면 여러분 대신 <span class="application">파이썬</span>이 호출합니다.
+                  </p>
+               </div>
+               <p>
+			   <a href="#fileinfo.userdict" title="5.5.&nbsp;Exploring UserDict: A Wrapper Class">앞 섹션</a>에서 보았듯이 보통의 메쏘드는 클래스에 사전을 싸 넣는 정도는 훌륭하게 해 냅니다. 그러나 보통의 메쏘드 만으로는 충분하지 않습니다. 왜냐하면 메쏘드를 호출하는 것 말고도 사전으로 할 수 있는 일이 수 없이 많기 때문입니다. 초보자라면 명시적으로 요청하는 메쏘드가 포함되지 않은 구문을 가지고 항목을 얻고(<a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.dict.define" title="Example&nbsp;3.1.&nbsp;Defining a Dictionary">get</a>) 설정(<a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.dict.modify" title="Example&nbsp;3.2.&nbsp;Modifying a Dictionary">set</a>)할 수 있습니다. 바로 이곳에 특수한 클래스 메쏘드가 들어옵니다: 특수 클래스 메쏘드는 비-메쏘드-호출 구문을 메쏘드 호출에 짝짓는 방법을 제공합니다.
+               </p>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e12822"></a>5.6.1.&nbsp;원소를 설정하고 획득하기
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <div class="example"><a name="d0e12825"></a><h3 class="title">예제&nbsp;5.12.&nbsp;<tt class="function">__getitem__</tt> 특수 메쏘드
+                     </h3><pre class="programlisting">
+    def __getitem__(self, key): return self.data[key]</pre><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f = fileinfo.FileInfo("/music/_singles/kairo.mp3")</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f</span>
+<span class="computeroutput">{'name':'/music/_singles/kairo.mp3'}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.__getitem__("name")</span> <a name="fileinfo.specialmethods.1.1"></a><span class="round">①</span>
+<span class="computeroutput">'/music/_singles/kairo.mp3'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f["name"]</span>             <a name="fileinfo.specialmethods.1.2"></a><span class="round">②</span>
+<span class="computeroutput">'/music/_singles/kairo.mp3'</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.1.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">
+							  <tt class="function">__getitem__</tt> 특수 메쏘드는 아주 단순하게 보입니다. <tt class="function">clear</tt>와 <tt class="function">keys</tt> 그리고 <tt class="function">values</tt> 같은 보통의 메쏘드처럼 그냥 사전으로 방향전환되어 그의 값을 돌려줍니다. 그러나 어떻게 호출될까요?  음, 직접적으로 <tt class="function">__getitem__</tt>을 호출할 수 있지만, 실제로는 관행적으로 그렇게 하지 않습니다; 여기에서는 작동법을 보여주기 위해 그렇게 했을 뿐입니다. 올바르게 <tt class="function">__getitem__</tt>을 사용하는 법은 <span class="application">파이썬</span>이 여러분을 대신하여 호출하도록 하는 것입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.1.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.dict.define" title="Example&nbsp;3.1.&nbsp;Defining a Dictionary">사전에서 값을 얻을 때</a> 사용하는 구문과 똑 같아 보입니다. 그리고 사실, 예상대로 값을 돌려줍니다. 그러나 빠진 링크가 있습니다: 뚜껑 아래에서 <span class="application">파이썬</span>은 이 구문을 메쏘드 호출 <tt class="literal">f.__getitem__("name")</tt>으로 변환합니다. 그 때문에 <tt class="function">__getitem__</tt>은 특수 클래스 메쏘드입니다; 손수 호출할 수 있을 뿐만 아니라 올바른 구문을 사용하면 <span class="application">파이썬</span>에게 여러분을 대신하여 호출하도록 만들 수 있습니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>
+				  물론 <span class="application">파이썬</span>은 <tt class="function">__getitem__</tt>과 더불어 <tt class="function">__setitem__</tt> 특수 메쏘드가 있습니다. 다음 예제에 보여주는 바와 같이 말입니다.
+                  </p>
+                  <div class="example"><a name="fileinfo.specialmethods.setitem.example"></a><h3 class="title">예제&nbsp;5.13.&nbsp;<tt class="function">__setitem__</tt> 특수 메쏘드
+                     </h3><pre class="programlisting">
+    def __setitem__(self, key, item): self.data[key] = item</pre><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f</span>
+<span class="computeroutput">{'name':'/music/_singles/kairo.mp3'}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.__setitem__("genre", 31)</span> <a name="fileinfo.specialmethods.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f</span>
+<span class="computeroutput">{'name':'/music/_singles/kairo.mp3', 'genre':31}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f["genre"] = 32</span>            <a name="fileinfo.specialmethods.2.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f</span>
+<span class="computeroutput">{'name':'/music/_singles/kairo.mp3', 'genre':32}</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.2.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">__getitem__</tt> 메쏘드처럼 <tt class="function">__setitem__</tt> 메쏘드는 그냥 실제 사전 <tt class="varname">self.data</tt>로 방향전환되어 자신의 일을 합니다.  그리고 <tt class="function">__getitem__</tt>처럼 보통 다음과 같이 직접 호출하지 않습니다; 올바르게 구문을 사용하면 <span class="application">파이썬</span>이 여러분 대신 <tt class="function">__setitem__</tt>을 호출합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.2.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 표준 사전 구문과 비슷합니다. 물론 <tt class="varname">f</tt>가 실제로는 사전인 것처럼 무던히도 애쓰는 클래스라는 사실만 제외하고 말입니다. <tt class="function">__setitem__</tt>이 그 가면의 핵심 부분입니다. 이 코드 줄은 실제로 뚜껑 아래에서 <tt class="literal">f.__setitem__("genre", 32)</tt>을 호출합니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p><tt class="function">__setitem__</tt>은 특수 클래스 메쏘드입니다. 여러분을 대신하여 호출되기 때문입니다. <tt class="classname">UserDict</tt>에서 쉽게 <tt class="function">__setitem__</tt> 메쏘드를 정의한 것처럼 자손 클래스에서도 조상 메쏘드를 오버라이드 하도록 재정의 할 수 있습니다. 이 덕분에 어느 정도 사전처럼 행위하는 그러나 내장 사전을 넘어서서 자신만의 행위가 정의된 클래스를 정의할 수 있습니다. 
+                  </p>
+                  <p>
+				  이 개념은 이 장에서 공부중인 전체 작업틀의 토대입니다. 각 파일 유형은 특정 유형의 파일로부터 메타데이터를 얻는 법을 이해하는 처리자 클래스를 가질 수 있습니다. 일단 (파일의 이름이나 위치 같은) 어떤 속성이 알려지면 처리자 클래스는 다른 특성들을 자동으로 추출하는 법을 압니다.  이는 <tt class="function">__setitem__</tt> 메쏘드를 오버라이딩하면 되는데, 특정 키를 점검하고 발견되면 추가 처리를 합니다.
+                  </p>
+                  <p>
+				  예를 들어 <tt class="classname">MP3FileInfo</tt>는 <tt class="classname">FileInfo</tt>의 자손입니다. <tt class="classname">MP3FileInfo</tt>의 <tt class="literal">이름(name)</tt>이 설정되면 ( 조상 <tt class="classname">FileInfo</tt> 클래스가 하는 것처럼) 단순히 <tt class="literal">name</tt> 키만 설정하는 것이 아니라; 또한 파일 안을 들여다 보고 <span class="abbrev">MP3</span> 태그를 찾아 키 집합도 모두 채웁니다.  다음 예제는 이것이 어떻게 작동하는지 보여줍니다.
+                  </p>
+                  <div class="example"><a name="d0e13038"></a><h3 class="title">예제&nbsp;5.14.&nbsp;<tt class="classname">MP3FileInfo</tt>에서 <tt class="function">__setitem__</tt> 오버라이딩하기&nbsp; </h3><pre class="programlisting">
+    def __setitem__(self, key, item):         <a name="fileinfo.specialmethods.3.1"></a><span class="round">①</span>
+        if key == "name" and item:            <a name="fileinfo.specialmethods.3.2"></a><span class="round">②</span>
+            self.__parse(item)                <a name="fileinfo.specialmethods.3.3"></a><span class="round">③</span>
+        FileInfo.__setitem__(self, key, item) <a name="fileinfo.specialmethods.3.4"></a><span class="round">④</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.3.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">
+							  이 <tt class="function">__setitem__</tt> 메쏘드가 조상 메쏘드와 정확하게 똑 같이 정의되어 있음에 주목하세요.  이는 중요합니다. 왜냐하면 <span class="application">파이썬</span> 은 여러분을 대신하여 이 메쏘드를 호출하고 일정 개수의 인자와 함께 정의되어 있으리라고 예상하기 때문입니다. (기술적으로 말해 인자의 이름은 문제가 되지 않습니다; 오직 인자의 개수가 중요합니다.)
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.3.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">여기가 전체 <tt lass="classname">MP3FileInfo</tt> 클래스의 심장부입니다: 값을 <tt class="literal">name</tt> 키에 할당한다면 무언가 추가로 일을 하고 싶기 때문입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.3.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">name</tt>에 대한 추가 처리는 <tt class="function">__parse</tt> 메쏘드에 캡슐화됩니다.  이는 <tt class="classname">MP3FileInfo</tt>에 정의된 또다른 클래스 메쏘드입니다. 이 메쏘드를 호출하려면 메쏘드에 <tt class="varname">self</tt>로 자격을 부여합니다.  그냥 <tt class="function">__parse</tt>를 호출하는 것은 클래스 밖에 정의된 보통 함수처럼 보일 것이고, 이는 원하는 바가 아닙니다. <tt class="function">self.__parse</tt>로 호출하면 클래스 안에 정의된 클래스 메쏘드처럼 보입니다. 이는 새로운 것이 아닙니다; <a href="#fileinfo.userdict.normalmethods" title="Example&nbsp;5.10.&nbsp;UserDict Normal Methods">데이터 속성</a>을 같은 방식으로 참조한 바가 있습니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.3.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left">이 추가 처리가 끝나면 조상 메쏘드를 호출하고 싶습니다. 기억합시다. 이는 <span class="application">파이썬</span>이 여러분을 위하여 절대로 대신해 주지 않습니다; 손수 해야 합니다. <tt class="function">__setitem__</tt> 메쏘드가 없음에도 불구하고 직접 조상인 <tt class="classname">FileInfo</tt>를 호출하고 있음에 주목하세요. 그래도 좋습니다. 왜냐하면 <span class="application">파이썬</span>이 조상 트리를 타고 올라가 여러분이 호출한 메쏘드를 가진 클래스를 찾아낼 것입니다. 그래서 이 코드 줄은 결국 <tt class="classname">UserDict</tt>에 정의된 <tt class="function">__setitem__</tt> 메쏘드를 찾아 실행하기 때문입니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div><a name="tip.self.call"></a><table class="note" border="0" summary="">
+                     <tr>
+                        <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                     </tr>
+                     <tr>
+                        <td colspan="2" align="left" valign="top" width="99%">클래스 안의 데이타 속성에 접근할 때 속성 이름에 자격을 부여할 필요가 있습니다: <tt class="literal">self.<i class="replaceable">attribute</i></tt>로 말입니다.  클래스에서 다른 메쏘드를 호출할 때도 메쏘드 이름에 자격을 부여해야 합니다: <tt class="literal">self.<i class="replaceable">method</i></tt>와 같이 말입니다.
+                        </td>
+                     </tr>
+                  </table>
+                  <div class="example"><a name="fileinfo.specialmethods.setname"></a><h3 class="title">예제&nbsp;5.15.&nbsp;<tt class="classname">MP3FileInfo</tt>의 이름(<tt class="literal">name</tt>) 설정하기</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import fileinfo</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">mp3file = fileinfo.MP3FileInfo()</span>                   <a name="fileinfo.specialmethods.4.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">mp3file</span>
+<span class="computeroutput">{'name':None}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">mp3file["name"] = "/music/_singles/kairo.mp3"</span>      <a name="fileinfo.specialmethods.4.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">mp3file</span>
+<span class="computeroutput">{'album': 'Rave Mix', 'artist': '***DJ MARY-JANE***', 'genre': 31,
+'title': 'KAIRO****THE BEST GOA', 'name': '/music/_singles/kairo.mp3',
+'year': '2000', 'comment': 'http://mp3.com/DJMARYJANE'}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">mp3file["name"] = "/music/_singles/sidewinder.mp3"</span> <a name="fileinfo.specialmethods.4.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">mp3file</span>
+<span class="computeroutput">{'album': '', 'artist': 'The Cynic Project', 'genre': 18, 'title': 'Sidewinder', 
+'name': '/music/_singles/sidewinder.mp3', 'year': '2000', 
+'comment': 'http://mp3.com/cynicproject'}</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.4.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">먼저, 파일이름을 건네지 않고 <tt class="classname">MP3FileInfo</tt>의 실체를 만듭니다. (이렇게 해도 되는 이유는 <tt class="function">__init__</tt> 메쏘드의 <tt class="varname">filename</tt> 인자는 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.optional" title="4.2.&nbsp;Using Optional and Named Arguments">선택적</a>이기 때문입니다.)  
+							  
+							  <tt class="classname">MP3FileInfo</tt>에는 <tt class="function">__init__</tt> 메쏘드가 없기 때문에 <span class="application">파이썬</span>은 조상 트리를 따라 올라가 <tt class="classname">FileInfo</tt>의 <tt class="function">__init__</tt> 메쏘드를 찾습니다. 이 <tt class="function">__init__</tt> 메쏘드는 손수 <tt class="classname">UserDict</tt>의 <tt class="function">__init__</tt> 메쏘드를 호출합니다. 그리고 <tt class="literal">name</tt> 키를 <tt class="varname">filename</tt>에 설정합니다. 파일이름은 <tt class="literal">None</tt>인데, 파일이름을 건네지 않았기 때문입니다.  그리하여 <tt class="varname">mp3file</tt>는 처음에는 키가 <tt class="literal">name</tt> 하나인 사전처럼 보입니다. 그 값은 <tt class="literal">None</tt>입니다.
+                                 
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.4.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">이제 진짜 재미가 시작됩니다. <tt class="varname">mp3file</tt>의 <tt class="literal">name</tt> 키를 설정하면 (<tt class="classname">UserDict</tt>가 아니라) <tt class="classname">MP3FileInfo</tt>에 <tt class="function">__setitem__</tt> 메쏘드가 촉발됩니다. <tt class="literal">name</tt> 키에 진짜 값이 설정되는 것을 인지하고 <tt class="function">self.__parse</tt>를 호출합니다. 아직 <tt class="function">__parse</tt> 메소드를 추적하지 않았지만 출력을 보면 다른 여러 키를 설정하고 있음을 알 수 있습니다: <tt class="literal">album</tt>, <tt class="literal">artist</tt>, <tt class="literal">genre</tt>, <tt class="literal">title</tt>, <tt class="literal">year</tt>, 그리고 <tt class="literal">comment</tt>.
+                                 
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#fileinfo.specialmethods.4.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">name</tt> 키를 수정하면 같은 과정을 다시 또 반복합니다: <span class="application">파이썬</span>은 <tt class="function">__setitem__</tt>을 호출하고, 이는 <tt class="function">self.__parse</tt>를 호출하는데, 이 메쏘드는 다른 모든 키를 설정합니다.
+                                 
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.morespecial"></a>5.7.&nbsp;고급 특수 클래스 메쏘드
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>에는 단지 <tt class="function">__getitem__</tt> 메쏘드와 <tt class="function">__setitem__</tt> 메쏘드 말고도 특수 메쏘드가 많이 있습니다.  그 중에는 생각지도 못했던 기능을 흉내내 주기도 합니다.
+                  </p>
+               </div>
+               <p>다음 예제는 <tt class="filename">UserDict</tt>에 있는 다른 특수 메쏘드중 일부를 보여줍니다.
+               </p>
+               <div class="example"><a name="fileinfo.morespecial.example"></a><h3 class="title">예제&nbsp;5.16.&nbsp;<tt class="classname">UserDict</tt>에 있는 특수 메쏘드 심화연구&nbsp;</h3>
+    <pre class="programlisting">    def __repr__(self): return repr(self.data)     <a name="fileinfo.morespecial.1.1"></a><span class="round">①</span>
+    def __cmp__(self, dict):                       <a name="fileinfo.morespecial.1.2"></a><span class="round">②</span>
+        if isinstance(dict, UserDict):            
+            return cmp(self.data, dict.data)      
+        else:                                     
+            return cmp(self.data, dict)           
+    def __len__(self): return len(self.data)       <a name="fileinfo.morespecial.1.3"></a><span class="round">③</span>
+    def __delitem__(self, key): del self.data[key] <a name="fileinfo.morespecial.1.4"></a><span class="round">④</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.morespecial.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">__repr__</tt>은 특수한 메쏘드로서 <tt class="literal">repr(<i class="replaceable">instance</i>)</tt>를 호출하면 호출됩니다. <tt class="function">repr</tt> 함수는 객체의 문자열 표현을 돌려주는 내장 함수입니다. 클래스 실체는 물론이고, 어떤 객체에도 작동합니다. 인지하지는 못했지만 이미 <tt class="function">repr</tt>에 익숙합니다.  상호대화 창에서 그냥 변수 이름을 타자하고 <span><b class="keycap">ENTER</b></span> 키를 누르면 <span class="application">파이썬</span>은 <tt class="function">repr</tt>을 사용하여 그 변수의 값을 화면에 표시합니다.  약간의 데이터를 가지고 사전 <tt class="varname">d</tt>를 만든 다음 <tt class="literal">print repr(d)</tt>을 해 보시면 직접 보실 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.morespecial.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">__cmp__</tt>는 클래스 실체를 비교할 때 호출됩니다. 일반적으로 그냥 <tt class="literal">==</tt>를 사용하면 클래스 실체는 물론이고  무엇이든 두 개의 <span class="application">파이썬</span> 객체를 비교할 수 있습니다. 내장 데이터유형은 동등하다고 간주하는 규칙이 정의되어 있습니다; 예를 들면 사전은 키가 같고 값이 같으면 동등하며, 문자열은 길이가 같고 같은 문자가 연속되어 담겨 있으면 같습니다. 클래스 실체에 대하서는 <tt class="function">__cmp__</tt> 메쏘드를 정의하고 비교 로직을 손수 코드한다음, <tt class="literal">==</tt>를 사용하여 클래스의 실체를 비교하면 여러분을 대신하여 <span class="application">파이썬</span>이 <tt class="function">__cmp__</tt> 특수 메쏘드를 호출해 줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.morespecial.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">__len__</tt>은 <tt class="literal">len(<i class="replaceable">instance</i>)</tt>을 호출할 때 호출됩니다. <tt class="function">len</tt> 함수는 객체의 길이를 돌려주는 내장 함수로서 길이가 있다고 간주되는 모든 객체에 작동합니다.  문자열의 길이(<tt class="function">len</tt>)는 문자의 개수입니다; 사전의 길이(<tt class="function">len</tt>)는 키의 개수입니다; 리스트나 터플의 길이(<tt class="function">len</tt>)는 원소의 개수입니다. 클래스 실체라면 <tt class="function">__len__</tt> 메쏘드를 정의하고 길이 계산을 손수 코드한 다음 <tt class="literal">len(<i class="replaceable">instance</i>)</tt>를 호출하면 <span class="application">파이썬</span>이 여러분을 대신하여 <tt class="function">__len__</tt> 특수 메쏘드를 호출해 줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.morespecial.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">__delitem__</tt>은 <tt class="literal">del <i class="replaceable">instance</i>[<i class="replaceable">key</i>]</tt>를 호출하면 호출되는데, 아마도 이 방법은 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.dict.del" title="Example&nbsp;3.5.&nbsp;Deleting Items from a Dictionary">사전에서 개별 항목들을 삭제하는 방법</a>으로 기억하실 것입니다. 클래스 실체에 <tt class="function">del</tt>을 요청하면 여러분을 대신하여 <span class="application">파이썬</span>이 <tt class="function">__delitem__</tt> 특수 메쏘드를 호출합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="compare.strequals.java"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">자바(<span class="application">Java</span>)에서 두 문자열 변수가 메모리에서 같은 물리적 위치를 가리키는지 알아보려면 <tt class="literal">str1 == str2</tt>를 사용합니다. 이를 객체 신분(<span class="emphasis"><em>object identity</em></span>)이라고 부르며 <span class="application">파이썬</span>에서는 <tt class="literal">str1 is str2</tt>로 표기됩니다. 문자열 값을 자바(<span class="application">Java</span>)에서 비교하려면 <tt class="literal">str1.equals(str2)</tt>를 사용하는데; <span class="application">파이썬</span>에서는 <tt class="literal">str1 == str2</tt>를 사용합니다. 자바(<span class="application">Java</span>)에서 <tt class="literal">==</tt>가 값이 아니라 신분으로 비교되기 때문에  자신의 세상이 더 좋다고 믿도록 교육을 받아온 자바(<span class="application">Java</span>) 프로그래머라면 <span class="application">파이썬</span>에 그런 &#8220;<span class="quote">함정(gotchas)</span>&#8221;이 없다는 사실에 적응하는데 애를 먹을 것입니다.
+                     </td>
+                  </tr>
+               </table>
+               <p>이 시점에서 이렇게 생각하실지 모르겠습니다. &#8220;<span class="quote">클래스 안에서 일을 하기 위해 하는 모든 작업은 내장 데이터 유형으로 할 수 있다</span>&#8221;고 말입니다.  그리고 사실 사전처럼 내장 데이터유형을 상속받을 수 있다면 더 삶이 편안할 것입니다 (<tt class="classname">UserDict</tt> 클래스가 전혀 필요없을 것입니다). 그러나 그렇다고 할지라도 특수 메쏘드는 여전히 유용합니다. 특수 클래스는 단순히 <tt class="classname">UserDict</tt> 같은 포장 클래스뿐만 아니라 어떤 클래스에도 사용가능하기 때문입니다.
+               </p>
+               <p>특수 메쏘드란 <span class="emphasis"><em>어떤 클래스</em></span>이든 그냥 <tt class="function">__setitem__</tt> 메쏘드를 정의하기만 하면 사전처럼 키/값 쌍을 저장할 수 있다는 뜻입니다. <span class="emphasis"><em>어떤 클래스이든지</em></span>  <tt class="function">__getitem__</tt> 메쏘드를 정의하기만 하면 연속열처럼 작동할 수 있습니다. 어떤 클래스이든 <tt class="function">__cmp__</tt>  메쏘드가 정의되어 있으면 <tt class="literal">==</tt>로 비교할 수 있습니다. 클래스가 길이가 있는 어떤 것을 나타낸다면 <tt class="function">GetLength</tt> 메쏘드를 정의하지 마세요; <tt class="function">__len__</tt> 메쏘드를 정의하고 <tt class="literal">len(<i class="replaceable">instance</i>)</tt>을 사용하세요.
+               </p><a name="note.physical.v.logical"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">다른 객체-지향적 언어에서는 기껏해야 객체의 물리 모델을 정의할 수 있을 뿐이지만 (&#8220;<span class="quote">이 객체는 <tt class="function">GetLength</tt> 메쏘드가 있습니다</span>&#8221;), <tt class="function">__len__</tt> 같은 <span class="application">파이썬</span>의 특수 클래스 메쏘드에서는 객체의 논리 모델을 정의할 수 있습니다 (&#8220;<span class="quote">이 객체는 길이가 있습니다</span>&#8221;).
+                     </td>
+                  </tr>
+               </table>
+               <p><span class="application">파이썬</span>은 수 많은 특수 메쏘드가 있습니다. 숫자처럼 행위하는 클래스를 만들기 위한 메쏘드가 모두 갖추어져 있으며, 클래스 실체에 덧셈과 뺄셈 그리고 기타 숫치 연산을 행할 수 있습니다. (이의 모범적인 예는 실수부와 허수부가 있는 숫자인 복소수를 나타내는 클래스입니다.)  <tt class="function">__call__</tt> 메쏘드는 함수처럼 행위하는 클래스를 만들 수 있으며, 클래스 실체를 직접적으로 호출할 수 있습니다. 클래스가 읽기 전용과 쓰기 전용 데이터 속성을 가지도록 만드는 특수 메쏘드도 있습니다; 다음 장에서 그에 관하여 좀 더 연구해 보겠습니다.
+               </p>
+               <div class="itemizedlist">
+                  <h3 class="title">특수 클래스 메쏘드에 대하여 더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.python.org/doc/current/ref/"><i class="citetitle"><span class="application">파이썬</span> 참조 매뉴얼</i></a>에 <a href="http://www.python.org/doc/current/ref/specialnames.html">모든 특수 클래스 메쏘드</a>에 관한 문서가 있다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.classattributes"></a>5.8.&nbsp;클래스 속성 소개</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이미 <a href="#fileinfo.userdict.init.example" title="Example&nbsp;5.9.&nbsp;Defining the UserDict Class">데이터 속성</a>에 관하여 배웠습니다. 이는 클래스의 특정 실체가 소유한 변수들입니다.  <span class="application">파이썬</span>은 또한 클래스 속성을 지원합니다. 이는 클래스 자체가 소유한 변수들입니다.
+                  </p>
+               </div>
+               <div class="example"><a name="fileinfo.classattributes.intro"></a><h3 class="title">예제&nbsp;5.17.&nbsp;클래스 속성 소개</h3><pre class="programlisting">
+class MP3FileInfo(FileInfo):
+    "ID3v1.0 MP3 태그를 저장한다"
+    tagDataMap = {"title"   : (  3,  33, stripnulls),
+                  "artist"  : ( 33,  63, stripnulls),
+                  "album"   : ( 63,  93, stripnulls),
+                  "year"    : ( 93,  97, stripnulls),
+                  "comment" : ( 97, 126, stripnulls),
+                  "genre"   : (127, 128, ord)}</pre><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import fileinfo</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">fileinfo.MP3FileInfo</span>            <a name="fileinfo.classattributes.1.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;class fileinfo.MP3FileInfo at 01257FDC&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">fileinfo.MP3FileInfo.tagDataMap</span> <a name="fileinfo.classattributes.1.2"></a><span class="round">②</span>
+<span class="computeroutput">{'title': (3, 33, &lt;function stripnulls at 0260C8D4&gt;), 
+'genre': (127, 128, &lt;built-in function ord&gt;), 
+'artist': (33, 63, &lt;function stripnulls at 0260C8D4&gt;), 
+'year': (93, 97, &lt;function stripnulls at 0260C8D4&gt;), 
+'comment': (97, 126, &lt;function stripnulls at 0260C8D4&gt;), 
+'album': (63, 93, &lt;function stripnulls at 0260C8D4&gt;)}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">m = fileinfo.MP3FileInfo()</span>      <a name="fileinfo.classattributes.1.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">m.tagDataMap</span>
+<span class="computeroutput">{'title': (3, 33, &lt;function stripnulls at 0260C8D4&gt;), 
+'genre': (127, 128, &lt;built-in function ord&gt;), 
+'artist': (33, 63, &lt;function stripnulls at 0260C8D4&gt;), 
+'year': (93, 97, &lt;function stripnulls at 0260C8D4&gt;), 
+'comment': (97, 126, &lt;function stripnulls at 0260C8D4&gt;), 
+'album': (63, 93, &lt;function stripnulls at 0260C8D4&gt;)}</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.classattributes.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">MP3FileInfo</tt>는 클래스 자체입니다. 클래스의 특정한 실체가 아닙니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.classattributes.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">tagDataMap</tt>는 클래스 속성입니다: 문자 그대로, 클래스의 속성입니다. 클래스의 실체를 생성하기 전에 존재합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.classattributes.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">클래스 속성은 그 클래스를 직접 참조할 수도 있고 클래스의 실체로 참조할 수도 있습니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="compare.classattr.java"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">자바(<span class="application">Java</span>)에서 (<span class="application">파이썬</span>에서 클래스 속성이라고 부르는) 정적 변수와 (<span class="application">파이썬</span>에서 데이터 속성이라고 부르는) 실체 변수는 모두 클래스가 정의되자 마자 바로 정의됩니다 (하나는 <tt class="literal">static</tt> 키워드로 정의되고, 다른 하나는 <tt class="literal">static</tt> 키워드 없이 정의됩니다). <span class="application">파이썬</span>은 오직 클래스 속성만 정의됩니다; 데이터 속성은 <tt class="function">__init__</tt> 메쏘드에 정의됩니다.
+                     </td>
+                  </tr>
+               </table>
+               <p>클래스 속성은 클래스-수준의 상수로 사용이 가능합니다 (이 방법을 <tt class="classname">MP3FileInfo</tt>에 사용했습니다). 그러나 진짜 상수는 아니며 여전히 바꿀 수 있습니다.
+               </p><a name="d0e13711"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬</span>에서 상수는 전혀 없습니다.  무엇이든 열심히 노력하면 다 바꿀 수 있습니다. 이는 <span class="application">파이썬</span>의 핵심 원리중의 하나입니다: 나쁜 행위는 권면하지 않을 뿐, 금지되면 안됩니다.  정말로 <tt class="literal">None</tt>의 값을 바꾸고 싶다면 그럴 수 있지만 본인에게 달려와 코드가 디버그할 수 없게 되었다고 항의하지 마세요.
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="fileinfo.classattributes.writeable.example"></a><h3 class="title">예제&nbsp;5.18.&nbsp;클래스 속성 수정하기</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">class counter:</span>
+<tt class="prompt">...     </tt><span class="userinput">count = 0</span>                     <a name="fileinfo.classattributes.2.1"></a><span class="round">①</span>
+<tt class="prompt">...     </tt><span class="userinput">def __init__(self):</span>
+<tt class="prompt">...     </tt><span class="userinput">    self.__class__.count += 1</span> <a name="fileinfo.classattributes.2.2"></a><span class="round">②</span>
+<tt class="prompt">...     </tt>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">counter</span>
+<span class="computeroutput">&lt;class __main__.counter at 010EAECC&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">counter.count</span>                     <a name="fileinfo.classattributes.2.3"></a><span class="round">③</span>
+<span class="computeroutput">0</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">c = counter()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">c.count</span>                           <a name="fileinfo.classattributes.2.4"></a><span class="round">④</span>
+<span class="computeroutput">1</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">counter.count</span>
+<span class="computeroutput">1</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">d = counter()</span>                     <a name="fileinfo.classattributes.2.5"></a><span class="round">⑤</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">d.count</span>
+<span class="computeroutput">2</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">c.count</span>
+<span class="computeroutput">2</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">counter.count</span>
+<span class="computeroutput">2</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.classattributes.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">count</tt>는 <tt class="classname">counter</tt> 클래스의 클래스 속성입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.classattributes.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">__class__</tt>는 (어느 클래스의) 어느 실체에나 내장된 속성으로서 <tt class="varname">self</tt> 실체의 클래스를 가리킵니다 (이 경우, <tt class="classname">counter</tt> 클래스입니다).
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.classattributes.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">count</tt>는 클래스 속성이므로 클래스의 실체를 만들기 전에 클래스를 직접 참조하여 얻을 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.classattributes.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">클래스의 실체를 만들면 <tt class="function">__init__</tt> 메쏘드가 호출되며, 클래스 속성인 <tt class="varname">count</tt>를 <tt class="constant">1</tt>만큼 증가시킵니다. 이는 클래스 자체에 영향을 미치며, 방금 새로 생성된 실체에는 영향을 미치지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.classattributes.2.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">두 번째 실체를 만들면 클래스 속성인 <tt class="varname">count</tt>가 또 증가합니다. 클래스 자신과 그 클래스의 모든 실체들이 어떻게  클래스 속성을 공유하는지 주목하세요.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.private"></a>5.9.&nbsp;비공개 함수</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <p>다른 언어들처럼 <span class="application">파이썬</span>은 비공개 원소라는 개념이 있습니다:
+               </p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li>비공개 함수, 이는 모듈 밖에서 호출이 불가능하다</li>
+                     <li>비공개 클래스 메쏘드, 이는 클래스 밖에서 호출이 불가능하다</li>
+                     <li>비공개 속성, 이는 클래스 밖에서 접근이 불가능하다.</li>
+                  </ul>
+               </div>
+               <div class="abstract">
+                  <p>다른 언어와는 다르게 <span class="application">파이썬</span>에서 함수나 메쏘드 또는 속성이 비공개인지 공개인지 여부는 전적으로 그의 이름에 따라 결정됩니다.
+                  </p>
+               </div>
+               <p>
+			   <span class="application">파이썬</span>에서 함수나 클래스 메쏘드 또는 속성의 이름이 두 개의 밑줄문자로 시작하면 (그러나 두 개의 밑줄문자로 끝나지는 않음), 그것은 비공개입니다; 다른 것은 모두 공개됩니다.  <span class="application">파이썬</span>은 (클래스 자신과 자손 클래스에서만 접근이 가능한) 보호된(<span class="emphasis"><em>protected</em></span>) 클래스 메쏘드라는 개념이 없습니다.  클래스 메쏘드는 비공개이거나 (클래스 자신에서만 접근 가능) 또는 공개입니다 (다른 곳에서 접근 가능).
+               </p>
+               <p><tt class="classname">MP3FileInfo</tt>에는 두 가지 메쏘드가 있습니다: <tt class="function">__parse</tt> 메쏘드와 <tt class="function">__setitem__</tt>가 있습니다. 이미 연구한 바와 같이 <tt class="function">__setitem__</tt>은 <a href="#fileinfo.specialmethods.setitem.example" title="Example&nbsp;5.13.&nbsp;The __setitem__ Special Method">특수 메쏘드</a>입니다; 보통 클래스 실체에 사전 구문을 사용하여 간접적으로 호출합니다. 그러나 그것은 공개되어 있으며 (<tt class="filename">fileinfo</tt> 모듈 바깥에서도) 충분한 이유가 있다면 직접적으로 호출할 수 있습니다. 그렇지만 <tt class="function">__parse</tt>는 비공개입니다. 그의 이름 앞에 두 개의 밑줄문자가 있기 때문입니다.
+               </p><a name="tip.specialmethodnames"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬</span>에서 (<a href="#fileinfo.specialmethods.setitem.example" title="Example&nbsp;5.13.&nbsp;The __setitem__ Special Method"><tt class="function">__setitem__</tt> 같은</a>) 모든 특수 메쏘드와 (<a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.import" title="Example&nbsp;2.3.&nbsp;Accessing the buildConnectionString Function's doc string"><tt class="literal">__doc__</tt></a> 같은) 내장 속성은 표준적인 이름짓기 관례를 따릅니다: 두 개의 밑줄문자로 시작하고 끝납니다. 이런 식으로 메쏘드와 속성의 이름을 짓지 마세요. 왜냐하면 나중에 여러분과 (다른 사람들에게) 혼란을 야기할 것이기 때문입니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="d0e13946"></a><h3 class="title">예제&nbsp;5.19.&nbsp;비공개 메쏘드 호출 시도해 보기</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import fileinfo</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">m = fileinfo.MP3FileInfo()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">m.__parse("/music/_singles/kairo.mp3")</span> <a name="fileinfo.private.1.1"></a><span class="round">①</span>
+<span class="traceback">Traceback (innermost last):
+  File "&lt;interactive input&gt;", line 1, in ?
+AttributeError: 'MP3FileInfo' instance has no attribute '__parse'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#fileinfo.private.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">비공개 메쏘드를 호출한다면 <span class="application">파이썬</span>은 약간 야룻한 예외를 일으킵니다. 그 메쏘드가 존재하지 않는다고 알려줍니다. 물론 존재하지만 그것은 비공개이므로 클래스 바깥에서 접근할 수 없기 때문입니다. 엄밀히 말해 비공개 메쏘드는 클래스 밖에서 접근할 수 있습니다. 단지 <span class="emphasis"><em>쉽게</em></span> 접근할 수 없을 뿐입니다. <span class="application">파이썬</span>에서는 진정으로 비공개인 것은 아무것도 없습니다; 내부적으로 비공개 메쏘드와 속성의 이름은 바로 바로 조작되어 주어진 이름으로는 접근할 수 없는 것처럼 보이게 만듭니다. <tt class="function">_MP3FileInfo__parse</tt>이라는 이름으로  <tt class="classname">MP3FileInfo</tt> 클래스의  <tt class="function">__parse</tt> 메쏘드에 접근할 수 있습니다. 이렇게 하는 것이 재미는 있지만 실제 코드에서는 절대로 사용하면 안됩니다. 비공개 메소드는 이유가 있어서 비공개입니다. 그러나 <span class="application">파이썬</span>에서 다른 모든 것들과 마찬가지로 그 비공개성은 전적으로 관례의 문제일 뿐, 강제사항은 아닙니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="itemizedlist">
+                  <h3 class="title">비공개 함수에 관하여 더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.python.org/doc/current/tut/tut.html"><i class="citetitle"><span class="application">파이썬</span> 자습서</i></a>는 <a href="http://www.python.org/doc/current/tut/node11.html#SECTION0011600000000000000000">비공개 변수</a>의 내부 작동방식을 연구한다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.summary"></a>5.10.&nbsp;요약</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>핵심적인 객체 트릭은 이 정도로 충분합니다. <a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap">제 12 장</a>에서 특수 클래스 메쏘드가 실제 세계에 적용되는 모습을 보시겠습니다. 제 12 장에서는 <tt class="function">getattr</tt>을 사용하여 원격 웹 서버에 대한 프록시를 만듭니다.
+                  </p>
+               </div>
+               <p>다음 장에서 계속 이 샘플 코드를 사용하여, 예를 들어 예외와 파일 객체 그리고 <tt class="literal">for</tt> 회돌이 같은 다른 <span class="application">파이썬</span> 개념들을 살펴 보겠습니다.
+               </p>
+               <p>다음 장으로 들어가기 전에 다음의 일들을 편안하게 해 낼 수 있는지 확인하세요:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.import" title="Example&nbsp;2.3.&nbsp;Accessing the buildConnectionString Function's doc string"><tt class="literal">import <i class="replaceable">module</i></tt></a> 또는 <a href="#fileinfo.fromimport" title="5.2.&nbsp;Importing Modules Using from module import"><tt class="literal">from <i class="replaceable">module</i> import</tt></a>를 사용하여 모듈을 반입하기</li>
+                     <li>클래스를 <a href="#fileinfo.class" title="5.3.&nbsp;Defining Classes">정의하고</a> <a href="#fileinfo.create" title="5.4.&nbsp;Instantiating Classes">실체화하기</a>                     </li>
+                     <li><a href="#fileinfo.class.example" title="Example&nbsp;5.4.&nbsp;Defining the FileInfo Class"><tt class="function">__init__</tt> 메쏘드</a>와 기타 <a href="#fileinfo.specialmethods" title="5.6.&nbsp;Special Class Methods">특수 클래스 메쏘드</a>를 정의하고, 언제 호출되는지 이해하기
+                     </li>
+                     <li><a href="#fileinfo.userdict" title="5.5.&nbsp;Exploring UserDict: A Wrapper Class"><tt class="classname">UserDict</tt></a>를 하위클래스화하여 사전처럼 행위하는 클래스를 정의하기
+                     </li>
+                     <li><a href="#fileinfo.userdict.init.example" title="Example&nbsp;5.9.&nbsp;Defining the UserDict Class">데이터 속성</a>과 <a href="#fileinfo.classattributes" title="5.8.&nbsp;Introducing Class Attributes">클래스 속성</a>을 정의하고, 그들 사이의 차이점을 이해하기
+                     </li>
+                     <li><a href="#fileinfo.private" title="5.9.&nbsp;Private Functions">비공개 속성과 메쏘드</a>를 정의하기</li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap04.html">☜ 제 04 장 강력한 내부검사</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap06.html">제 06 장 예외와 파일처리 ☞</A></TD>
+</TR>
+</TABLE>
+	</body>
+</html>

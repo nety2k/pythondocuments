@@ -1,0 +1,606 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:49.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap01.html">http://coreapython.hosting.paran.com/dive/chap01.html</a><br>
+<b>Title:</b> 제 01장 파이썬 설치 ☞ &nbsp;&bull;&nbsp; <b>Size:</b> 42248<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap00.html">☜ 제 00 장 다이빙 파이썬</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap02.html">제 02 장 파이썬 첫 경험 ☞</A></TD>
+</TR>
+</TABLE>
+         <div name="01장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="install"></a>제&nbsp;1&nbsp;장 <span class="application">파이썬</span> 설치</h1>
+                  </div>
+               </div>
+             <div>
+		  </div>
+            </div>
+            <div class="abstract">
+               <p><span class="application">파이썬</span>의 세계에 오신 것을 환영합니다. 이제 깊이 들어가 봅시다. 이 장에서는 여러분에게 딱 맞는 <span class="application">파이썬</span> 버전을 설치해 보겠습니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="install.choosing"></a>1.1.&nbsp;어느 <span class="application">파이썬</span>이 자신에게 맞는가?
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>제일 먼저 <span class="application">파이썬</span>을 설치해야 하겠습니다. 당연한가요?
+                  </p>
+               </div>
+               <p>
+			   호스트 서버에 계정이 있다면 여러분의 ISP에 이미 <span class="application">파이썬</span>이 설치되어 있을 수도 있습니다.  대부분의 인기있는 리눅스 배포본에는 <span class="application">파이썬</span>이 기본으로 설치되어 따라옵니다.  <span class="abbrev">Mac</span> <span class="acronym">OS</span> X 10.2 이후에는 명령어-줄 버전의 <span class="application">파이썬</span>이 포함되어 있지만, 아무래도 좀 더 매킨토시-다운 그래픽 인터페이스가 포함된 버전을 설치하고 싶을 겁니다.
+               </p>
+               <p>
+			   윈도우즈에는 <span class="application">파이썬</span> 버전이 따라오지 않지만, 실망하지 맙시다! 윈도우즈에서는  여러 방법으로 <span class="application">파이썬</span>을 클릭해서 설치할 수 있습니다.
+               </p>
+               <p>
+			   이미 보셨듯이, <span class="application">파이썬</span>은 훌륭한 대부분의 운영 체제에서 실행됩니다.  완전히 나열해보면 윈도우즈, <span class="abbrev">맥(Mac)</span> <span class="acronym">OS</span>, <span class="abbrev">맥(Mac)</span> <span class="acronym">OS</span> X, 그리고 리눅스 같이 온갖 자유로운 <span class="acronym">UNIX</span>-호환 시스템을 아우를 뿐만 아니라, Sun Solaris, AS/400, Amiga, OS/2, BeOS, 등등 그리고 들어 보지도 못했을 온갖 플랫폼에서 실행됩니다.
+               </p>
+               <p>
+			   게다가, 한 플랫폼에서 작성된 <span class="application">파이썬</span> 프로그램은 조금만 신경쓰면 <span class="emphasis"><em>어느 플랫폼에서도</em></span> 실행이 가능합니다.  예를 들면 본인은 보통 윈도우즈에서 <span class="application">파이썬</span> 프로그램을 개발하고 나중에 리눅스에 설치합니다.
+               </p>
+               <p>
+			   자, 이제 최초에 제기한 질문으로 돌아가 봅시다. &#8220;<span class="quote">어느 <span class="application">파이썬</span>이 적당할까?</span>&#8221;  해답은 컴퓨터에 이미 설치되어 실행되는 버전이면 어느 것이라도 좋습니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="install.windows"></a>1.2.&nbsp;윈도우즈 위의 <span class="application">파이썬</span>
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>윈도우즈에서는 두 가지 방식으로 <span class="application">파이썬</span>을 설치할 수 있습니다.
+                  </p>
+               </div>
+               <p>
+			   액티브스테이트사(ActiveState)는 <span class="application">ActivePython</span>이라고 부르는 윈도우즈용 <span class="application">파이썬</span> 설치기를 만들고 있습니다. 여기에는 완전한 버전의 <span class="application">파이썬</span>과 <span class="application">파이썬</span>을-감지하는 <span class="acronym">IDE</span> 그리고 <span class="application">파이썬</span>을 위한 몇가지 윈도우즈 확장이 포함되는데, 윈도우-종속적 서비스와 <span class="acronym">API</span>들 그리고 윈도우즈 레지스트리에 완벽하게 접근이 가능합니다.
+               </p>
+               <p>
+			   <span class="application">ActivePython</span>은 자유롭게 내려받을 수 있지만, 오픈 소스가 아닙니다.  본인도 이 <span class="acronym">IDE</span>로 <span class="application">파이썬</span>을 배웠으며, 특별한 이유가 없다면 이를 사용하시기를 권고합니다.  이유가 하나 있다면 액티브스테이트(ActiveState)사는 일반적으로  새로운 <span class="application">파이썬</span> 버전이 배포되고 나서 몇달 늦게 <span class="application">ActivePython</span> 설치기를 업데이트한다는 것입니다.  절대로 최신 버전의 <span class="application">파이썬</span>이 필요하고 <span class="application">ActivePython</span>이 여전히 이 글을 읽는 현재 뒤쳐진 버전이라면 윈도우즈에서 <span class="application">파이썬</span>을 설치하는데 두 번째 선택을 하고 싶을 겁니다.
+               </p>
+               <p>
+			   두 번째 선택은 &#8220;<span class="quote">공식적인 </span>&#8221; <span class="application">파이썬</span> 설치기인데, <span class="application">파이썬</span>을 개발하는 사람들이 직접 배포합니다.  이 버전은 자유롭게 내려받을 수 있으며 오픈 소스이고, <span class="application">파이썬</span>을 늘 최신 버전으로 유지합니다.
+               </p>
+               <div class="procedure">
+                  <h3 class="title">절차&nbsp;1.1.&nbsp;선택 1: <span class="application">액티브 파이썬(ActivePython)</span> 설치하기</h3>
+                  <p>다음은 <span class="application">액티브파이썬(ActivePython)</span>을 설치하기 위한 절차입니다:
+                  </p>
+                  <ol type="1">
+                     <li>
+                        <p><a href="http://www.activestate.com/Products/ActivePython/">http://www.activestate.com/Products/ActivePython/</a>에서 <span class="application">액티브파이썬(ActivePython)</span>을 내려받습니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>Windows 95, Windows 98, 또는 Windows ME를 사용하고 있다면 <span class="application">액티브 파이썬(ActivePython)</span>을 설치하기 전에, <a href="http://download.microsoft.com/download/WindowsInstaller/Install/2.0/W9XMe/EN-US/InstMsiA.exe">Windows Installer 2.0</a>을 먼저 내려 받을 필요가 있습니다. 
+                        </p>
+                     </li>
+                     <li>
+                        <p>다음으로 설치기 <tt class="filename">ActivePython-2.2.2-224-win32-ix86.msi</tt>를 더블클릭합니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>설치 프로그램의 설치단계를 따릅니다.</p>
+                     </li>
+                     <li>
+                        <p>
+						공간이 모자라면 맞춤 설치를 할 수 있으므로 문서를 제외할 수도 있습니다. 그러나 절대적으로 14MB를 확보할 수 없다면 모를까 이를 권장하지 않습니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>
+						설치가 완료되면 설치기를 닫고 <span class="guimenu">시작</span>-&gt;<span class="guimenuitem">프로그램</span>-&gt;<span class="guimenuitem">ActiveState ActivePython 2.2</span>-&gt;<span class="guimenuitem">PythonWin IDE</span>를 선택합니다.  그러면 다음과 같은 모습을 보게 됩니다:
+                        </p>
+                     </li>
+                  </ol>
+               </div>
+               <div class="informalexample"><pre class="screen">
+<span class="computeroutput">PythonWin 2.2.2 (#37, Nov 26 2002, 10:24:37) [MSC 32 bit (Intel)] on win32.
+Portions Copyright 1994-2001 Mark Hammond (mhammond@skippinet.com.au) -
+see 'Help/About PythonWin' for further copyright information.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre></div>
+               <div class="procedure">
+                  <h3 class="title">절차&nbsp;1.2.&nbsp;선택 2: <a href="http://www.python.org/" title="Python language home page">Python.org</a>로부터 <span class="application">파이썬</span> 설치하기</h3>
+                  <ol type="1">
+                     <li>
+                        <p>최신의 <span class="application">파이썬</span> 윈도우즈 설치기를 내려 받습니다. <a href="http://www.python.org/ftp/python/">http://www.python.org/ftp/python/</a> 에 가서 제일 높은 순위의 버전을 선택한 다음 <tt class="literal">.exe</tt> 설치기를 내려 받으면 됩니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>
+						<tt class="filename">Python-2.xxx.yyy.exe</tt> 설치기를 더블클릭합니다. 이름은 이 글을 읽는 시점에서 <span class="application">파이썬</span> 버전에 따라 다릅니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>설치 프로그램의 지시를 따릅니다.</p>
+                     </li>
+                     <li>
+                        <p>디스크 공간이 빡빡하면 HTMLHelp 파일이나 유틸리티 스크립트 (<tt class="filename">Tools/</tt>) 또는 테스트 모듬 (<tt class="filename">Lib/test/</tt>)을 선택하지 않으면 됩니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>머신에 관리자 권한이 없다면 <span class="guibutton">Advanced Options</span>을 선택한 다음, <span class="guilabel">Non-Admin Install</span>을 선택해도 좋습니다. 이는 그냥 레지스트리 항목과 시작 메뉴 단축아이콘이 생성되는 곳에만 영향을 미칩니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>설치가 완료되면 설치기를 닫고 <span class="guimenu">시작</span>-&gt;<span class="guimenuitem">프로그램</span>-&gt;<span class="guimenuitem">Python 2.3</span>-&gt;<span class="guimenuitem">IDLE (Python GUI)</span>를 선택합니다. 그러면 다음과 같은 화면을 보게 됩니다:
+                        </p>
+                     </li>
+                  </ol>
+               </div>
+               <div class="informalexample"><pre class="screen">
+<span class="computeroutput">Python 2.3.2 (#49, Oct  2 2003, 20:02:00) [MSC v.1200 32 bit (Intel)] on win32
+Type "copyright", "credits" or "license()" for more information.
+
+    ****************************************************************
+    Personal firewall software may warn about the connection IDLE
+    makes to its subprocess using this computer's internal loopback
+    interface.  This connection is not visible on any external
+    interface and no data is sent to or received from the Internet.
+    ****************************************************************
+    
+IDLE 1.0</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="install.macosx"></a>1.3.&nbsp;<span class="abbrev">Mac</span> <span class="acronym">OS</span> X 위의 <span class="application">파이썬</span>
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="abbrev">Mac</span> <span class="acronym">OS</span> X에서는 <span class="application">파이썬</span>을 설치하는데 두 가지 방법이 있습니다: 설치하든가, 아니면 설치하지 않는 것이 그것인데, 아마도 설치하고 싶겠지요.
+                  </p>
+               </div>
+               <p><span class="abbrev">Mac</span> <span class="acronym">OS</span> X 10.2 이후부터 명령어 줄 버전의 <span class="application">파이썬</span>이 미리 설치되어 따라 옵니다.  명령어 줄에 익숙하다면 이 책의 4분의 1에서는 이 버전을 사용해도 좋습니다.  그렇지만, 미리 설치된 버전은 <span class="acronym">XML</span> 해석기가 따라오지 않기 때문에, <span class="acronym">XML</span> 장에 다다르면 완전하게 제대로 설치할 필요가 있을 것입니다.
+               </p>
+               <p>미리 설치된 버전을 사용하기 보다, 최신 버전을 설치하고 싶으리라 믿는데, 최신 버전에는 또 그래픽 상호대화 쉘이 따라 옵니다.
+               </p>
+               <div class="procedure">
+                  <h3 class="title">절차&nbsp;1.3.&nbsp; <span class="abbrev">Mac</span> <span class="acronym">OS</span> X에 미리 설치된 <span class="application">파이썬</span> 실행하기
+                  </h3>
+                  <p>미리 설치된 버전의 <span class="application">파이썬</span>을 사용하려면 다음 단계를 따릅니다:
+                  </p>
+                  <ol type="1">
+                     <li>
+                        <p><tt class="filename">/Applications</tt> 폴더를 엽니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p><tt class="filename">Utilities</tt> 폴더를 엽니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p><tt class="filename">Terminal</tt>을 더블클릭하여 터미널 창을 열고 명령어 줄에 갑니다.</p>
+                     </li>
+                     <li>
+                        <p>명령어 프롬프트에서 <b class="userinput"><tt>python</tt></b>을 타자합니다.
+                        </p>
+                     </li>
+                  </ol>
+               </div>
+               <p>시험해 봅시다:</p>
+               <div class="informalexample">
+			   
+			   <pre class="screen">
+<span class="computeroutput">Welcome to Darwin!</span>
+<tt class="prompt">[localhost:~] you% </tt><span class="userinput">python</span>
+<span class="computeroutput">Python 2.2 (#1, 07/14/02, 23:25:09)
+[GCC Apple cpp-precomp 6.14] on darwin
+Type "help", "copyright", "credits", or "license" for more information.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[press Ctrl+D to get back to the command prompt]</span>
+<tt class="prompt">[localhost:~] you% </tt>
+</pre></div>
+               <div class="procedure">
+                  <h3 class="title">절차&nbsp;1.4.&nbsp; <span class="abbrev">Mac</span> <span class="acronym">OS</span> X에 최신 <span class="application">파이썬</span> 버전을 설치하기
+                  </h3>
+                  <p>최신 버전의 <span class="application">파이썬</span>을 내려받아 설치하려면 다음 단계를 따릅니다:
+                  </p>
+                  <ol type="1">
+                     <li>
+                        <p><tt class="filename">MacPython-OSX</tt> 디스크 이미지를 <a href="http://homepages.cwi.nl/~jack/macpython/download.html">http://homepages.cwi.nl/~jack/macpython/download.html</a>에서 내려 받습니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>브라우저가 아직 그렇게 하지 않았다면 <tt class="filename">MacPython-OSX-2.3-1.dmg</tt>를 더블클릭하여 디스크 이미지를 데스크탑에 올립니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p><tt class="filename">MacPython-OSX.pkg</tt> 설치기를 더블클릭합니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>설치기가 관리 사용자이름과 암호를 요구합니다.</p>
+                     </li>
+                     <li>
+                        <p>설치 프로그램의 지시를 따릅니다.</p>
+                     </li>
+                     <li>
+                        <p>설치가 끝나면 설치기를 끝내고 <tt class="filename">/Applications</tt> 폴더를 엽니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p><tt class="filename">MacPython-2.3</tt> 폴더를 엽니다.</p>
+                     </li>
+                     <li>
+                        <p><tt class="filename">PythonIDE</tt>를 더블클릭하여 <span class="application">파이썬</span>을 시작합니다.
+                        </p>
+                     </li>
+                  </ol>
+               </div>
+               <p>
+			   <span class="application">MacPython</span> <span class="acronym">IDE</span>는 번쩍이는 화면을 하나 보여준 다음, 상호대화 쉘로 인도해 줄 겁니다.  상호대화 쉘이 나타나지 않으면  <span class="guimenu">Window</span>-&gt;<span class="guimenuitem">Python Interactive</span> (<span><b class="shortcut"><span><b class="keycap">Cmd</b></span>-<span class="keysym">0</span></b></span>)을 선택합니다.  열린 창은 다음과 같이 보일 것입니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<span class="computeroutput">Python 2.3 (#2, Jul 30 2003, 11:45:28)
+[GCC 3.1 20020420 (prerelease)]
+Type "copyright", "credits" or "license" for more information.
+MacPython IDE 1.0.1</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre></div>
+               <p>최신 버전을 설치했다고 하더라도, 이미-설치된 버전이 여전히 존재하니까 주의하셔야 합니다.  명령어 줄에서 스크립트를 실행한다면 어느 버전의 <span class="application">파이썬</span>을 사용하고 있는지 알 필요가 있습니다.
+               </p>
+               <div class="example"><a name="d0e3331"></a><h3 class="title">예제&nbsp;1.1.&nbsp;두 가지 버전의 <span class="application">파이썬</span></h3><pre class="screen">
+<tt class="prompt">[localhost:~] you% </tt><span class="userinput">python</span>
+<span class="computeroutput">Python 2.2 (#1, 07/14/02, 23:25:09)
+[GCC Apple cpp-precomp 6.14] on darwin
+Type "help", "copyright", "credits", or "license" for more information.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[press Ctrl+D to get back to the command prompt]</span>
+<tt class="prompt">[localhost:~] you% </tt><span class="userinput">/usr/local/bin/python</span>
+<span class="computeroutput">Python 2.3 (#2, Jul 30 2003, 11:45:28)
+[GCC 3.1 20020420 (prerelease)] on darwin
+Type "help", "copyright", "credits", or "license" for more information.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[press Ctrl+D to get back to the command prompt]</span>
+<tt class="prompt">[localhost:~] you% </tt>
+</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="install.macos9"></a>1.4.&nbsp;<span class="abbrev">Mac</span> <span class="acronym">OS</span> 9 위의 <span class="application">파이썬</span>
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="abbrev">Mac</span> <span class="acronym">OS</span> 9에는 <span class="application">파이썬</span> 버전이 따라 오지 않지만, 설치는 아주 간단하며, 딱 한가지 선택만 있습니다.
+                  </p>
+               </div>
+               <div class="procedure">
+                  <p>다음 단계를 따라 <span class="application">파이썬</span>을 <span class="abbrev">Mac</span> <span class="acronym">OS</span> 9에 설치합니다:
+                  </p>
+                  <ol type="1">
+                     <li>
+                        <p><tt class="filename">MacPython23full.bin</tt> 파일을 <a href="http://homepages.cwi.nl/~jack/macpython/download.html">http://homepages.cwi.nl/~jack/macpython/download.html</a>에서 내려 받습니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>브라우저에서 자동으로 파일의 압축을 풀지 않으면 <tt class="filename">MacPython23full.bin</tt>을 더블클릭하여 <span class="application">Stuffit Expander</span>로 파일의 압축을 푼다.
+                        </p>
+                     </li>
+                     <li>
+                        <p><tt class="filename">MacPython23full</tt> 설치기를 더블클릭합니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p>설치 프로그램의 안내를 따릅니다.</p>
+                     </li>
+                     <li>
+                        <p>설치가 끝나면 설치기를 닫고 <tt class="filename">/Applications</tt> 폴더를 엽니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p><tt class="filename">MacPython-OS9 2.3</tt> 폴더를 엽니다.
+                        </p>
+                     </li>
+                     <li>
+                        <p><tt class="filename">Python IDE</tt>를 더블클릭하여 <span class="application">파이썬</span>을 기동합니다.
+                        </p>
+                     </li>
+                  </ol>
+               </div>
+               <p>
+			   <span class="application">MacPython</span> <span class="acronym">IDE</span>는 번쩍이는 화면을 보여주고 나서, 상호대화 쉘로 인도해 줄 겁니다.  상호대화 쉘이 나타나지 않으면 <span class="guimenu">Window</span>-&gt;<span class="guimenuitem">Python Interactive</span>를 선택하세요 (<span><b class="shortcut"><span><b class="keycap">Cmd</b></span>-<span class="keysym">0</span></b></span>). 그러면 다음과 같은 화면을 보게 될 겁니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<span class="computeroutput">Python 2.3 (#2, Jul 30 2003, 11:45:28)
+[GCC 3.1 20020420 (prerelease)]
+Type "copyright", "credits" or "license" for more information.
+MacPython IDE 1.0.1</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="install.redhat"></a>1.5.&nbsp;레드햇 리눅스 위의 <span class="application">파이썬</span>
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <p>
+			   기꺼이 이진 꾸러미를 설치할 생각이라면 리눅스 같은 유닉스-호환 운영 체제에서 설치하는 일은 어렵지 않습니다. 대부분의 인기있는 리눅스 배포본에 미리-구축된 이진 꾸러미가 포함되어 있습니다.  그렇지 않으면 언제든지 소스로부터 컴파일하면 됩니다.
+               </p>
+               <div class="abstract">
+                  <p>최신의 <span class="application">파이썬</span> <span class="acronym">RPM</span>을 내려 받습니다. <a href="http://www.python.org/ftp/python/">http://www.python.org/ftp/python/</a>에 가서 제일 위에 나열된 버전을 선택한 다음, 그 안의 <tt class="filename">rpms/</tt> 디렉토리를 선택합니다.  다음으로 가장 높은 버전 번호를 가진 <span class="acronym">RPM</span>을 내려받습니다.  다음에 보여주는 바와 같이, <span><b class="command">rpm</b></span> 명령어로 설치하면 됩니다:
+                  </p>
+               </div>
+               <div class="example"><a name="d0e3510"></a><h3 class="title">예제&nbsp;1.2.&nbsp;레드햇 리눅스 9에서의 설치법</h3>
+			   <pre class="screen">
+<tt class="prompt">localhost:~$ </tt><span class="userinput">su -</span>
+<tt class="prompt">Password: </tt><span class="userinput">[enter your root password]</span>
+<tt class="prompt">[root@localhost root]# </tt><span class="userinput">wget http://python.org/ftp/python/2.3/rpms/redhat-9/python2.3-2.3-5pydotorg.i386.rpm</span>
+<span class="computeroutput">Resolving python.org... done.
+Connecting to python.org[194.109.137.226]:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 7,495,111 [application/octet-stream]
+...</span>
+<tt class="prompt">[root@localhost root]# </tt><span class="userinput">rpm -Uvh python2.3-2.3-5pydotorg.i386.rpm</span>
+<span class="computeroutput">Preparing...                ########################################### [100%]
+   1:python2.3              ########################################### [100%]</span>
+<tt class="prompt">[root@localhost root]# </tt><span class="userinput">python</span>          <a name="install.unix.1.1"></a><span class="round">①</span>
+<span class="computeroutput">Python 2.2.2 (#1, Feb 24 2003, 19:13:11)
+[GCC 3.2.2 20030222 (Red Hat Linux 3.2.2-4)] on linux2
+Type "help", "copyright", "credits", or "license" for more information.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[press Ctrl+D to exit]</span>
+<tt class="prompt">[root@localhost root]# </tt><span class="userinput">python2.3</span>       <a name="install.unix.1.2"></a><span class="round">②</span>
+<span class="computeroutput">Python 2.3 (#1, Sep 12 2003, 10:53:56)
+[GCC 3.2.2 20030222 (Red Hat Linux 3.2.2-5)] on linux2
+Type "help", "copyright", "credits", or "license" for more information.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[press Ctrl+D to exit]</span>
+<tt class="prompt">[root@localhost root]# </tt><span class="userinput">which python2.3</span> <a name="install.unix.1.3"></a><span class="round">③</span>
+<span class="computeroutput">/usr/bin/python2.3</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#install.unix.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이런!  그냥 <b class="userinput"><tt>python</tt></b>이라고 타자하면 예전 버전의 <span class="application">파이썬</span>이 실행됩니다 -- 기본값으로 이미 설치된 버전이 말입니다. 이는 실행하고자 하는 버전이 아니지요.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#install.unix.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 글을 쓰는 시점에서, 최신 버전은 <b class="userinput"><tt>python2.3</tt></b>입니다.  아마도 샘플 스크립트의 첫 줄에 있는 경로를 바꾸어서 새로운 버전을 가리키고 싶을 것입니다. 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#install.unix.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이것이 방금 설치한 최신 버전의 <span class="application">파이썬</span>을 가리키는 완전한 경로입니다.  이 경로를 <tt class="literal">#!</tt> 줄에 사용하여 (스크립트의 첫 줄) 스크립트가 최신 버전의 <span class="application">파이썬</span>에서 실행됨을 확인하고, 확실하게 <b class="userinput"><tt>python2.3</tt></b>이라고 타자하여 상호대화 쉘에 들어갑니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="install.debian"></a>1.6.&nbsp;Debian <span class="acronym">GNU</span>/Linux 위의 <span class="application">파이썬</span>
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>Debian <span class="acronym">GNU</span>/Linux를 운영할 정도로 운이 좋다면  <span><b class="command">apt</b></span> 명령어를 통하여 <span class="application">파이썬</span>을 설치합니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e3634"></a><h3 class="title">예제&nbsp;1.3.&nbsp;Debian <span class="acronym">GNU</span>/Linux 위의 설치
+                  </h3><pre class="screen">
+<tt class="prompt">localhost:~$ </tt><span class="userinput">su -</span>
+<tt class="prompt">Password: </tt><span class="userinput">[enter your root password]</span>
+<tt class="prompt">localhost:~# </tt><span class="userinput">apt-get install python</span>
+<span class="computeroutput">Reading Package Lists... Done
+Building Dependency Tree... Done
+The following extra packages will be installed:
+  python2.3
+Suggested packages:
+  python-tk python2.3-doc
+The following NEW packages will be installed:
+  python python2.3
+0 upgraded, 2 newly installed, 0 to remove and 3 not upgraded.
+Need to get 0B/2880kB of archives.
+After unpacking 9351kB of additional disk space will be used.</span>
+<tt class="prompt">Do you want to continue? [Y/n] </tt><span class="userinput">Y</span>
+<span class="computeroutput">Selecting previously deselected package python2.3.
+(Reading database ... 22848 files and directories currently installed.)
+Unpacking python2.3 (from .../python2.3_2.3.1-1_i386.deb) ...
+Selecting previously deselected package python.
+Unpacking python (from .../python_2.3.1-1_all.deb) ...
+Setting up python (2.3.1-1) ...
+Setting up python2.3 (2.3.1-1) ...
+Compiling python modules in /usr/lib/python2.3 ...
+Compiling optimized python modules in /usr/lib/python2.3 ...</span>
+<tt class="prompt">localhost:~# </tt><span class="userinput">exit</span>
+<span class="computeroutput">logout</span>
+<tt class="prompt">localhost:~$ </tt><span class="userinput">python</span>
+<span class="computeroutput">Python 2.3.1 (#2, Sep 24 2003, 11:39:14)
+[GCC 3.3.2 20030908 (Debian prerelease)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[press Ctrl+D to exit]</span>
+</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="install.source"></a>1.7.&nbsp;소스로부터의 <span class="application">파이썬</span> 설치
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>소스로부터 구축하는게 더 좋다면 <span class="application">파이썬</span> 소스 코드를 <a href="http://www.python.org/ftp/python/">http://www.python.org/ftp/python/</a>에서 내려 받으면 됩니다.  제일 높은 숫자의 버전을 선택하여, 그 <tt class="filename">.tgz</tt> 파일을 내려 받은 다음, 언제나 그렇듯이 <b class="userinput"><tt>configure</tt></b>, <b class="userinput"><tt>make</tt></b>, <b class="userinput"><tt>make install</tt></b>이라는 조치를 취합니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e3716"></a><h3 class="title">예제&nbsp;1.4.&nbsp;소스로부터 설치하기</h3><pre class="screen">
+<tt class="prompt">localhost:~$ </tt><span class="userinput">su -</span>
+<tt class="prompt">Password: </tt><span class="userinput">[enter your root password]</span>
+<tt class="prompt">localhost:~# </tt><span class="userinput">wget http://www.python.org/ftp/python/2.3/Python-2.3.tgz</span>
+<span class="computeroutput">Resolving www.python.org... done.
+Connecting to www.python.org[194.109.137.226]:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 8,436,880 [application/x-tar]
+...</span>
+<tt class="prompt">localhost:~# </tt><span class="userinput">tar xfz Python-2.3.tgz</span>
+<tt class="prompt">localhost:~# </tt><span class="userinput">cd Python-2.3</span>
+<tt class="prompt">localhost:~/Python-2.3# </tt><span class="userinput">./configure</span>
+<span class="computeroutput">checking MACHDEP... linux2
+checking EXTRAPLATDIR...
+checking for --without-gcc... no
+...</span>
+<tt class="prompt">localhost:~/Python-2.3# </tt><span class="userinput">make</span>
+<span class="computeroutput">gcc -pthread -c -fno-strict-aliasing -DNDEBUG -g -O3 -Wall -Wstrict-prototypes
+-I. -I./Include  -DPy_BUILD_CORE -o Modules/python.o Modules/python.c
+gcc -pthread -c -fno-strict-aliasing -DNDEBUG -g -O3 -Wall -Wstrict-prototypes
+-I. -I./Include  -DPy_BUILD_CORE -o Parser/acceler.o Parser/acceler.c
+gcc -pthread -c -fno-strict-aliasing -DNDEBUG -g -O3 -Wall -Wstrict-prototypes
+-I. -I./Include  -DPy_BUILD_CORE -o Parser/grammar1.o Parser/grammar1.c
+...</span>
+<tt class="prompt">localhost:~/Python-2.3# </tt><span class="userinput">make install</span>
+<span class="computeroutput">/usr/bin/install -c python /usr/local/bin/python2.3
+...</span>
+<tt class="prompt">localhost:~/Python-2.3# </tt><span class="userinput">exit</span>
+<span class="computeroutput">logout</span>
+<tt class="prompt">localhost:~$ </tt><span class="userinput">which python</span>
+<span class="computeroutput">/usr/local/bin/python</span>
+<tt class="prompt">localhost:~$ </tt><span class="userinput">python</span>
+<span class="computeroutput">Python 2.3.1 (#2, Sep 24 2003, 11:39:14)
+[GCC 3.3.2 20030908 (Debian prerelease)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[press Ctrl+D to get back to the command prompt]</span>
+<tt class="prompt">localhost:~$ </tt>
+</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="install.shell"></a>1.8.&nbsp;상호대화 쉘
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이제 <span class="application">파이썬</span>이 설치되었는데, 지금 실행중인 이 상호대화 쉘이라는 것은 무엇일까요?
+                  </p>
+               </div>
+               <p>그것은 다음과 같은 것입니다: <span class="application">파이썬</span>은 이중적인 삶을 영위합니다. 스크립트에 대해서는 인터프리터로서 명령어 줄에서 실행하거나 스크립트를 더블클릭해서, 어플리케이션처럼 실행할 수 있습니다.  그러나 또한 임의의 서술문과 표현식을 평가할 수 있는 상호대화 쉘이기도 합니다. 이는 디버깅과 신속한 해킹 그리고 테스팅에 아주 쓸모가 있습니다. 심지어 계산기를 대신하여 <span class="application">파이썬</span> 상호대화 쉘을 사용하는 사람도 있답니다!
+               </p>
+               <p>플랫폼에 맞게 <span class="application">파이썬</span> 상호대화 쉘을 실행하고, 다음에 보여주는 단계로 들어가 봅시다:
+               </p>
+               <div class="example"><a name="d0e3829"></a><h3 class="title">예제&nbsp;1.5.&nbsp;상호대화 쉘에서의 첫 걸음</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">1 + 1</span>               <a name="install.shell.1.1"></a><span class="round">①</span>
+<span class="computeroutput">2</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print 'hello world'</span> <a name="install.shell.1.2"></a><span class="round">②</span>
+<span class="computeroutput">hello world</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">x = 1</span>               <a name="install.shell.1.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">y = 2</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">x + y</span>
+<span class="computeroutput">3</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#install.shell.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><span class="application">파이썬</span>의 상호대화 쉘은 기본적인 산술 표현식은 물론이고, 임의의 <span class="application">파이썬</span> 표현식을 모두 평가할 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#install.shell.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">상호대화 쉘은 <span><b class="command">print</b></span> 서술문을 비롯하여 임의의 <span class="application">파이썬</span> 서술문을 모두 실행할 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#install.shell.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">또 변수에 값을 할당할 수 있으며, 그 값은 쉘이 열려 있는 한 기억됩니다 (그러나 그 이상은 절대 아니랍니다).
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="install.summary"></a>1.9.&nbsp;요약</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이제 <span class="application">파이썬</span> 버전이 설치되어 작동할 준비가 되어 있을 것입니다.
+                  </p>
+               </div>
+               <p>플랫폼에 따라서 어쩌면 여러 <span class="application">파이썬</span> 버전이 설치되어 있을 수도 있습니다.  그렇다면 경로에 주의할 필요가 있습니다. 그냥 명령어 줄에서 <span><b class="command">python</b></span> 이라고 타자해서 사용하고자 하는 <span class="application">파이썬</span> 버전이 실행되지 않으면 선호하는 버전의 경로이름을 완전하게 입력할 필요가 있습니다.
+               </p>
+               <p>축하합니다. <span class="application">파이썬</span>의 세계에 오신 것을 환영합니다.
+               </p>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap00.html">☜ 제 00 장 다이빙 파이썬</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap02.html">제 02 장 파이썬 첫 경험 ☞</A></TD>
+</TR>
+</TABLE>
+    </body>
+</html>

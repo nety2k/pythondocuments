@@ -1,0 +1,1294 @@
+        <!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap06.html">http://coreapython.hosting.paran.com/dive/chap06.html</a><br>
+<b>Title:</b> 6. 예외와 파일 처리 &nbsp;&bull;&nbsp; <b>Size:</b> 128062<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap05.html">☜ 제 05 장 객체와 객체지향</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap07.html">제 07 장 정규표현식 ☞</A></TD>
+</TR>
+</TABLE>
+		 <div name="06장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="filehandling">제&nbsp;6 장&nbsp;예외와 파일 처리</a>                     </h1>
+                  </div>
+               </div>
+               <div>
+			   </div>
+            </div>
+            <div class="abstract">
+               <p>이 장에서는 예외와 파일 객체 그리고 <tt class="literal">for</tt> 회돌이와 <tt class="filename">os</tt> 모듈 그리고 <tt class="filename">sys</tt> 모듈을 연구합니다.  다른 프로그래밍 언어에서 예외를 사용해 보셨다면 첫 섹션을 건너뛰고 <span class="application">파이썬</span>의 구문을 알아보셔도 좋습니다.  파일 처리에 관해서는 꼭 보시기 바랍니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.exception"></a>6.1.&nbsp;예외 처리
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>다른 많은 프로그래밍 언어처럼 <span class="application">파이썬</span>은 <tt class="literal">try...except</tt> 블록을 통하여 예외를 처리합니다.
+                  </p>
+               </div><a name="compare.exceptions.java"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><span class="application">파이썬</span>은 <tt class="literal">try...except</tt>를 사용하여 예외를 처리하고 <tt class="literal">raise</tt>로 예외를 만들어 냅니다.  <span class="application">자바</span>와 <span class="application"><span class="acronym">C++</span></span>은 <tt class="literal">try...catch</tt>를 사용하여 예외를 처리하고 <tt class="literal">throw</tt>로 예외를 만들어 냅니다.
+                     </td>
+                  </tr>
+               </table>
+               <p>예외는 <span class="application">파이썬</span> 곳곳에서 사용됩니다.  사실상 표준 파이썬 라이브러리의 모든 모듈에서 예외를 사용하고 이미 이 책을 통하여 자주 보셨듯이 <span class="application">파이썬</span> 조차도 다른 많은 상황에서 예외를 일으킵니다.
+               </p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.dict.define" title="Example&nbsp;3.1.&nbsp;Defining a Dictionary">사전에서 존재하지 않는 키에 접근하면</a> <tt class="errorcode">KeyError</tt> 예외가 일어난다.
+                     </li>
+                     <li><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.list.search" title="Example&nbsp;3.12.&nbsp;Searching a List">리스트에서 존재하지 않는 값을 검색하면</a> <tt class="errorcode">ValueError</tt> 예외가 일어난다.
+                     </li>
+                     <li><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.tuplemethods" title="Example&nbsp;3.16.&nbsp;Tuples Have No Methods">존재하지 않는 메쏘드를 호출하면</a> <tt class="errorcode">AttributeError</tt> 예외가 일어난다.
+                     </li>
+                     <li><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.unboundvariable" title="Example&nbsp;3.18.&nbsp;Referencing an Unbound Variable">존재하지 않는 변수를 참조하면</a> <tt class="errorcode">NameError</tt> 예외가 일어난다.
+                     </li>
+                     <li><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.stringformatting.coerce" title="Example&nbsp;3.22.&nbsp;String Formatting vs. Concatenating">유형변환 없이 데이터유형을 혼용하면</a> <tt class="errorcode">TypeError</tt> 예외가 일어난다.
+                     </li>
+                  </ul>
+               </div>
+               <p>
+			   이 경우에는 그냥 단순히 <span class="application">파이썬</span> <span class="acronym">IDE</span> 안에서 놀기만 하면 됩니다: 예러가 일어났고 예외가 인쇄되며 (<span class="acronym">IDE</span>에 따라 의도적으로 빨간색으로 인쇄되기도 합니다) 그걸로 끝입니다.  이것을 <span class="emphasis"><em>처리되지 않은</em></span> 예외라고 부릅니다.  예외가 일어나더라도 명시적으로 그 예외를 감지해서 처리할 코드가 없으므로 <span class="application">파이썬</span>에 내장된 기본 행위에 되돌아 오고, 파이썬은 약간의 디버깅 정보를 토해내고 포기합니다. <span class="acronym">IDE</span> 안에서는 예외가 일어나더라도 별거 아니지만, 실제 <span class="application">파이썬</span> 프로그램이 실행되는 동안에 예외가 일어나면 프로그램 전체가 굉음을 내며 멈추어 버릴 겁니다.
+               </p>
+               <p>
+			   그렇지만 예외 때문에 전체 프로그램에 충돌이 일어날 필요는 없습니다. 예외가 일어나더라도 <span class="emphasis"><em>처리할 수 있습니다</em></span>. (존재하지 않는 변수에 접근하는 것과 같이)  어떤 경우에는 정말로 코드에 버그가 있기 때문에 일어나기도 하지만, 대부분의 경우 에외는 예측할 수 있는 것입니다.  파일을 열려고 한다면 파일이 존재하지 않을 수도 있습니다. 데이터베이스에 접속하려고 할때, 데이터베이스가 존재하지 않을 수도 있고 접근에 필요한 올바른 보안 신용을 갖추지 못하고 있을 수도 있습니다. 코드 한 줄이 예외를 일으킬 가능성이 있다는 사실을 알고 있다면 그 예외를 <tt class="literal">try...except</tt> 블록으로 처리하면 됩니다.
+               </p>
+               <div class="example"><a name="d0e14243"></a><h3 class="title">예제&nbsp;6.1.&nbsp;존재하지 않는 파일을 열기</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">fsock = open("/notthere", "r")</span>      <a name="fileinfo.exceptions.1.1"></a><span class="round">①</span>
+<span class="traceback">Traceback (innermost last):
+  File "&lt;interactive input&gt;", line 1, in ?
+IOError: [Errno 2] No such file or directory: '/notthere'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">try:</span>
+<tt class="prompt">...     </tt><span class="userinput">fsock = open("/notthere")</span>       <a name="fileinfo.exceptions.1.2"></a><span class="round">②</span>
+<tt class="prompt">... </tt><span class="userinput">except IOError:</span>                     <a name="fileinfo.exceptions.1.3"></a><span class="round">③</span>
+<tt class="prompt">...     </tt><span class="userinput">print "The file does not exist, exiting gracefully"</span>
+<tt class="prompt">... </tt><span class="userinput">print "This line will always print"</span> <a name="fileinfo.exceptions.1.4"></a><span class="round">④</span>
+<span class="computeroutput">The file does not exist, exiting gracefully
+This line will always print</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exceptions.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">내장된 <tt class="function">open</tt> 함수를 사용하면 파일을 열어 읽을 수 있습니다 (<tt class="function">open</tt>에 대하여 더 자세한 것은 다음 섹션을 참조).  그러나 파일이 존재하지 않고, 그래서 이 때문에 <tt class="errorcode">IOError</tt> 예외가 일어납니다.  명시적으로 <tt class="errorcode">IOError</tt> 예외에 대하여 점검 코드를 제공하지 않았기 때문에 <span class="application">파이썬</span>은 그냥 일어난 일에 대하여 약간의 디버깅 정보를 인쇄해 내고 처리를 포기합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exceptions.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">똑 같이 존재하지 않는 파일을 열려고 합니다. 그러나 이 번에는 <tt class="literal">try...except</tt> 블록 안에서 열고 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exceptions.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">open</tt> 메쏘드가 <tt class="errorcode">IOError</tt> 예외를 일으키더라도 이미 그에 대하여 준비가 되어 있습니다. <tt class="literal">except IOError:</tt> 줄에서 그 예외를 잡아서 여러분이 준비한 코드 블록을 실행합니다. 이 경우에는 그냥 좀 상쾌한 에러 메시지를 인쇄할 뿐입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exceptions.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">예외가 처리되면 계속해서 정상적으로 <tt class="literal">try...except</tt> 블록 다음의 첫 줄이 실행됩니다. 이 줄은 언제나 인쇄될 것이라는데 주목합시다. 예외가 일어나든 말든 상관없이 말입니다. 정말로 루트 디렉토리에 <tt class="filename">notthere</tt>라고 부르는 파일이 있다고 확신한다면 <tt class="function">open</tt>을 호출해도 성공할 것이고 <tt class="literal">except</tt> 절은 무시되며 이 줄은 여전히 실행됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>
+			   예외는 별로 마음에 안 들수도 있지만 (어쨌거나 예외를 잡지 않으면 전체 프로그램이 충돌하기도 합니다), 대안을 고려해 보세요. 존재하지 않는 파일을 가리키는 쓸모없는 파일 객체를 돌려받고 싶습니까? 어떻게든 그의 유효성을 점검할 필요가 있습니다. 그렇지 않다면 줄 어디에선가 프로그램은 이상한 에러를 일으키고 그 어디에선가 소스로 다시 추적해 들어갈 필요가 있습니다. 분명히 이런 경험이 있으리라 믿습니다. 아시다시피 그런 경험은 유괘하지 않습니다. 예외가 있으면 에러가 일어나자 마자 문제의 근원에서 표준적인 방식으로 에러를 다룰 수 있습니다.
+               </p>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e14344"></a>6.1.1.&nbsp;예외를 다른 목적에 사용하는 방법
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>실제 에러 조건을 다루는 외에도 예외에는 수 많은 다른 사용법이 있습니다.  표준 <span class="application">파이썬</span> 라이브러리에서 흔히 사용되는 예는 모듈을 반입해 보고, 작동하는지 점검하는 것입니다. 존재하지 않는 모듈을 반입하면 <tt class="errorcode">ImportError</tt> 예외가 일어납니다. 이를 사용하면 모듈이 실행시간에 사용가능한가에 근거하여 여러 수준의 기능을 정의할 수 있으며, 또는 여러 플랫폼을 지원할 수 있습니다 (플랫폼-종속적 코드는 따로 다른 모듈에 들어갑니다).
+                  </p>
+                  <p>자신만의 독자적인 예외도 정의할 수 있는데 내장 <tt class="classname">Exception</tt> 예외를 계승한 클래스를 만들고 <tt class="function">raise</tt> 명령어로 예외를 일으키면 됩니다. 관심이 있는 분은 더 읽어야 할 것 섹션을 참조하세요.
+                  </p>
+                  <p>다음 예제에서는 예외를 사용하여 플랫폼 종속적 기능을 지원하는 법을 보여줍니다. 이 코드는 <tt class="filename">getpass</tt> 모듈에서 가져 왔는데, 이 모듈은 사용자로부터 암호를 얻는 포장 모듈입니다. 암호를 얻는 일은 <span class="acronym">UNIX</span>와 Windows 그리고 <span class="abbrev">Mac</span> <span class="acronym">OS</span> 플랫폼마다 다르게 완수되지만 이 코드는 그 모든 차이점들을 캡슐화해 넣습니다.
+                  </p>
+                  <div class="example"><a name="crossplatform.example"></a><h3 class="title">예제&nbsp;6.2.&nbsp;플랫폼-종속적 기능을 지원하는 법</h3><pre class="programlisting">
+  # getpass라는 이름을 적절한 함수에 묶는다.
+  try:
+      import termios, TERMIOS                     <a name="fileinfo.exceptions.2.1"></a><span class="round">①</span>
+  except ImportError:
+      try:
+          import msvcrt                           <a name="fileinfo.exceptions.2.2"></a><span class="round">②</span>
+      except ImportError:
+          try:
+              from EasyDialogs import AskPassword <a name="fileinfo.exceptions.2.3"></a><span class="round">③</span>
+          except ImportError:
+              getpass = default_getpass           <a name="fileinfo.exceptions.2.4"></a><span class="round">④</span>
+          else:                                   <a name="fileinfo.exceptions.2.5"></a><span class="round">⑤</span>
+              getpass = AskPassword
+      else:
+          getpass = win_getpass
+  else:
+      getpass = unix_getpass</pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exceptions.2.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="filename">termios</tt>는 <span class="acronym">UNIX</span>-종속적 모듈로서 입력 터미널을 낮은 수준에서 제어합니다. (시스템에 없거나 시스템이 지원하지 않기 때문에) 이 모듈을 사용할 수 없으면 반입은 실패하고 <span class="application">파이썬</span>은 <tt class="errorcode">ImportError</tt>를 일으키는데, 이것을 잡습니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exceptions.2.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">좋습니다. <tt class="filename">termios</tt>가 없으며, 그래서 <tt class="filename">msvcrt</tt>를 시도해 봅니다. 이는 윈도우즈-종속적인 모듈로서  마이크로소프트 <span class="application">Visual C++</span> 실행시간 서비스의 많은 유용한 함수에 대하여 <span class="acronym">API</span>를 제공합니다. 이 반입이 실패하면 <span class="application">파이썬</span>은 <tt class="errorcode">ImportError</tt>를 일으키는데, 이것을 잡습니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exceptions.2.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left">앞의 두 모듈이 작동하지 않으면 <tt class="filename">EasyDialogs</tt>로부터 함수를 하나 반입해 보는데, 이는 <span class="abbrev">Mac</span> <span class="acronym">OS</span>-종속적 모듈로서 다양한 종류의 대화 상자를 띄워 주는 함수를 제공합니다. 역시, 이 반입이 실패하면 <span class="application">파이썬</span>은 <tt class="errorcode">ImportError</tt>를 일으키고, 이것을 잡습니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exceptions.2.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left">이 플랫폼-종속적 모듈을 모두 사용할 수 없습니다 (<span class="application">파이썬</span>은 수 많은 다양한 플랫폼에 이식되어 있으므로 이런 일이 일어날 수 있습니다). 그래서 기본 패스워드 입력 함수에 의존할 필요가 있습니다 (이는 <tt class="filename">getpass</tt> 모듈 어느 곳엔가 정의되어 있습니다).  여기에서 무슨 일을 하고 있는지 주목하세요: <tt class="function">default_getpass</tt> 함수를 <tt class="varname">getpass</tt> 변수에 할당하고 있습니다. 공식적인 <tt class="filename">getpass</tt> 문서를 읽어 보면 <tt class="filename">getpass</tt> 모듈에 <tt class="function">getpass</tt> 함수가 정의되어 있습니다. <tt class="varname">getpass</tt> 함수를 플랫폼에 맞는 함수에 묶습니다. 다음 <tt class="function">getpass</tt> 함수를 호출하면 이 코드가 여러분 대신 설정해 둔 플랫폼-종속적 함수를 진짜 호출하게 됩니다. 어느 플랫폼에서 코드가 실행되는지 알아야 한다거나 신경써야 할 필요가 없습니다 -- 그냥 <tt class="function">getpass</tt>를 호출하면 언제나 올바르게 일을 해 줍니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exceptions.2.5"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">try...except</tt> 블록은 <tt class="literal">else</tt> 절을 가질 수 있습니다. 마치 <tt class="literal">if</tt> 서술문처럼 말입니다. <tt class="literal">try</tt> 블록 안에서 아무 예외도 일어나지 않으면 계속해서 <tt class="literal">else</tt> 절이 실행됩니다. 이 경우, 그것은 <tt class="literal">from EasyDialogs import AskPassword</tt> 반입이 작동한다는 뜻이고, 그래서 <tt class="varname">getpass</tt>를 <tt class="function">AskPassword</tt> 함수에 묶어야 합니다. 다른 <tt class="literal">try...except</tt> 블록들도 비슷하게 <tt class="literal">import</tt>가 작동하면 <tt class="literal">else</tt> 절을 가지고 <tt class="varname">getpass</tt> 함수를 적절한 함수에 묶을 수 있습니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <div class="itemizedlist">
+                     <h3 class="title">예외 처리에 관하여 더 읽을 것</h3>
+                     <ul>
+                        <li><a href="http://www.python.org/doc/current/tut/tut.html"><i class="citetitle"><span class="application">파이썬</span> 자습서</i></a>에서 <a href="http://www.python.org/doc/current/tut/node10.html#SECTION0010400000000000000000">자신만의 예외를 정의하고 일으키는 법 그리고 여러 예외를 한 번에 처리하는 법을 다룬다</a>.
+                        </li>
+                        <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>에 <a href="http://www.python.org/doc/current/lib/module-exceptions.html">모든 내장 예외</a>가 요약되어 있다.
+                        </li>
+                        <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>에 <a href="http://www.python.org/doc/current/lib/module-getpass.html">getpass</a> 모듈에 대한 문서가 있다.
+                        </li>
+                        <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브리 참조서</i></a>에 <a href="http://www.python.org/doc/current/lib/module-traceback.html"><tt class="filename">traceback</tt> 모듈</a>에 관한 문서가 있다. 이 모듈은 예외가 일어난 후 예외 속성에 대하여 낮은-수준의 접근을 제공한다.
+                        </li>
+                        <li><a href="http://www.python.org/doc/current/ref/"><i class="citetitle"><span class="application">파이썬</span> 참조 매뉴얼</i></a>에서 <a href="http://www.python.org/doc/current/ref/try.html"><tt class="literal">try...except</tt> 블록의</a> 내부 작동 방식을 연구한다.
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.files"></a>6.2.&nbsp;파일 객체 작업
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span>은 내장 <tt class="function">open</tt> 함수가 있는데, 디스크에 있는 파일을 여는데 사용됩니다.  <tt class="function">open</tt> 함수는 파일 객체를 돌려줍니다. 이 객체에 있는 메쏘드와 속성으로 그 열린 파일를 조작하고 그에 관한 정보를 얻습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e14596"></a><h3 class="title">예제&nbsp;6.3.&nbsp;파일 열기</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f = open("/music/_singles/kairo.mp3", "rb")</span> <a name="fileinfo.files.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f</span>                                           <a name="fileinfo.files.1.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;open file '/music/_singles/kairo.mp3', mode 'rb' at 010E3988&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.mode</span>                                      <a name="fileinfo.files.1.3"></a><span class="round">③</span>
+<span class="computeroutput">'rb'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.name</span>                                      <a name="fileinfo.files.1.4"></a><span class="round">④</span>
+<span class="computeroutput">'/music/_singles/kairo.mp3'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">open</tt> 메쏘드는 세 개의 매개 변수를 취할 수 있습니다: 파일이름과 모드 그리고 버퍼링 매개변수가 그것입니다. 오직 첫 번째 매개변수, 즉 파일이름만 필수입니다; 나머지 두 개는 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.optional" title="4.2.&nbsp;Using Optional and Named Arguments">선택적입니다</a>. 지정되지 않으면 파일은 텍스트 모드로 읽기 전용으로 열립니다. 여기에서는 파일을 이진 모드 읽기 전용으로 열고 있습니다. (<tt class="literal">print open.__doc__</tt>를 해 보면 모든 가능한 모드를 멋지게 설명해 보여줍니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">open</tt> 함수는 객체를 돌려줍니다 (지금까지는 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.objects" title="2.4.&nbsp;Everything Is an Object">이것이 별로 놀랍지 않을 것입니다</a>).  파일 객체는 여러 유용한 속성이 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">파일 객체의 <tt class="varname">mode</tt> 속성은 파일이 어느 모드로 열렸는지 알려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">파일 객체의 <tt class="varname">name</tt> 속성은 파일 객체가 연 파일의 이름을 알려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e14670"></a>6.2.1.&nbsp;파일 읽기</h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>파일을 열고 나면 무엇보다도 읽어 보고 싶을 것입니다. 다음 예제에서 보여주는 바와 같이 말입니다.</p>
+                  <div class="example"><a name="d0e14675"></a><h3 class="title">예제&nbsp;6.4.&nbsp;파일 읽기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f</span>
+<span class="computeroutput">&lt;open file '/music/_singles/kairo.mp3', mode 'rb' at 010E3988&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.tell()</span>              <a name="fileinfo.files.2.1"></a><span class="round">①</span>
+<span class="computeroutput">0</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.seek(-128, 2)</span>       <a name="fileinfo.files.2.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.tell()</span>              <a name="fileinfo.files.2.3"></a><span class="round">③</span>
+<span class="computeroutput">7542909</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">tagData = f.read(128)</span> <a name="fileinfo.files.2.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">tagData</span>
+<span class="computeroutput">'TAGKAIRO****THE BEST GOA         ***DJ MARY-JANE***            
+Rave Mix                      2000http://mp3.com/DJMARYJANE     \037'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.tell()</span>              <a name="fileinfo.files.2.5"></a><span class="round">⑤</span>
+<span class="computeroutput">7543037</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.2.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">파일 객체는 자신이 연 파일의 상태를 유지관리합니다. 파일 객체의 <tt class="function">tell</tt> 메쏘드는 열린 파일에서 현재 위치를 알려줍니다.  아직 이 파일에 대하여 아무런 처리도 하지 않았으므로 현재 위치는 <tt class="constant">0</tt>이고, 이는 파일의 처음입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.2.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">파일 객체의 <tt class="function">seek</tt> 메쏘드는 열린 파일에서 또다른 위치로 이동시킵니다. 두 번째 매개변수에 첫 매개변수가 무슨 뜻인지 지정합니다; <tt class="constant">0</tt>은 절대 위치로 이동한다는 뜻입니다 (파일의 시작에서부터 세어서 이동함). <tt class="constant">1</tt>은 상대 위치로 이동한다는 뜻입니다 (현재 위치에서부터 세어서 이동함). 그리고 <tt class="literal">2</tt>는 파일의 끝에까지 상대 위치로 이동한다는 뜻입니다. 찾고 있는 <span class="abbrev">MP3</span> 태그는 파일의 끝에 저장되어 있으므로  <tt class="literal">2</tt>를 사용하여 파일 객체에서 파일의 끝에서부터 <tt class="literal">128</tt> 바이트 떨어진 곳으로 이동하라고 알려줍니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.2.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">tell</tt> 메쏘드는 현재 파일 위치가 이동되었는지 확인합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.2.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">read</tt> 메소드는 지정된 개수의 바이트를 열린 파일로부터 읽어서 그 데이터를 문자열로 돌려줍니다. 선택적인 매개변수에는 읽을 바이트의 최대 개수를 지정합니다. 아무 매개변수도 지정되지 않으면 <tt class="function">read</tt>는 파일의 끝까지 읽습니다.  (여기에서는 그냥 <tt class="literal">read()</tt>로 기술할 수 있는데, 왜냐하면 정확하게 파일 안에 있다는 사실을 알고 있고 실제로 마지막 128 바이트를 읽을 것이기 때문입니다.)  읽은 데이터는 <tt class="varname">tagData</tt> 변수에 할당되고 현재 위치는 얼마나 많은 바이트를 읽었는가에 따라 갱신됩니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.2.5"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">tell</tt> 메쏘드는 위치가 이동되었는지 확인합니다. 계산을 해 보면 128 바이트를 읽고나면 그 위치가 128 만큼 증가되어 있는 것을 보실 수 있습니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e14800"></a>6.2.2.&nbsp;파일 닫기</h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>파일을 열면 시스템 자원이 소모되고 그 자원은 파일 모드에 따라 다른 프로그램이 접근하지 못할 수도 있습니다. 파일 작업이 끝나면 최대한 신속하게 파일을 닫는 것이 중요합니다.
+                  </p>
+                  <div class="example"><a name="d0e14805"></a><h3 class="title">예제&nbsp;6.5.&nbsp;파일 닫기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f</span>
+<span class="computeroutput">&lt;open file '/music/_singles/kairo.mp3', mode 'rb' at 010E3988&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.closed</span>       <a name="fileinfo.files.3.1"></a><span class="round">①</span>
+<span class="computeroutput">False</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.close()</span>      <a name="fileinfo.files.3.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f</span>
+<span class="computeroutput">&lt;closed file '/music/_singles/kairo.mp3', mode 'rb' at 010E3988&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.closed</span>       <a name="fileinfo.files.3.3"></a><span class="round">③</span>
+<span class="computeroutput">True</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.seek(0)</span>      <a name="fileinfo.files.3.4"></a><span class="round">④</span>
+<span class="traceback">Traceback (innermost last):
+  File "&lt;interactive input&gt;", line 1, in ?
+ValueError: I/O operation on closed file</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.tell()</span>
+<span class="traceback">Traceback (innermost last):
+  File "&lt;interactive input&gt;", line 1, in ?
+ValueError: I/O operation on closed file</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.read()</span>
+<span class="traceback">Traceback (innermost last):
+  File "&lt;interactive input&gt;", line 1, in ?
+ValueError: I/O operation on closed file</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.close()</span>      <a name="fileinfo.files.3.5"></a><span class="round">⑤</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.3.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">파일 객체의 <tt class="varname">closed</tt> 속성은 파일이 열렸는지 닫혔는지 나타냅니다. 이 경우, 파일은 여전히 열려 있습니다 (<tt class="varname">closed</tt>가 <tt class="constant">False</tt>입니다).
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.3.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">파일을 닫으려면 파일 객체의 <tt class="function">close</tt> 메쏘드를 호출합니다. 이렇게 하면 파일에 대하여 잠구어 두었던 자원을 (혹 있다면) 풀어주고, 버퍼에 시스템이 아직 쓰지 못한 것을 (혹 있다면) 강제로 파일에 쓰고 시스템 자원을 풀어줍니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.3.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="varname">closed</tt> 속성으로 파일이 닫혔는지 확인합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.3.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left">단지 파일이 닫혔다고 해서 그것이 곧 파일 객체가 존재하지 않는다는 뜻은 아닙니다.  <tt class="varname">f</tt> 변수는 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.scope" title="Example&nbsp;5.8.&nbsp;Trying to Implement a Memory Leak">영역을 벗어날 때까지</a> 또는 손수 삭제할 때까지 죽지 않고 존재합니다. 그렇지만, 열린 파일에 대하여 작업하던 메쏘드들은 모두 일단 파일이 닫히면 작동을 멈춥니다; 모두 예외를 일으킵니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.3.5"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left">이미 닫힌 파일에 대하여 <tt class="function">close</tt> 메쏘드를 호출하더라도 <span class="emphasis"><em>예외를 일으키지 않습니다</em></span>; 그냥 조용히 실패합니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e14928"></a>6.2.3.&nbsp;<span class="acronym">I/O</span> 에러 처리하는 법</h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>앞 장에 있는 <tt class="filename">fileinfo.py</tt> 샘플 코드에서 파일 처리 코드를 이해하기 위한 예들을 충분히 보았습니다. 다음 예제는 파일로부터 안전하게 열고 읽는 법과 우아하게 에러를 처리하는 법을 보여줍니다.
+                  </p>
+                  <div class="example"><a name="fileinfo.files.incode"></a><h3 class="title">예제&nbsp;6.6.&nbsp;<tt class="classname">MP3FileInfo</tt>의 파일 객체들</h3><pre class="programlisting">
+        try:                                 <a name="fileinfo.files.4.1"></a><span class="round">①</span>
+            fsock = open(filename, "rb", 0) <a name="fileinfo.files.4.2"></a><span class="round">②</span>
+            try:                           
+                fsock.seek(-128, 2)         <a name="fileinfo.files.4.3"></a><span class="round">③</span>
+                tagdata = fsock.read(128)   <a name="fileinfo.files.4.4"></a><span class="round">④</span>
+            finally:                        <a name="fileinfo.files.4.5"></a><span class="round">⑤</span>
+                fsock.close()              
+            .
+            .
+            .
+        except IOError:                     <a name="fileinfo.files.4.6"></a><span class="round">⑥</span>
+            pass                           </pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.4.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">파일을 열고 읽는 것은 위험하기 때문에 예외를 일으킬 수 있기 때문에, 이 모든 코드는 <tt class="literal">try...except</tt> 블록에 둘러 싸입니다.  (<a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.indenting" title="2.5.&nbsp;Indenting Code">표준화된 들여쓰기</a> 멋지지 않습니까?  이 곳이 바로 그 고마움을 일깨워 주는 곳입니다.)
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.4.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">open</tt> 함수는 <tt class="errorcode">IOError</tt>를 일으킬 수 있습니다.  (파일이 존재하지 않을 수도 있기 때문입니다.)
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.4.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">seek</tt> 메쏘드는 <tt class="errorcode">IOError</tt>를 일으킬 수 있습니다.  (파일이 128 바이트보다 작을 수 있기 때문입니다.)
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.4.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">read</tt> 메쏘드는 <tt class="errorcode">IOError</tt>를 일으킬 수 있습니다. (디스크에 배드 섹터가 있거나 네트워크 드라이브에 있다면 그 네트워크가 맛이 갔을 수도 있기 때문입니다.)
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.4.5"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left">새로운 것이군요: <tt class="literal">try...finally</tt> 블록입니다.  파일이 <tt class="function">open</tt> 함수로 성공적으로 열렸다면 확실하게 닫고 싶을 것입니다. <tt class="function">seek</tt> 메쏘드나 <tt class="function">read</tt> 메쏘드에 의하여 예외가 일어나더라도 말입니다. 그것이 바로 <tt class="literal">try...finally</tt> 블록이 있는 이유입니다: <tt class="literal">finally</tt> 블록에 있는 코드는 <span class="emphasis"><em>언제나</em></span> 실행됩니다. 비록 무엇인가 <tt class="literal">try</tt> 블록 안에서 예외를 일으키더라도 말입니다. 이 블록을 이렇게 생각하세요. 앞서 무슨 일이 일어났든 상관없이 나가면서 반드시 실행되는 코드라고 말입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.4.6"><span class="round">⑥</span></a> 
+                              </td>
+                              <td valign="top" align="left">드디어, <tt class="errorcode">IOError</tt> 예외를 다룹니다. 이 <tt class="errorcode">IOError</tt> 예외는 <tt class="function">open</tt>이나 <tt class="function">seek</tt> 또는 <tt class="function">read</tt>를 호출하면 일어날 수 있습니다.  여기에서는 실제로 신경쓰지 않는데 그 이유는 그냥 조용히 무시하고 계속 진행할 것이기 때문입니다.  (기억하세요. <tt class="literal">pass</tt>는 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.class.simplest" title="Example&nbsp;5.3.&nbsp;The Simplest Python Class">아무것도 하지 않는</a> <span class="application">파이썬</span> 서술문입니다.)  완벽하게 합법적입니다; 예외를 &#8220;<span class="quote">처리하는 것은</span>&#8221; 명시적으로 아무것도 하지 않음을 의미할 수 있습니다. 그래도 여전히 처리되었다고 간주되며, 처리는 정상적으로 <tt class="literal">try...except</tt> 블록 이후 다음 코드 줄로 계속 진행됩니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e15055"></a>6.2.4.&nbsp;파일 쓰는 법</h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>짐작하시겠지만 읽을 때와 마찬가지 방식으로 파일에 쓸 수도 있습니다. 두 개의 기본적인 파일 모드가 있습니다:</p>
+                  <div class="itemizedlist">
+                     <ul>
+                        <li>"Append" 모드는 파일의 끝에 데이터를 추가합니다.</li>
+                        <li>"write" 모드는 파일을 덮어씁니다.</li>
+                     </ul>
+                  </div>
+                  <p>어느 모드든지 파일이 아직 존재하지 않으면 자동으로 생성합니다. 그래서 "로그 파일이 아직 존재하지 않으면 처음으로 그것을 열어 사용할 수 있도록 새로 빈 파일을 만들어라" 와 같은 하찮은 로직이 전혀 필요 없습니다. 그냥 열어서 쓰기 시작하면 됩니다.
+                  </p>
+                  <div class="example"><a name="fileinfo.files.writeandappend"></a><h3 class="title">예제&nbsp;6.7.&nbsp;파일에 쓰기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">logfile = open('test.log', 'w')</span> <a name="fileinfo.files.5.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">logfile.write('test succeeded')</span> <a name="fileinfo.files.5.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">logfile.close()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print file('test.log').read()</span>   <a name="fileinfo.files.5.3"></a><span class="round">③</span>
+<span class="computeroutput">test succeeded</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">logfile = open('test.log', 'a')</span> <a name="fileinfo.files.5.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">logfile.write('line 2')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">logfile.close()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print file('test.log').read()</span>   <a name="fileinfo.files.5.5"></a><span class="round">⑤</span>
+<span class="computeroutput">test succeededline 2</span>
+</pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.5.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">대담하게 처음부터 새 파일  <tt class="filename">test.log</tt>를 만들거나 아니면 기존의 파일을 덮어씁니다. 그리고 쓰기를 위해 그 파일을 엽니다. (두 번째 <tt class="literal">"w"</tt> 매개변수는 쓰기용으로 파일을 열라는 뜻입니다.)  그렇습니다. 예상대로 아주 위험합니다. 모쪼록 파일의 이전 내용은 신경쓰지 마시기를 바랍니다. 이제 날아가고 없으니까요.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.5.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">open</tt> 메쏘드가 돌려준 파일 객체의 <tt class="function">write</tt> 메쏘드로 새로 열린 파일에 데이터를 추가할 수 있습니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.5.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="function">file</tt>은 <tt class="function">open</tt>과 동의어입니다.  단-한 줄로 파일을 열고 그 내용을 읽어서 인쇄합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.5.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left">(방금 쓰기를 마쳤기 때문에) <tt class="filename">test.log</tt>가 존재한다는 사실을 우연히 알고 있습니다. 그래서 그 파일을 열어서 추가할 수 있습니다.  (<tt class="literal">"a"</tt> 매개변수는 파일을 추가 모드로 연다는 뜻입니다.) 파일이 존재하지 않더라도 실제로 이렇게 할 수 있습니다. 왜냐하면 파일을 추가하기 위하여 열기 때문에 필요하다면 파일이 생성되기 때문입니다. 그러나 추가한다고 해서 그 파일에 있는 기존의 내용물에는 <span class="emphasis"><em>전혀 해를 끼치지 않습니다</em></span>.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.5.5"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left">보시다시피 이미 쓴 원래 줄과 추가한 두 번째 줄이 이제 <tt class="filename">test.log</tt>에 있습니다.  또 행갈이-문자가 포함되지 않았음을 주목하세요. 그 파일에 명시적으로 행갈이-문자를 쓰지 않았기 때문에 그 파일에 포함되지 않습니다.  행갈이-문자는 <tt class="literal">"\n"</tt> 문자로 쓸 수 있습니다. 이렇게 하지 않았으므로 파일에 쓴 모든 것은 모조리 같은 줄에 붙습니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <div class="itemizedlist">
+                     <h3 class="title">파일 처리에 관하여 더 읽어야 할 것</h3>
+                     <ul>
+                        <li><a href="http://www.python.org/doc/current/tut/tut.html"><i class="citetitle"><span class="application">파이썬</span> 자습서</i></a>는 <a href="http://www.python.org/doc/current/tut/node9.html#SECTION009210000000000000000">한 번에 한 줄을 읽어서 리스트로 바꾸는 법</a>을 비롯하여 파일 읽기와 쓰기를 연구한다.
+                        </li>
+                        <li>에프-보트(<a href="http://www.effbot.org/guides/">eff-bot</a>)는 <a href="http://www.effbot.org/guides/readline-performance.htm">파일을 읽는 다양한 방법에 관하여</a> 효율성과 수행성능을 연구한다.
+                        </li>
+                        <li><a href="http://www.faqts.com/knowledge-base/index.phtml/fid/199/"><span class="application">파이썬</span> 지식 기지</a>에 <a href="http://www.faqts.com/knowledge-base/index.phtml/fid/552">파일에 관한 일반적인 질문들에 관한 답이 있다</a>.
+                        </li>
+                        <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>는 <a href="http://www.python.org/doc/current/lib/bltin-file-objects.html">모든 파일 객체 메쏘드를 요약한다</a>.
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.for"></a>6.3.&nbsp;<tt class="literal">for</tt> 회돌이로 순회하는 법</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>다른 모든 언어들처럼 <span class="application">파이썬</span>에도 <tt class="literal">for</tt> 회돌이가 있습니다. 아직까지 보지 못한 유일한 이유는 <span class="application">파이썬</span>이 다른 많은 것에 능하므로 그렇게 자주 필요하지 않았기 때문입니다.
+                  </p>
+               </div>
+               <p>다른 언어는 대부분 <span class="application">파이썬</span>과 같은 강력한 리스트 데이터유형이 없습니다. 그래서 시작과 끝 그리고 증분을 지정하여 일정 범위의 정수나 문자를 지정하거나 기타 반복가능한 객체를 정의하려면 손수 수 많은 작업을 해야 합니다. 그러나 <span class="application">파이썬</span>에서, <tt class="literal">for</tt> 회돌이는 단순히 리스트를 반복하며 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.map" title="3.6.&nbsp;Mapping Lists">지능형 리스트(list comprehensions)</a>도 같은 방식으로 작동합니다.
+               </p>
+               <div class="example"><a name="d0e15255"></a><h3 class="title">예제&nbsp;6.8.&nbsp;<tt class="literal">for</tt> 회돌이 소개
+                  </h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = ['a', 'b', 'e']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">for s in li:</span>         <a name="fileinfo.for.1.1"></a><span class="round">①</span>
+<tt class="prompt">...     </tt><span class="userinput">print s</span>          <a name="fileinfo.for.1.2"></a><span class="round">②</span>
+<span class="computeroutput">a
+b
+e</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print "\n".join(li)</span>  <a name="fileinfo.for.1.3"></a><span class="round">③</span>
+<span class="computeroutput">a
+b
+e</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.for.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">for</tt> 회돌이의 구문은 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.map" title="3.6.&nbsp;Mapping Lists">지능형 리스트(list comprehensions)</a>와 비슷합니다.  <tt class="varname">li</tt>는 리스트이며, <tt class="varname">s</tt>는 첫 원소부터 시작하여 순서대로 각 원소의 값을 취합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.for.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">if</tt> 서술문이나 기타 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.indenting" title="2.5.&nbsp;Indenting Code">들여쓰기된 블록</a>처럼,  <tt class="literal">for</tt> 회돌이는 얼마든지 그 안에 코드가 들어갈 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.for.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 때문에 아직 <tt class="literal">for</tt> 회돌이를 보지 못한 것입니다: 지금까지 필요하지 않았기 때문입니다.  단지 <tt class="function">join</tt>이나 지능형 리스트를 원할 뿐인데 다른 언어에서 <tt class="literal">for</tt> 회돌이를 얼마나 많이 사용하는지 보면 놀랍습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p><tt class="literal">for</tt> 회돌이에 (비주얼 베이직(<span class="application">Visual Basic</span>)을 기준으로) &#8220;<span class="quote">보통처럼</span>&#8221; 세는 것도 역시 간단합니다.
+               </p>
+               <div class="example"><a name="fileinfo.for.counter"></a><h3 class="title">예제&nbsp;6.9.&nbsp;간단한 계수기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">for i in range(5):</span>             <a name="fileinfo.for.3.1"></a><span class="round">①</span>
+<tt class="prompt">...     </tt><span class="userinput">print i</span>
+<span class="computeroutput">0
+1
+2
+3
+4</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = ['a', 'b', 'c', 'd', 'e']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">for i in range(len(li)):</span>       <a name="fileinfo.for.3.2"></a><span class="round">②</span>
+<tt class="prompt">...     </tt><span class="userinput">print li[i]</span>
+<span class="computeroutput">a
+b
+c
+d
+e</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.for.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.multiassign.range" title="Example&nbsp;3.20.&nbsp;Assigning Consecutive Values">예제&nbsp;3.20, &#8220;연속적인 값 할당하기&#8221;</a>에서 보셨듯이, <tt class="function">range</tt>는 정수 리스트를 생산합니다. 그러면 이것으로 회돌이를 합니다. 약간 기묘해 보이지만 계수 회돌이를 가지면 유용한 경우가 종종 있습니다 (<span class="emphasis"><em>종종</em></span>이라는 말을 강조합니다).
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.for.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이렇게 하지 마세요.  이것은 비주얼 베이직(<span class="application">Visual Basic</span>)-스타일의 사고방식입니다. 그런 사고방식에서 벗어나세요. 앞 예제에서 보여준 바와 같이 그냥 리스트를 회돌이하면 됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p><tt class="literal">for</tt> 회돌이는 그냥 단순한 카운터가 아닙니다. 온갖 종류의 것들을 회돌이 할 수 있습니다. 다음은  <tt class="literal">for</tt> 회돌이를 사용하여 사전을 순회하는 예입니다.
+               </p>
+               <div class="example"><a name="dictionaryiter.example"></a><h3 class="title">예제&nbsp;6.10.&nbsp;사전 순회하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import os</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">for k, v in os.environ.items():</span>      <a name="fileinfo.for.2.1"></a><span class="round">①</span> <a name="fileinfo.for.2.2"></a><span class="round">②</span>
+<tt class="prompt">...     </tt><span class="userinput">print "%s=%s" % (k, v)</span>
+<span class="computeroutput">USERPROFILE=C:\Documents and Settings\mpilgrim
+OS=Windows_NT
+COMPUTERNAME=MPILGRIM
+USERNAME=mpilgrim
+
+[...이하 생략...]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print "\n".join(["%s=%s" % (k, v)</span>
+<tt class="prompt">...     </tt><span class="userinput">for k, v in os.environ.items()])</span> <a name="fileinfo.for.2.3"></a><span class="round">③</span>
+<span class="computeroutput">USERPROFILE=C:\Documents and Settings\mpilgrim
+OS=Windows_NT
+COMPUTERNAME=MPILGRIM
+USERNAME=mpilgrim
+
+[...이하 생략...]</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.for.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">os.environ</tt>은 시스템에 정의된 환경 변수가 담긴 사전입니다. 윈도우즈에서는 <span class="acronym">MS-DOS</span>로부터 접근할 수 있는 사용자와 시스템 변수입니다. <span class="acronym">UNIX</span>에서는 쉘의 기동 스크립트에서 반출된 변수들입니다. <span class="abbrev">Mac</span> <span class="acronym">OS</span>에서는 환경 변수라는 개념이 없습니다. 그래서 이 사전은 비어 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.for.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">os.environ.items()</tt>는 터플이 담긴 리스트를 돌려줍니다: <tt class="literal">[(<i class="replaceable">key1</i>, <i class="replaceable">value1</i>), (<i class="replaceable">key2</i>, <i class="replaceable">value2</i>), ...]</tt>.  
+						   
+						   <tt class="literal">for</tt> 회돌이는 이 리스트를 순회합니다. 첫 회전에서 <tt class="literal"><i class="replaceable">key1</i></tt>을 <tt class="varname">k</tt>에 그리고 <tt class="literal"><i class="replaceable">value1</i></tt>을 <tt class="varname">v</tt>에 할당합니다. 그래서 <tt class="varname">k</tt> = <tt class="literal">USERPROFILE</tt> 그리고 <tt class="varname">v</tt> = <tt class="literal">C:\Documents and Settings\mpilgrim</tt>.  두 번째 회전에서, <tt class="varname">k</tt>는 두 번째 키 <tt class="literal">OS</tt>를 얻고, <tt class="varname">v</tt>는 그에 상응하는 값 <tt class="literal">Windows_NT</tt>를 얻습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.for.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.multiassign" title="3.4.2.&nbsp;Assigning Multiple Values at Once">다중-변수 할당</a>과 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.map" title="3.6.&nbsp;Mapping Lists">지능형 리스트</a>로 전체 <tt class="literal">for</tt> 회돌이를 단 하나의 서술문으로 교체할 수 있습니다. 실제 코드에서 이렇게 할지 말지 여부는 개인적 코딩 스타일의 문제입니다. 나는 이런 스타일을 좋아하는데, 내가 하고 있는 일이 바로 사전을 리스트로 짝짓고 그 리스트를 한-개짜리 문자열로 결합하는 것이라는 사실이 확실하게 드러나기 때문입니다. 다른 프로그래머라면 이런 코드를 <tt class="literal">for</tt> 회돌이로 작성하기를 더 선호할 수도 있습니다. 그 출력결과는 어느 경우든 같습니다. 물론 이 버전이 약간 더 빠른데, 그 이유는 <tt class="function">print</tt> 서술문이 오직 하나 밖에 없기 때문입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이제 <tt class="literal">for</tt> 회돌이를 <tt class="classname">MP3FileInfo</tt>에서 볼 수있습니다. 이 파일은 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo">제 5 장에서 소개한</a> <tt class="filename">fileinfo.py</tt> 샘플 프로그램에서 빌려 왔습니다.
+               </p>
+               <div class="example"><a name="fileinfo.multiassign.for.example"></a><h3 class="title">예제&nbsp;6.11.&nbsp;<tt class="classname">MP3FileInfo</tt>의 <tt class="literal">for</tt> 회돌이</h3><pre class="programlisting">
+    tagDataMap = {"title"   : (  3,  33, stripnulls),
+                  "artist"  : ( 33,  63, stripnulls),
+                  "album"   : ( 63,  93, stripnulls),
+                  "year"    : ( 93,  97, stripnulls),
+                  "comment" : ( 97, 126, stripnulls),
+                  "genre"   : (127, 128, ord)}                               <a name="fileinfo.multiassign.5.1"></a><span class="round">①</span>
+    .
+    .
+    .
+            if tagdata[:3] == "TAG":
+                for tag, (start, end, parseFunc) in self.tagDataMap.items(): <a name="fileinfo.multiassign.5.2"></a><span class="round">②</span>
+                    self[tag] = parseFunc(tagdata[start:end])                <a name="fileinfo.multiassign.5.3"></a><span class="round">③</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.multiassign.5.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">tagDataMap</tt>은 <span class="abbrev">MP3</span> 파일에서 찾고 있는 태그들을 정의해 둔 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.classattributes" title="5.8.&nbsp;Introducing Class Attributes">클래스 속성</a>입니다. 태그는 길이가-고정된 필드에 저장됩니다. 일단 파일의 마지막 128 바이트를 읽고 나면 그 중에서 3바이트에서 32바이트까지는 언제나 노래 제목이고, 33에서 62 바이트까지는 언제나 작가 이름이며, 63에서 92까지는 앨범 이름이고, 등등 입니다. <tt class="varname">tagDataMap</tt>은 터플이 담긴 사전이고 각 터플에는 두 개의 정수와 함수 참조점이 담겨 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.multiassign.5.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">복잡해 보이지만 그렇지 않습니다. <tt class="literal">for</tt> 변수의 구조는 <tt class="function">items</tt>가 돌려준 리스트의 원소의 구조에 일치합니다. <tt class="function">items</tt>는 <tt class="literal">(<i class="replaceable">key</i>, <i class="replaceable">value</i>)</tt> 형태의 터플이 담긴 리스트를 돌려줍니다. 이 리스트의 첫 원소는 <tt class="literal">("title", (3, 33, &lt;function stripnulls&gt;))</tt>입니다. 그래서 회돌이의 첫 회전 동안 <tt class="varname">tag</tt>는 <tt class="literal">"title"</tt>을 얻고, <tt class="varname">start</tt>는 <tt class="literal">3</tt>을 얻으며, <tt class="varname">end</tt>는 <tt class="literal">33</tt>을 얻고, <tt class="varname">parseFunc</tt>는 <tt class="function">stripnulls</tt> 함수를 얻습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.multiassign.5.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 <span class="abbrev">MP3</span> 태그 하나에 대하여 매개변수를 모두 추출하였습니다. 그 태그 데이터를 저장하는 것은 쉽습니다.  <tt class="varname">tagdata</tt>를 <tt class="varname">start</tt>에서 <tt class="varname">end</tt>까지 <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.list.slice" title="Example&nbsp;3.8.&nbsp;Slicing a List">조각을 썰어</a> 이 태그에 대한 실제 데이터를 얻어서, <tt class="varname">parseFunc</tt>를 호출하여 그 데이터를 후-처리하고, 그리고 이를 의사-사전 <tt class="varname">self</tt>의 <tt class="varname">tag</tt>의 키에 대한 값으로 할당합니다. <tt class="varname">tagDataMap</tt>의 모든 원소를 순회한 후, <tt class="varname">self</tt>는 모든 태그에 대하여 값을 가지고 있고, <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.specialmethods.setname" title="Example&nbsp;5.15.&nbsp;Setting an MP3FileInfo's name">그 모양이 어떤지 압니다</a>.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.modules"></a>6.4.&nbsp;<tt class="literal"><tt class="filename">sys</tt>.modules 사용법</tt></h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>모듈은 <span class="application">파이썬</span>의 다른 모든 것처럼 객체입니다. 모듈이 반입되면 언제나 전역 사전인 <tt class="literal"><tt class="filename">sys</tt>.modules</tt>을 통하여 그 모듈에 대한 참조점을 얻을 수 있습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e15693"></a><h3 class="title">예제&nbsp;6.12.&nbsp;<tt class="literal"><tt class="filename">sys</tt>.modules</tt> 소개</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import sys</span>                          <a name="fileinfo.modules.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print '\n'.join(sys.modules.keys())</span> <a name="fileinfo.modules.1.2"></a><span class="round">②</span>
+<span class="computeroutput">win32api
+os.path
+os
+exceptions
+__main__
+ntpath
+nt
+sys
+__builtin__
+site
+signal
+UserDict
+stat</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.modules.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"> <tt class="filename">sys</tt> 모듈에는 예를 들어 실행중인 <span class="application">파이썬</span> 버전 같은 시스템-수준의 정보 (<tt class="literal"><tt class="filename">sys</tt>.version</tt> 또는 <tt class="literal"><tt class="filename">sys</tt>.version_info</tt>)가 담겨 있으며, 허용된 최대 재귀 깊이 같은 시스템-수준의 옵션 (<tt class="literal"><tt class="filename">sys</tt>.getrecursionlimit()</tt> 그리고 <tt class="literal"><tt class="filename">sys</tt>.setrecursionlimit()</tt>)이 담겨 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.modules.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal"><tt class="filename">sys</tt>.modules</tt>은 <span class="application">파이썬</span>이 기동한 이후로 반입된 모듈이 모두 담긴 사전입니다; 키는 모듈의 이름이고, 값은 모듈 객체입니다. 이는 <span class="emphasis"><em>여러분의</em></span> 프로그램이 반입한 모듈 그 이상이라는 사실에 주목하세요.  <span class="application">파이썬</span>은 기동시에 어떤 모듈들을 미리 적재합니다. 그리고 <span class="application">파이썬</span> <span class="acronym">IDE</span>를 사용한다면 <tt class="literal"><tt class="filename">sys</tt>.modules</tt>에는 <span class="acronym">IDE</span>에서 실행한 모든 프로그램에 의하여 반입된 모듈이 모두 담겨 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>다음 예제는 <tt class="literal"><tt class="filename">sys</tt>.modules</tt>을 사용하는 법을 보여줍니다.</p>
+               <div class="example"><a name="d0e15784"></a><h3 class="title">예제&nbsp;6.13.&nbsp; <tt class="literal"><tt class="filename">sys</tt>.modules</tt> 사용하기</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import fileinfo</span>         <a name="fileinfo.modules.1.3"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print '\n'.join(sys.modules.keys())</span>
+<span class="computeroutput">win32api
+os.path
+os
+fileinfo
+exceptions
+__main__
+ntpath
+nt
+sys
+__builtin__
+site
+signal
+UserDict
+stat</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">fileinfo</span>
+<span class="computeroutput">&lt;module 'fileinfo' from 'fileinfo.pyc'&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">sys.modules["fileinfo"]</span> <a name="fileinfo.modules.1.4"></a><span class="round">②</span>
+<span class="computeroutput">&lt;module 'fileinfo' from 'fileinfo.pyc'&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.modules.1.3"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">새로운 모듈이 반입되면 <tt class="literal"><tt class="filename">sys</tt>.modules</tt>에 추가됩니다. 이는 왜 같은 모듈을 두 번째 반입하면 아주 빠른지 설명해 줍니다: <span class="application">파이썬</span>은 이미 그 모듈을 <tt class="literal"><tt class="filename">sys</tt>.modules</tt>에 적재해 간직하고 있습니다. 그래서 두 번째 반입할 때는 그냥 사전을 찾아 볼 뿐입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.modules.1.4"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞서-반입된 모듈의 이름이 (문자열로) 주어지면 그 모듈 자체에 대한 참조점을 <tt class="literal"><tt class="filename">sys</tt>.modules</tt> 사전을 통하여 얻을 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>다음 예제는 <tt class="literal"><tt class="filename">sys</tt>.modules</tt> 사전의 <tt class="literal">__module__</tt> 클래스 속성을 사용하여 클래스에 정의된 그 모듈에 대한 참조점을 얻는 법을 보여줍니다.
+               </p>
+               <div class="example"><a name="d0e15859"></a><h3 class="title">예제&nbsp;6.14.&nbsp; <tt class="literal">__module__</tt> 클래스 속성
+                  </h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from fileinfo import MP3FileInfo</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">MP3FileInfo.__module__</span>              <a name="fileinfo.modules.2.1"></a><span class="round">①</span>
+<span class="computeroutput">'fileinfo'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">sys.modules[MP3FileInfo.__module__]</span> <a name="fileinfo.modules.2.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;module 'fileinfo' from 'fileinfo.pyc'&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.modules.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><span class="application">파이썬</span> 클래스라면 내장 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.classattributes" title="5.8.&nbsp;Introducing Class Attributes">클래스 속성인</a> <tt class="literal">__module__</tt>이 있는데, 이는 그 클래스에 정의된 모듈의 이름입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.modules.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이를 <tt class="literal"><tt class="filename">sys</tt>.modules</tt> 사전과 조합하면 클래스 안에 정의된 그 모듈에 대한 참조점을 얻을 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이제 <tt class="filename">fileinfo.py</tt>에서 어떻게 <tt class="literal"><tt class="filename">sys</tt>.modules</tt>이 사용되는지 볼 준비가 되었습니다. 이는 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo">제 5 장에서</a> 소개한 샘플 프로그램입니다. 다음 예제는 코드에서 해당 부분을 보여줍니다.
+               </p>
+               <div class="example"><a name="d0e15923"></a><h3 class="title">예제&nbsp;6.15.&nbsp;<tt class="literal"><tt class="filename">sys</tt>.modules</tt> in <tt class="filename">fileinfo.py</tt></h3><pre class="programlisting">
+    def getFileInfoClass(filename, module=sys.modules[FileInfo.__module__]):       <a name="fileinfo.modules.3.1"></a><span class="round">①</span>
+        "get file info class from filename extension"                             
+        subclass = "%sFileInfo" % os.path.splitext(filename)[1].upper()[1:]        <a name="fileinfo.modules.3.2"></a><span class="round">②</span>
+        return hasattr(module, subclass) and getattr(module, subclass) or FileInfo <a name="fileinfo.modules.3.3"></a><span class="round">③</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.modules.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 인자를 두 개 가진 함수입니다; <tt class="varname">filename</tt>은 필수이지만 <tt class="varname">module</tt>은 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.optional" title="4.2.&nbsp;Using Optional and Named Arguments">선택적이고</a> <tt class="classname">FileInfo</tt> 클래스를 담은 모듈이 기본값입니다. 이는 비효율적인데, 그 이유는 그 함수가 호출될 때마다 <span class="application">파이썬</span>이 <tt class="literal"><tt class="filename">sys</tt>.modules</tt> 표현식을 평가할 것이기 때문입니다. 사실, <span class="application">파이썬</span>은 기본 표현식을 오직 한 번만, 바로 그 모듈이 처음 반입될 때만 평가합니다.  나중에 보시겠지만 이 함수를 <tt class="varname">module</tt> 인자로 호출하지 않습니다. 그래서 <tt class="varname">module</tt>은 함수-수준의 함수로 기여합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.modules.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">나중에 이 줄을 깊이 파헤쳐 보겠습니다. 먼저 <tt class="filename">os</tt> 모듈을 연구해 보겠습니다. 당장은 <tt class="varname">subclass</tt>가 결과적으로 클래스의 이름으로 끝난다고 가정하겠습니다. 예를 들면 <tt class="classname">MP3FileInfo</tt>처럼 말입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.modules.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이미 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.getattr" title="4.4.&nbsp;Getting Object References With getattr"><tt class="function">getattr</tt></a>을 알고 있습니다. 이 메쏘드는 이름으로 한 객체에 대한 참조점을 얻습니다. <tt class="function">hasattr</tt>은 한 객체에 특정한 속성이 있는지 알아보는 보충 함수입니다; 이 경우, 모듈에 특정 속성이 있는지 알아 봅니다 (물론 <tt class="function">getattr</tt>과 꼭 마찬가지로 어떤 객체 어떤 속성에도 작동합니다). 영어로 이 줄은 다음과 같이 말합니다 &#8220;<span class="quote">이 모듈에 이름이 <tt class="varname">subclass</tt>인 클래스가 있으면 그것을 돌려주고, 그렇지 않으면 바탕 클래스 <tt class="classname">FileInfo</tt>를 돌려주시오.</span>&#8221;
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="itemizedlist">
+                  <h3 class="title">모듈에 관하여 더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.python.org/doc/current/tut/tut.html"><i class="citetitle"><span class="application">파이썬</span> 자습서</i></a>는 정확하게 <a href="http://www.python.org/doc/current/tut/node6.html#SECTION006710000000000000000">언제 그리고 어떻게 기본 인자가 평가되는지</a> 연구한다.
+                     </li>
+                     <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>에 <a href="http://www.python.org/doc/current/lib/module-sys.html"><tt class="filename">sys</tt></a> 모듈에 대한 문서가 있다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.os"></a>6.5.&nbsp;디렉토리 작업</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><tt class="filename">os.path</tt> 모듈에 파일과 디렉토리 조작을 위한 여러 함수가 있습니다. 여기에서는 디렉토리의 내용을 보여주고 경로 이름을 처리하는 방법을 살펴보겠습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="fileinfo.os.path.join.example"></a><h3 class="title">예제&nbsp;6.16.&nbsp;경로이름 구성하는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import os</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.path.join("c:\\music\\ap\\", "mahadeva.mp3")</span> <a name="fileinfo.os.1.1"></a><span class="round">①</span> <a name="fileinfo.os.1.2"></a><span class="round">②</span>
+<span class="computeroutput">'c:\\music\\ap\\mahadeva.mp3'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.path.join("c:\\music\\ap", "mahadeva.mp3")</span>   <a name="fileinfo.os.1.3"></a><span class="round">③</span>
+<span class="computeroutput">'c:\\music\\ap\\mahadeva.mp3'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.path.expanduser("~")</span>                         <a name="fileinfo.os.1.4"></a><span class="round">④</span>
+<span class="computeroutput">'c:\\Documents and Settings\\mpilgrim\\My Documents'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.path.join(os.path.expanduser("~"), "Python")</span> <a name="fileinfo.os.1.5"></a><span class="round">⑤</span>
+<span class="computeroutput">'c:\\Documents and Settings\\mpilgrim\\My Documents\\Python'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">os.path</tt>는 모듈을 가리키는데 -- 이 모듈은 플랫폼에 따라 다릅니다.  <a href="#crossplatform.example" title="Example&nbsp;6.2.&nbsp;Supporting Platform-Specific Functionality"> <tt class="varname">getpass</tt>를 플랫폼-종속적 함수에 설정하여 <tt class="filename">getpass</tt>가 플랫폼 사이의 차이점을 감싸듯이</a>, <tt class="filename">os</tt>는 <tt class="varname">path</tt>를 플랫폼-종속적 모듈에 설정하여 플랫폼 사이의 차이점을 감쌉니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">os.path</tt>의 <tt class="function">join</tt> 함수는 하나 이상의 부분적인 경로이름으로 경로이름을 구성합니다. 이 경우, 단순히 문자열을 결합합니다. (윈도우즈에서 경로이름을 다루는 일은 좀 성가신데 그 이유는 역사선 문자를 반드시 피신시켜야 하기 때문입니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이렇게 약간 복잡한 사례에서 <tt class="function">join</tt>은 여분의 역사선을 경로이름에 추가한 다음 그것을 파일이름에 결합합니다.  이를 발견했을 때 너무 기뻤는데, 그 이유는 <tt class="function">addSlashIfNecessary</tt>가 바보같은 작은 함수가 되어버렸기 때문입니다. 언제나 나는 새로운 언어로 도구함을 만들 때 이 바보같은 작은 함수를 작성해야 했거든요. <span class="application">파이썬</span>에서는 <span class="emphasis"><em>이런 바보같은 작은 함수를 작성하지 마세요</em></span>; 똑똑한 사람들이 이미 여러분을 위하여 만들어 두었답니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">expanduser</tt> 함수는 <tt class="literal">~</tt>를 사용하여 현재 사용자의 홈 디렉토리를 나타내는 경로이름을 확장합니다. 사용자가 홈 디렉토리에 있다면 어느 플랫폼에서도 작동합니다. 윈도우즈나 <span class="acronym">UNIX</span> 그리고 <span class="abbrev">Mac</span> <span class="acronym">OS</span> X와 같이 어느 플랫폼이든 상관없습니다; <span class="abbrev">Mac</span> <span class="acronym">OS</span>에는 영향을 미치지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 테크닉을 조합하면 사용자의 홈 디렉토리 아래에 있는 디렉토리와 파일에 대하여 쉽게 경로이름을 구성할 수 있습니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="splittingpathnames.example"></a><h3 class="title">예제&nbsp;6.17.&nbsp;경로이름 분해하는 법</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.path.split("c:\\music\\ap\\mahadeva.mp3")</span>                        <a name="fileinfo.os.2.1"></a><span class="round">①</span>
+<span class="computeroutput">('c:\\music\\ap', 'mahadeva.mp3')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">(filepath, filename) = os.path.split("c:\\music\\ap\\mahadeva.mp3")</span> <a name="fileinfo.os.2.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">filepath</span>                                                            <a name="fileinfo.os.2.3"></a><span class="round">③</span>
+<span class="computeroutput">'c:\\music\\ap'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">filename</span>                                                            <a name="fileinfo.os.2.4"></a><span class="round">④</span>
+<span class="computeroutput">'mahadeva.mp3'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">(shortname, extension) = os.path.splitext(filename)</span>                 <a name="fileinfo.os.2.5"></a><span class="round">⑤</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">shortname</span>
+<span class="computeroutput">'mahadeva'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">extension</span>
+<span class="computeroutput">'.mp3'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">split</tt> 함수는 완전한 경로이름을 갈라서 경로와 이름이 담긴 터플을 돌려줍니다. 기억하시는지? <a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.multiassign" title="3.4.2.&nbsp;Assigning Multiple Values at Once">다중-변수 할당</a>을 사용하여 함수로부터 여러 값을 돌려줄 수 있습니다. 자, <tt class="function">split</tt>이 바로 그런 함수입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">split</tt> 함수의 반환 값을 두 개의 변수가 담긴 터플에 할당합니다. 각 변수는 반환된 터플에서 상응하는 원소의 값을 받습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">첫 변수 <tt class="varname">filepath</tt>는 <tt class="function">split</tt>이 돌려준 터플의 첫 원소의 값을 받습니다. 즉, 파일 경로를 받습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">두 번째 변수 <tt class="varname">filename</tt>은 <tt class="function">split</tt>이 돌려준 터플의 두 번째 원소의 값을 받습니다. 즉, 파일이름을 받습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.2.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">os.path</tt>에는 또한 <tt class="function">splitext</tt> 함수가 들어 있는데, 이 함수는 파일이름을 갈라서 파일이름과 파일 확장자가 담긴 터플을 돌려줍니다. 같은 테크닉을 사용하여 하나하나 따로따로 변수에 할당할 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="fileinfo.listdir.example"></a><h3 class="title">예제&nbsp;6.18.&nbsp;디렉토리 나열하기</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.listdir("c:\\music\\_singles\\")</span>              <a name="fileinfo.os.3.1"></a><span class="round">①</span>
+<span class="computeroutput">['a_time_long_forgotten_con.mp3', 'hellraiser.mp3',
+'kairo.mp3', 'long_way_home1.mp3', 'sidewinder.mp3', 
+'spinning.mp3']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">dirname = "c:\\"</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.listdir(dirname)</span>                              <a name="fileinfo.os.3.2"></a><span class="round">②</span>
+<span class="computeroutput">['AUTOEXEC.BAT', 'boot.ini', 'CONFIG.SYS', 'cygwin',
+'docbook', 'Documents and Settings', 'Incoming', 'Inetpub', 'IO.SYS',
+'MSDOS.SYS', 'Music', 'NTDETECT.COM', 'ntldr', 'pagefile.sys',
+'Program Files', 'Python20', 'RECYCLER',
+'System Volume Information', 'TEMP', 'WINNT']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[f for f in os.listdir(dirname)</span>
+<tt class="prompt">...     </tt><span class="userinput">if os.path.isfile(os.path.join(dirname, f))]</span> <a name="fileinfo.os.3.3"></a><span class="round">③</span>
+<span class="computeroutput">['AUTOEXEC.BAT', 'boot.ini', 'CONFIG.SYS', 'IO.SYS', 'MSDOS.SYS',
+'NTDETECT.COM', 'ntldr', 'pagefile.sys']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[f for f in os.listdir(dirname)</span>
+<tt class="prompt">...     </tt><span class="userinput">if os.path.isdir(os.path.join(dirname, f))]</span>  <a name="fileinfo.os.3.4"></a><span class="round">④</span>
+<span class="computeroutput">['cygwin', 'docbook', 'Documents and Settings', 'Incoming',
+'Inetpub', 'Music', 'Program Files', 'Python20', 'RECYCLER',
+'System Volume Information', 'TEMP', 'WINNT']</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">listdir</tt> 함수는 경로이름을 받아 디렉토리의 내용 목록을 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">listdir</tt>은 파일과 폴더를 모두 돌려주는데, 어느 것이 어느 것인지 구분하지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.filter" title="4.5.&nbsp;Filtering Lists">리스트 여과</a> 그리고 <tt class="filename">os.path</tt> 모듈의 <tt class="function">isfile</tt> 함수를 사용하면 폴더와 파일을 구분할 수 있습니다.  <tt class="function">isfile</tt> 함수는 경로이름을 받아 그 경로가 파일이면 1을 돌려주고 그렇지 않으면 0을 돌려줍니다. 여기에서는 <tt class="literal"><tt class="filename">os.path</tt>.<tt class="function">join</tt></tt>을 사용하여 완전한 경로이름을 확인하지만 <tt class="function">isfile</tt>은 현재 작업 디렉토리에서 상대적인 부분적인 경로에도 작동합니다. <tt class="literal">os.getcwd()</tt>를 사용하면 현재 작업 디렉토리를 얻을 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.3.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">os.path</tt>에는 또한 <tt class="function">isdir</tt> 함수가 있는데 경로가 디렉토리이면 1을 돌려주고 그렇지 않으면 0을 돌려줍니다. 이를 사용하면 디렉토리 안의 하부디렉토리의 목록을 얻을 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e16376"></a><h3 class="title">예제&nbsp;6.19.&nbsp;<tt class="filename">fileinfo.py</tt>의 디렉토리 나열하기</h3><pre class="programlisting">
+def listDirectory(directory, fileExtList):                                        
+    "특정 확장자를 가진 파일에 대하여 파일 정보 객체 리스트를 얻는다" 
+    fileList = [os.path.normcase(f)
+                for f in os.listdir(directory)]            <a name="fileinfo.os.3a.1"></a><span class="round">①</span> <a name="fileinfo.os.3a.2"></a><span class="round">②</span>
+    fileList = [os.path.join(directory, f) 
+               for f in fileList
+                if os.path.splitext(f)[1] in fileExtList]  <a name="fileinfo.os.3a.3"></a><span class="round">③</span> <a name="fileinfo.os.3a.4"></a><span class="round">④</span> <a name="fileinfo.os.3a.5"></a><span class="round">⑤</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.3a.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">os.listdir(directory)</tt>은 <tt class="varname">directory</tt> 안에 있는 모든 파일과 폴더의 목록을 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.3a.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">f</tt>로 리스트를 순회하면서 <tt class="literal">os.path.normcase(f)</tt>를 사용하여 운영체제의 기본값에 맞게 대소문자를 정규화합니다. <tt class="function">normcase</tt>는 대소문자-무시 운영체제를 보상해 주는 유용한 작은 함수입니다. 이런 운영체제에서는 <tt class="filename">mahadeva.mp3</tt>와 <tt class="filename">mahadeva.MP3</tt>를 같은 파일로 간주합니다. 예를 들면 윈도우즈와 <span class="abbrev">Mac</span> <span class="acronym">OS</span>에서 <tt class="function">normcase</tt>는 전체 파일이름을 소문자로 변환합니다; <span class="acronym">UNIX</span>-호환 시스템에서는 파일이름을 그대로 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.3a.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">f</tt>로 다시 정규화된 리스트를 순회하면서, <tt class="literal">os.path.splitext(f)</tt>를 사용하여 파일이름을 이름과 확장자로 가릅니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.3a.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">각 파일에 대하여 확장자가 여러분이 관심을 둔 파일 확장자 리스트에 들어 있는지 알아봅니다 (<tt class="varname">fileExtList</tt>가 그것인데, <tt class="function">listDirectory</tt> 함수에 건넸습니다).
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.3a.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">해당 파일에 대하여, <tt class="literal">os.path.join(directory, f)</tt>를 사용하여 그 파일의 전체 경로이름을 구성하고, 전체 경로이름이 든 리스트를 돌려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="tip.os"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">가능하면 파일과 디렉토리 그리고 경로 조작에 <tt class="filename">os</tt>와 <tt class="filename">os.path</tt>에 있는 함수를 사용하는게 좋습니다. 이런 모듈들은 플랫폼-종속적 모듈을 감싼 것이고, 그래서 <tt class="function">os.path.split</tt> 같은 함수들은 <span class="acronym">UNIX</span>와 Windows 그리고 <span class="abbrev">Mac</span> <span class="acronym">OS</span>, <span class="application">파이썬</span>이 지원하는 기타 다른 플랫폼에 작동합니다.
+                     </td>
+                  </tr>
+               </table>
+               <p>디렉토리의 내용을 얻는 다른 방법이 하나 더 있습니다. 아주 강력하고, 와일드카드 종류를 사용하는데 이는 명령어 줄에서 작업하면서 이미 여러분이 많이 보아온 것입니다.
+               </p>
+               <div class="example"><a name="fileinfo.os.glob.example"></a><h3 class="title">예제&nbsp;6.20.&nbsp;<tt class="filename">glob</tt>로 디렉토리 나열하는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.listdir("c:\\music\\_singles\\")</span>               <a name="fileinfo.os.4.1"></a><span class="round">①</span>
+<span class="computeroutput">['a_time_long_forgotten_con.mp3', 'hellraiser.mp3',
+'kairo.mp3', 'long_way_home1.mp3', 'sidewinder.mp3',
+'spinning.mp3']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import glob</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">glob.glob('c:\\music\\_singles\\*.mp3')</span>           <a name="fileinfo.os.4.2"></a><span class="round">②</span>
+<span class="computeroutput">['c:\\music\\_singles\\a_time_long_forgotten_con.mp3',
+'c:\\music\\_singles\\hellraiser.mp3',
+'c:\\music\\_singles\\kairo.mp3',
+'c:\\music\\_singles\\long_way_home1.mp3',
+'c:\\music\\_singles\\sidewinder.mp3',
+'c:\\music\\_singles\\spinning.mp3']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">glob.glob('c:\\music\\_singles\\s*.mp3')</span>          <a name="fileinfo.os.4.3"></a><span class="round">③</span>
+<span class="computeroutput">['c:\\music\\_singles\\sidewinder.mp3',
+'c:\\music\\_singles\\spinning.mp3']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">glob.glob('c:\\music\\*\\*.mp3')</span>                  <a name="fileinfo.os.4.4"></a><span class="round">④</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞서 보았듯이, <tt class="function">os.listdir</tt>은 그냥 디렉토리 경로를 받아 그 디렉토리 안에 든 모든 파일과 디렉토리를 나열해 줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">반면에 <tt class="filename">glob</tt> 모듈은 와일드카드를 취해, 그에 부합하는 모든 파일과 디렉토리의 완전한 경로를 돌려줍니다. 여기에서 와일드카드는 디렉토리 경로에다 "*.mp3"이며, 이는 모든 <tt class="filename">.mp3</tt> 파일에 일치합니다.  반환된 리스트의 각 원소는 이미 그 파일의 전체 경로에 포함되어 있음을 주의하세요.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.4.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">특정 디렉토리에서 "s"로 시작하고 ".mp3"로 끝나는 모든 파일을 찾고 싶다면 역시 그렇게 할 수 있습니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os.4.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 다음 시나리오를 연구해 보겠습니다: <tt class="filename">music</tt> 디렉토리가 있고, 그 안에 하부디렉토리가 여러개 있으며, 그 하부 디렉토리마다 <tt class="filename">.mp3</tt> 파일이 들어 있다고 생각해 보겠습니다. <tt class="filename">glob</tt>을 한 번만 호출하면 두 개의 와일드카드를 한 번만 사용하면 됩니다. 하나는 <tt class="literal">"*.mp3"</tt>이고 (<tt class="filename">.mp3</tt> 파일에 일치), 다른 하나는 <span class="emphasis"><em>디렉토리 경로 그 자체 안에 있는데</em></span>, <tt class="filename">c:\music</tt> 안에 있는 하부디렉토리에 일치합니다. 어마어마한 파워가 지독히도 간단해-보이는 단 한개의 함수에 들어 있습니다!
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="itemizedlist">
+                  <h3 class="title"><tt class="filename">os</tt> 모듈에 관하여 더 읽어야 할 것 </h3>
+                  <ul>
+                     <li><a href="http://www.faqts.com/knowledge-base/index.phtml/fid/199/"><span class="application">파이썬</span> 지식 기지</a>는 <a href="http://www.faqts.com/knowledge-base/index.phtml/fid/240"><tt class="filename">os</tt> 모듈에 관한 질문</a>에 답한다.
+                     </li>
+                     <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>에 <a href="http://www.python.org/doc/current/lib/module-os.html"><tt class="filename">os</tt></a> 모듈과e <a href="http://www.python.org/doc/current/lib/module-os.path.html"><tt class="filename">os.path</tt></a> 모듈에 관한 문서가 있다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.alltogether"></a>6.6.&nbsp;하나로 조합하기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>다시 한 번, 도미노가 모두 준비되었습니다. 코드줄 마다 어떻게 작동하는지 하나하나 보셨습니다. 이제 뒤로 물러서서 모든 것이 어떻게 조립되는지 살펴보겠습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="fileinfo.nested"></a><h3 class="title">예제&nbsp;6.21.&nbsp;<tt class="function">listDirectory</tt></h3><pre class="programlisting">
+def listDirectory(directory, fileExtList):                                         <a name="fileinfo.alltogether.1.1"></a><span class="round">①</span>
+    "특정 확장자를 가진 파일에 대하여 파일 정보 객체 리스트를 얻는다"
+    fileList = [os.path.normcase(f)
+                for f in os.listdir(directory)]           
+    fileList = [os.path.join(directory, f) 
+               for f in fileList
+                if os.path.splitext(f)[1] in fileExtList]                          <a name="fileinfo.alltogether.1.2"></a><span class="round">②</span>
+    def getFileInfoClass(filename, module=sys.modules[FileInfo.__module__]):       <a name="fileinfo.alltogether.1.3"></a><span class="round">③</span>
+        "파일이름 확장자로부터 파일 정보 클래스를 얻는다"                             
+        subclass = "%sFileInfo" % os.path.splitext(filename)[1].upper()[1:]        <a name="fileinfo.alltogether.1.4"></a><span class="round">④</span>
+        return hasattr(module, subclass) and getattr(module, subclass) or FileInfo <a name="fileinfo.alltogether.1.5"></a><span class="round">⑤</span>
+    return [getFileInfoClass(f)(f) for f in fileList]                              <a name="fileinfo.alltogether.1.6"></a><span class="round">⑥</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.alltogether.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">listDirectory</tt>가 이 전체 모듈에서 제일 관심을 끕니다. 이 함수는 (이 경우 <tt class="filename">c:\music\_singles\</tt> 와 같은) 디렉토리와 (<tt class="literal">['.mp3']</tt> 같은) 관심의 대상인 파일 확장자 리스트를 받아서, 사전처럼 행위하는 클래스 실체가 담긴 리스트를 돌려줍니다. 이 글래스 실체는 그 디렉토리 안에 있는 해당 파일에 관한 메타데이터를 담고 있습니다. 단 몇 줄의 코드에 불과합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.alltogether.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os" title="6.5.&nbsp;Working with Directories">앞 섹션</a>에서 보셨듯이, 이 코드는 <tt class="varname">directory</tt>에서 (<tt class="varname">fileExtList</tt>가 지정한대로) 해당 파일 확장자를 가진 모든 파일의 완전한 경로이름이 담긴 리스트를 얻습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.alltogether.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">예전-학창 시절에 파스칼(<span class="application">Pascal</span>)을 배웠던 프로그래머라면 잘 아시겠지만, <span class="application">파이썬</span>이 <span class="emphasis"><em>내포된 함수</em></span>를 지원한다고 말해 주면 대부분의 사람들은 멍하니 저를 쳐다 봅니다 -- 문자 그대로 함수 안의 함수를 말합니다. 내포된 함수인 <tt class="function">getFileInfoClass</tt>는 자신이 정의된 함수, 즉 <tt class="function">listDirectory</tt> 안에서만 호출됩니다. 다른 함수에서도 그런 것처럼, 인터페이스 선언이나 기타 다른 어떤 특별한 것도 필요하지 않습니다; 그냥 함수를 정의하고 코드하면 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.alltogether.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os" title="6.5.&nbsp;Working with Directories"><tt class="filename">os</tt></a> 모듈을 살펴보았으므로, 이 줄은 더 확실하게 이해가 되시리라 믿습니다. 파일의 확장자를 얻어 (<tt class="literal">os.path.splitext(filename)[1]</tt>), 그것을 대문자로 바꾸고 (<tt class="literal">.upper()</tt>), 점에서 조각을 썬다음 (<tt class="literal">[1:]</tt>), 그로부터 문자열 형식화를 사용하여 클래스 이름을 구성합니다.  그래서 <tt class="filename">c:\music\ap\mahadeva.mp3</tt>는 <tt class="literal">.mp3</tt>가 되고 이는 <tt class="literal">.MP3</tt>가 되며 이는 <tt class="literal">MP3</tt>이 되고 이는 <tt class="literal">MP3FileInfo</tt>가 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.alltogether.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 파일을 처리할 처리자 클래스의 이름을 구성한 후, 실제로 이 모듈에 그 처리자가 존재하는지 알아봅니다. 존재한다면 그 클래스를 돌려줍니다. 그렇지 않으면 바탕 클래스 <tt class="classname">FileInfo</tt>를 돌려줍니다. 다음은 아주 중요한 점입니다: <span class="emphasis"><em>이 함수는 클래스를 돌려줍니다</em></span>.  클래스의 실체가 아니라, 클래스 그 자체를 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.alltogether.1.6"><span class="round">⑥</span></a> 
+                           </td>
+                           <td valign="top" align="left">&#8220;<span class="quote">관심 파일</span>&#8221; 리스트 (<tt class="varname">fileList</tt>)에 존재하는 각 파일마다 그 파일이름 (<tt class="varname">f</tt>)을 가지고 <tt class="function">getFileInfoClass</tt>를 호출합니다. <tt class="literal">getFileInfoClass(f)</tt>를 호출하면 클래스를 돌려줍니다; 어느 클래스인지 정확하게 알지 못하지만 신경쓸 필요가 없습니다. 다음 (그것이 무엇이든 상관없이) 이 클래스의 실체를 만들고 그 파일이름 (역시 <tt class="varname">f</tt>)를 <tt class="function">__init__</tt> 메쏘드에 건넵니다. <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.specialmethods.setname" title="Example&nbsp;5.15.&nbsp;Setting an MP3FileInfo's name">이 장의 전반부</a>에서 보셨듯이 <tt class="classname">FileInfo</tt>의 <tt class="function">__init__</tt> 메쏘드는 <tt class="literal">self["name"]</tt>을 설정하는데, 이는 <tt class="function">__setitem__</tt>을 촉발시키고, 이는 다시 자손 (<tt class="classname">MP3FileInfo</tt>)에 의하여 덮어쓰기 됩니다. 그리하여 적절하게 파일을 해석하여 그 파일의 메타데이터를 추출합니다. 해당 파일마다 그 모든 처리를 거쳐서 결과 실체들을 리스트에 담아 돌려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p><tt class="function">listDirectory</tt>은 완전히 총괄적이라는 사실에 주목하세요. 어느 유형의 파일을 얻을지 미리 알지 못합니다. 즉 어느 클래스에 잠재적으로 그런 파일을 다룰 수 있도록 정의되어 있는지 미리 알지 못합니다. 디렉토리에서 처리할 파일들을 찾아보고, 자신만의 모듈을 들여다보고 (<tt class="classname">MP3FileInfo</tt> 같이) 어떤 특별한 처리자 클래스가 정의되어 있는지 알아봅니다. 이 프로그램을 확장하면 다른 유형의 파일을 다룰 수 있습니다. 그냥 적절하게-이름 붙여 클래스를 정의하면 됩니다: <span class="acronym">HTML</span>이라면 <tt class="classname">HTMLFileInfo</tt>, <span class="application">워드</span> <tt class="literal">.doc</tt> 파일이라면 <tt class="classname">DOCFileInfo</tt> 등등으로 정의하면 됩니다.  <tt class="function">listDirectory</tt>는 하나도 수정하지 않고 그들 모두를 다룰 수 있으며, 그냥 진짜 일은 적절한 클래스에 맡기고 그 결과를 대조해 보기만 하면 됩니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="fileinfo.summary2"></a>6.7.&nbsp;요약</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo">제 5 장</a>에서 소개한 <tt class="filename">fileinfo.py</tt> 프로그램을 이제 완전히 이해하셨으리라 믿습니다.
+                  </p>
+               </div>
+               <div class="informalexample"><pre class="programlisting">
+"""파일유형-종속적인 메타데이터를 얻기 위한 작업틀.
+
+파일이름으로 적절한 클래스를 실체화한다. 반환된 객체는 사전처럼 행위한다
+각 메터데이터에 대하여 키-값 쌍을 가진다.
+    import fileinfo
+    info = fileinfo.MP3FileInfo("/music/ap/mahadeva.mp3")
+    print "\\n".join(["%s=%s" % (k, v) for k, v in info.items()])
+
+또는 listDirectory 함수를 이용하여 디렉토리에 있는 모든 파일에 관하여 정보를 얻는다.
+    for info in fileinfo.listDirectory("/music/ap/", [".mp3"]):
+        ...
+
+예를 들어 HTMLFileInfo, MPGFileInfo, DOCFileInfo와 같이 
+특정한 파일 유형에 대하여 클래스를 추가하면 작업틀을 확장할 수 있다.
+각 클래스는 그의 파일을 적절하게 해석할 책임을 진다; 
+예제는 MP3FileInfo를 참고하자.
+"""
+import os
+import sys
+from UserDict import UserDict
+
+def stripnulls(data):
+    "공간문자와 널문자를 걷어낸다"
+    return data.replace("\00", "").strip()
+
+class FileInfo(UserDict):
+    "파일 메타데이터를 저장한다"
+    def __init__(self, filename=None):
+        UserDict.__init__(self)
+        self["name"] = filename
+
+class MP3FileInfo(FileInfo):
+    "ID3v1.0 MP3 태그를 저장한다"
+    tagDataMap = {"title"   : (  3,  33, stripnulls),
+                  "artist"  : ( 33,  63, stripnulls),
+                  "album"   : ( 63,  93, stripnulls),
+                  "year"    : ( 93,  97, stripnulls),
+                  "comment" : ( 97, 126, stripnulls),
+                  "genre"   : (127, 128, ord)}
+
+    def __parse(self, filename):
+        "MP3 파일에 가져 온 ID3v1.0 태그를 저장한다"
+        self.clear()
+        try:                               
+            fsock = open(filename, "rb", 0)
+            try:                           
+                fsock.seek(-128, 2)        
+                tagdata = fsock.read(128)  
+            finally:                       
+                fsock.close()              
+            if tagdata[:3] == "TAG":
+                for tag, (start, end, parseFunc) in self.tagDataMap.items():
+                    self[tag] = parseFunc(tagdata[start:end])               
+        except IOError:                    
+            pass                           
+
+    def __setitem__(self, key, item):
+        if key == "name" and item:
+            self.__parse(item)
+        FileInfo.__setitem__(self, key, item)
+
+def listDirectory(directory, fileExtList):                                        
+    "특정한 확장자를 가진 파일에 대하여 파일 정보 객체 리스트를 얻는다"
+    fileList = [os.path.normcase(f)
+                for f in os.listdir(directory)]           
+    fileList = [os.path.join(directory, f) 
+               for f in fileList
+                if os.path.splitext(f)[1] in fileExtList] 
+    def getFileInfoClass(filename, module=sys.modules[FileInfo.__module__]):      
+        "파일이름 확장자로 파일 정보 클래스를 얻는다"                             
+        subclass = "%sFileInfo" % os.path.splitext(filename)[1].upper()[1:]       
+        return hasattr(module, subclass) and getattr(module, subclass) or FileInfo
+    return [getFileInfoClass(f)(f) for f in fileList]                             
+
+if __name__ == "__main__":
+    for info in listDirectory("/music/_singles/", [".mp3"]):
+        print "\n".join(["%s=%s" % (k, v) for k, v in info.items()])
+        print</pre></div>
+               <div class="highlights">
+                  <p>다음 장으로 들어가기 전에, 다음 사항을 편안하게 처리할 수 있는지 확인하세요:</p>
+                  <div class="itemizedlist">
+                     <ul>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.exception" title="6.1.&nbsp;Handling Exceptions"><tt class="literal">try...except</tt></a> 블록으로 예외를 잡는 법</li>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files.incode" title="Example&nbsp;6.6.&nbsp;File Objects in MP3FileInfo"><tt class="literal">try...finally</tt></a> 블록으로 외부 자원을 보호하는 법</li>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.files" title="6.2.&nbsp;Working with File Objects">파일로부터</a> 읽는 법</li>
+                        <li><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.multiassign.for.example" title="Example&nbsp;6.11.&nbsp;for Loop in MP3FileInfo"><tt class="literal">for</tt> 회돌이</a>에서 단 번에 여러 값을 할당하는 법</li>
+                        <li>크로스-플랫폼 파일 조작에 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.os" title="6.5.&nbsp;Working with Directories"><tt class="filename">os</tt></a> 모듈을 사용하는 법</li>
+                        <li>클래스를 객체로 간주하고 이리 저리 건네어 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.alltogether" title="6.6.&nbsp;Putting It All Together">미지의 유형의 클래스를 동적으로 실체화하는 법</a>
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap05.html">☜ 제 05 장 객체와 객체지향</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap07.html">제 07 장 정규표현식 ☞</A></TD>
+</TR>
+</TABLE>
+   </body>
+</html>

@@ -1,0 +1,1226 @@
+        <!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap09.html">http://coreapython.hosting.paran.com/dive/chap09.html</a><br>
+<b>Title:</b> 9. XML 처리 &nbsp;&bull;&nbsp; <b>Size:</b> 109283<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap08.html">☜ 제 08 장 HTML 처리</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap10.html">제 10 장 스크립트와 스트림 ☞</A></TD>
+</TR>
+</TABLE>
+		 <div name="09장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="kgp"></a>제&nbsp;9 장&nbsp;<span class="acronym">XML</span> 처리 방법</h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="kgp.divein"></a>9.1.&nbsp;뛰어 들기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <p>다음 두 장에서는 <span class="application">파이썬</span>으로 <span class="acronym">XML</span>을 처리하는 방법을 다룹니다. <span class="acronym">XML</span> 문서가 어떻게 생겼는지 이미 알고 있다면 도움이 되겠습니다. <span class="acronym">XML</span> 문서는 요소 계통도 등등을 형성하기 위하여 구조화된 태그로 구성되어 있습니다. 이해가 되지 않는다면 기본 지식을 설명해 줄 <a href="http://directory.google.com/Top/Computers/Data_Formats/Markup_Languages/XML/Resources/FAQs,_Help,_and_Tutorials/"><span class="acronym">XML</span> 자습서</a>가 많이 있습니다.
+               </p>
+               <p>별로 XML에 관심이 없더라도 여전히 이 두 장을 읽어야 합니다. 중요한 주제들을 다루고 있기 때문입니다. 예를 들어 <span class="application">파이썬</span> 패키지, 유니코드, 명령 줄 인자, 그리고 메쏘드 분배에 <tt class="function">getattr</tt>을 사용하는 법 등등을 다룹니다.
+               </p>
+               <p>철학을 전공할 필요는 없습니다. 물론 불운하게도 임마누엘 칸트의 저작을 접해 보신 경험이 있다면 예제 프로그램의 진가를 느끼실 것입니다. 컴퓨터 과학 같은 뭔가 유용한 학문을 전공하신 것보다 더 말입니다.
+               </p>
+               <div class="abstract">
+                  <p><span class="acronym">XML</span>을 처리하려면 두 가지 기본적인 방식이 있습니다. 하나는 <span class="acronym">SAX</span> (&#8220;<span class="quote">Simple <span class="acronym">API</span> for <span class="acronym">XML</span></span>&#8221;)라고 불리우는데, 한 번에 조금씩 <span class="acronym">XML</span>을 읽어서 요소가 발견될 때마다 메쏘드를 호출합니다. (<a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect" title="Chapter&nbsp;8.&nbsp;HTML Processing">제&nbsp;8장 <i>HTML 처리방법</i></a>을 읽어 보셨다면 익숙하실 것입니다. 왜냐하면 그것이 바로 <tt class="filename">sgmllib</tt> 모듈이 작동하는 방식이기 때문입니다.) 다른 하나는 <span class="acronym">DOM</span> (&#8220;<span class="quote">문서 객체 모델(Document Object Model)</span>&#8221;)이라고 불리우며, 전체 <span class="acronym">XML</span> 문서를 한번에 읽어들여서 내부적으로 고유의 <span class="application">파이썬</span> 클래스를 트리 구조에 연결하여 표현합니다. <span class="application">파이썬</span>에는 해석을 위한 표준 모듈이 두 종류가 있지만 이 장에서는 오직 <span class="acronym">DOM</span> 사용법만을 다루겠습니다.
+                  </p>
+               </div>
+               <p>다음은 완전한 <span class="application">파이썬</span> 프로그램입니다. <span class="acronym">XML</span> 포맷에 정의된 문맥-자유 문법에 기반하여 의사-무작위 출력을 만들어 냅니다.  무슨 뜻인지 이해가 되지 않더라도 미리 걱정하지 마세요; 다음 두 장에 걸쳐서 좀 더 세심하게 프로그램의 입력과 출력을 조사해 보겠습니다.
+               </p>
+               <div class="example"><a name="d0e22845"></a><h3 class="title">예제&nbsp;9.1.&nbsp;<tt class="filename">kgp.py</tt></h3>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">이런 저런 예제들을 내려 받으실 수 있습니다</a>.
+                  </p><pre class="programlisting">
+"""파이썬용 칸트철학 생성기
+
+문맥-자유 문법에 기반하여 유사 철학을 생성한다
+
+사용법: python kgp.py [options] [source]
+
+옵션:
+  -g ..., --grammar=...   지정된 문법 파일 또는 URL을 사용한다.
+  -h, --help              도움말을 보여준다.
+  -d                      해석중에 디버깅 정보를 보여준다.
+
+예제:
+  kgp.py                  여러 문단의 칸트 철학을 생성한다.
+  kgp.py -g husserl.xml   여러 문단의 후설(Husserl) 철학을 생성한다.
+  kpg.py "&lt;xref id='paragraph'/&gt;"  한 문단의 칸트 철학을 생성한다.
+  kgp.py template.xml     template.xml에서 읽어서 무엇을 생성할지 결정한다.
+"""
+from xml.dom import minidom
+import random
+import toolbox
+import sys
+import getopt
+
+_debug = 0
+
+class NoSourceError(Exception): pass
+
+class KantGenerator:
+    """문맥-자유 문법에 근거하여 유사 철학을 생성한다"""
+
+    def __init__(self, grammar, source=None):
+        self.loadGrammar(grammar)
+        self.loadSource(source and source or self.getDefaultSource())
+        self.refresh()
+
+    def _load(self, source):
+        """XML 입력 소스를 적재하고, 해석된 XML 문서를 돌려준다.
+
+        - 원격 XML 파일의 URL ("http://diveintopython.org/kant.xml")
+        - 지역 XML 파일의 파일이름 ("~/diveintopython/common/py/kant.xml")
+        - 표준 입력 ("-")
+        - 문자열로 된, 실제 XML 문서.
+        """
+        sock = toolbox.openAnything(source)
+        xmldoc = minidom.parse(sock).documentElement
+        sock.close()
+        return xmldoc
+
+    def loadGrammar(self, grammar):                         
+        """문맥-자유 문법을 적재한다"""                     
+        self.grammar = self._load(grammar)                  
+        self.refs = {}                                      
+        for ref in self.grammar.getElementsByTagName("ref"):
+            self.refs[ref.attributes["id"].value] = ref     
+
+    def loadSource(self, source):
+        """소스를 적재한다"""
+        self.source = self._load(source)
+
+    def getDefaultSource(self):
+        """현재 문법의 기본 소스를 추측한다.
+        
+        기본 소스는 상호-참조되지 않은 &lt;ref&gt;중의 하나가 될 것이다. 
+        좀 난해하게 들리지만, 그렇지 않다.
+        예제: kant.xml에 대한 기본 소스는 "&lt;xref id='section'/&gt;"이다.
+        왜냐하면 'section'은 문법 어느 곳에서도 &lt;xref&gt;되지 않은 &lt;ref&gt;이기 때문이다.
+        대부분의 문법에서, 기본 소스는 가장 길게 (그리고 가장 흥미롭게) 출력을 생산할 것이다.
+        """
+        xrefs = {}
+        for xref in self.grammar.getElementsByTagName("xref"):
+            xrefs[xref.attributes["id"].value] = 1
+        xrefs = xrefs.keys()
+        standaloneXrefs = [e for e in self.refs.keys() if e not in xrefs]
+        if not standaloneXrefs:
+            raise NoSourceError, "can't guess source, and no source specified"
+        return '&lt;xref id="%s"/&gt;' % random.choice(standaloneXrefs)
+        
+    def reset(self):
+        """해석기를 재시동한다"""
+        self.pieces = []
+        self.capitalizeNextWord = 0
+
+    def refresh(self):
+        """출력 버퍼를 초기화하고, 전체 입력 소스 파일을 재해석해서,
+        출력을 돌려준다.
+        
+        해석 작업은 무작위성이 너무나 많이 관련되므로,
+        이는 문법 파일을 매번 재적재할 필요없이,
+        쉽게 새로운 출력을 얻는 방법이다. 
+        """
+        self.reset()
+        self.parse(self.source)
+        return self.output()
+
+    def output(self):
+        """생성된 텍스트를 출력한다"""
+        return "".join(self.pieces)
+
+    def randomChildElement(self, node):
+        """한 노드의 자손 원소를 무작위로 하나 고른다.
+        
+        이는 do_xref와 do_choice에서 사용되는 유틸리티 메쏘드이다.
+        """
+        choices = [e for e in node.childNodes
+                   if e.nodeType == e.ELEMENT_NODE]
+        chosen = random.choice(choices)            
+        if _debug:                                 
+            sys.stderr.write('%s available choices: %s\n' % \
+                (len(choices), [e.toxml() for e in choices]))
+            sys.stderr.write('Chosen: %s\n' % chosen.toxml())
+        return chosen                              
+
+    def parse(self, node):         
+        """XML 노드 하나를 해석한다.
+        
+        (minidom.parse로부터) 해석된 XML 문서는 다양한 유형의 노드 트리이다.
+        각 노드는 그에 상응하는 파이썬 클래스의 실체로 표현된다.
+        (태그는 Element, 텍스트 데이터는 Text, 최상위-수준의 문서는 Document로 나타낸다).
+        다음 서술문은 해석중인 노드의 유형에 기반하여,
+        클래스 메쏘드의 이름을 구성한다.
+        (Element 노드에는 "parse_Element", Text 노드에는 "parse_Text", 등등으로 구성된다.) 
+        그 다음 구성된 메쏘드를 호출한다.
+        """
+        parseMethod = getattr(self, "parse_%s" % node.__class__.__name__)
+        parseMethod(node)
+
+    def parse_Document(self, node):
+        """문서 노드를 해석한다.
+        
+        문서 그 자체로는 (우리에게) 재미를 주지 못하지만,
+        그의 유일한 자손인 node.documentElement는 재미있다: 
+        그것이 문법의 루트 노드이다.
+        """
+        self.parse(node.documentElement)
+
+    def parse_Text(self, node):    
+        """텍스트 노드를 해석한다.
+        
+        텍스트 노드의 텍스트는 보통 출력 버퍼에 그대로 추가된다.
+        한 가지 예외는 &lt;p class='sentence'&gt;가, 
+        다음 단어의 첫 글자를 대문자로 만들기 위하여 플래그를 설정한다는 것이다.
+        그 플래그가 설정되어 있으면 텍스트를 대문자화하고 그 플래그를 재설정한다.
+        """
+        text = node.data
+        if self.capitalizeNextWord:
+            self.pieces.append(text[0].upper())
+            self.pieces.append(text[1:])
+            self.capitalizeNextWord = 0
+        else:
+            self.pieces.append(text)
+
+    def parse_Element(self, node): 
+        """요소를 해석한다.
+        
+        XML 요소는 소스에서 실제 태그에 상응한다:
+        &lt;xref id='...'&gt;, &lt;p chance='...'&gt;, &lt;choice&gt;, 등등.
+        각 요소 유형은 자신만의 메쏘드로 처리된다. 
+        parse()에서 했던 것처럼, (&lt;xref&gt; 태그에는 "do_xref", 등등.) 
+        요소의 이름에 근거하여 메쏘드 이름을 구성한다.
+        그리고 그 메쏘드를 호출한다.
+        """
+        handlerMethod = getattr(self, "do_%s" % node.tagName)
+        handlerMethod(node)
+
+    def parse_Comment(self, node):
+        """주석을 해석한다
+        
+        문법에는 XML 주석이 담길 수 있지만, 그를 무시한다.
+        """
+        pass
+    
+    def do_xref(self, node):
+        """&lt;xref id='...'&gt; 태그를 처리한다.
+        
+        &lt;xref id='...'&gt; 태그는 &lt;ref id='...'&gt; 태그에 대한 상호-참조이다.
+        &lt;xref id='sentence'/&gt;는 &lt;ref id='sentence'&gt;에서 무작위로 선정된 자손으로 평가된다.
+        """
+        id = node.attributes["id"].value
+        self.parse(self.randomChildElement(self.refs[id]))
+
+    def do_p(self, node):
+        """&lt;p&gt; 태그를 처리한다.
+        
+        &lt;p&gt; 태그는 문법의 핵심이다. 이 태그에는 무엇이든 담길 수 있다: 
+        자유로운 텍스트, &lt;choice&gt; 태그, &lt;xref&gt; 태그, 
+        심지어 다른 &lt;p&gt; 태그도 담길 수 있다.
+        "class='sentence'" 속성이 발견되면 플래그가 설정되고,
+        다음 단어는 첫 글자가 대문자가 된다. 
+        "chance='X'" 속성이 발견되면 그 태그가 평가될 가능성이 X%이다.
+        (그러므로 무시될 가능성은 (100-X)%이다)
+        """
+        keys = node.attributes.keys()
+        if "class" in keys:
+            if node.attributes["class"].value == "sentence":
+                self.capitalizeNextWord = 1
+        if "chance" in keys:
+            chance = int(node.attributes["chance"].value)
+            doit = (chance &gt; random.randrange(100))
+        else:
+            doit = 1
+        if doit:
+            for child in node.childNodes: self.parse(child)
+
+    def do_choice(self, node):
+        """&lt;choice&gt; 태그를 처리한다.
+        
+        &lt;choice&gt; 태그는 하나 이상의 &lt;p&gt; 태그가 담긴다.
+        &lt;p&gt; 하나가 무작위로 선정되어 평가된다;
+        나머지는 무시된다.
+        """
+        self.parse(self.randomChildElement(node))
+
+def usage():
+    print __doc__
+
+def main(argv):                         
+    grammar = "kant.xml"                
+    try:                                
+        opts, args = getopt.getopt(argv, "hg:d", ["help", "grammar="])
+    except getopt.GetoptError:          
+        usage()                         
+        sys.exit(2)                     
+    for opt, arg in opts:               
+        if opt in ("-h", "--help"):     
+            usage()                     
+            sys.exit()                  
+        elif opt == '-d':               
+            global _debug               
+            _debug = 1                  
+        elif opt in ("-g", "--grammar"):
+            grammar = arg               
+    
+    source = "".join(args)              
+
+    k = KantGenerator(grammar, source)
+    print k.output()
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
+</pre></div>
+               <div class="example"><a name="d0e22856"></a><h3 class="title">예제&nbsp;9.2.&nbsp;<tt class="filename">toolbox.py</tt></h3><pre class="programlisting">
+"""잡동사니 유틸리티 함수들"""
+
+def openAnything(source):            
+    """URI, filename, or string --&gt; stream
+
+    (URL, 지역 또는 네트워크 파일에 대한 경로이름, 또는 실제 데이터를 문자열로 등등)
+    이 함수는 해석기를 아무 입력이나 받도록 정의하고, 
+    일관된 형태로 다룰 수 있도록 해준다. 
+    반환된 객체는 기본적인 stdio 읽기 메소드 (read, readline, readlines)를, 
+    모두 갖추고 있다고 보증된다.
+    처리가 끝나면 그냥 그 객체에 .close()를 요청하면 된다.
+    
+    예제:
+    &gt;&gt;&gt; from xml.dom import minidom
+    &gt;&gt;&gt; sock = openAnything("http://localhost/kant.xml")
+    &gt;&gt;&gt; doc = minidom.parse(sock)
+    &gt;&gt;&gt; sock.close()
+    &gt;&gt;&gt; sock = openAnything("c:\\inetpub\\wwwroot\\kant.xml")
+    &gt;&gt;&gt; doc = minidom.parse(sock)
+    &gt;&gt;&gt; sock.close()
+    &gt;&gt;&gt; sock = openAnything("&lt;ref id='conjunction'&gt;&lt;text&gt;and&lt;/text&gt;&lt;text&gt;or&lt;/text&gt;&lt;/ref&gt;")
+    &gt;&gt;&gt; doc = minidom.parse(sock)
+    &gt;&gt;&gt; sock.close()
+    """
+    if hasattr(source, "read"):
+        return source
+
+    if source == '-':
+        import sys
+        return sys.stdin
+
+    # (소스가 http나 ftp 또는 파일 URL이라면) urllib로 열기를 시도한다.
+    import urllib                         
+    try:                                  
+        return urllib.urlopen(source)     
+    except (IOError, OSError):            
+        pass                              
+    
+    # (소스가 경로이름이라면) 고유의 열기 함수로 열기를 시도한다.
+    try:                                  
+        return open(source)               
+    except (IOError, OSError):            
+        pass                              
+    
+    # 소스를 문자열로 취급한다
+    import StringIO                       
+    return StringIO.StringIO(str(source)) 
+</pre></div>
+               <p>단독으로 <tt class="filename">kgp.py</tt> 프로그램을 실행하면 <tt class="filename">kant.xml</tt>에 있는 기본 <span class="acronym">XML</span>-기반 문법을 해석하여, 임마누엘 칸트 스타일로 철학적인 문단을 여럿 인쇄합니다. 
+               </p>
+               <div class="example"><a name="d0e22873"></a><h3 class="title">예제&nbsp;9.3.&nbsp; <tt class="filename">kgp.py</tt>의 샘플 출력</h3><pre class="screen"><tt class="prompt">[you@localhost kgp]$ python kgp.py</tt>
+<span class="computeroutput">     As is shown in the writings of Hume, our a priori concepts, in
+reference to ends, abstract from all content of knowledge; in the study
+of space, the discipline of human reason, in accordance with the
+principles of philosophy, is the clue to the discovery of the
+Transcendental Deduction.  The transcendental aesthetic, in all
+theoretical sciences, occupies part of the sphere of human reason
+concerning the existence of our ideas in general; still, the
+never-ending regress in the series of empirical conditions constitutes
+the whole content for the transcendental unity of apperception.  What
+we have alone been able to show is that, even as this relates to the
+architectonic of human reason, the Ideal may not contradict itself, but
+it is still possible that it may be in contradictions with the
+employment of the pure employment of our hypothetical judgements, but
+natural causes (and I assert that this is the case) prove the validity
+of the discipline of pure reason.  As we have already seen, time (and
+it is obvious that this is true) proves the validity of time, and the
+architectonic of human reason, in the full sense of these terms,
+abstracts from all content of knowledge.  I assert, in the case of the
+discipline of practical reason, that the Antinomies are just as
+necessary as natural causes, since knowledge of the phenomena is a
+posteriori.
+    The discipline of human reason, as I have elsewhere shown, is by
+its very nature contradictory, but our ideas exclude the possibility of
+the Antinomies.  We can deduce that, on the contrary, the pure
+employment of philosophy, on the contrary, is by its very nature
+contradictory, but our sense perceptions are a representation of, in
+the case of space, metaphysics.  The thing in itself is a
+representation of philosophy.  Applied logic is the clue to the
+discovery of natural causes.  However, what we have alone been able to
+show is that our ideas, in other words, should only be used as a canon
+for the Ideal, because of our necessary ignorance of the conditions.
+
+[...snip...]</span></pre></div>
+               <p>물론, 이는 완전히 헛소리입니다. 음, 완전히는 아니군요. 문법적으로나 구문적으로는 올바릅니다 (물론 아주 수다스럽습니다 -- 칸트는 요점만 꼭 집어 말하는 사람이 아니었습니다).  일부는 실제로 맞을 수도 있고 (즉 적어도 칸트가 동의할 만한 것), 또 일부는 뻔한 거짓이며, 대부분은 그냥 말도 안됩니다. 그러나 모두 임마누엘 칸트 스타일로 씌여 있습니다.
+               </p>
+               <p>반복해서 말하건대, 지금 철학을 전공하고 있거나 전공해 보신 분이라면 너무 너무 재미있을 것입니다.</p>
+               <p>이 프로그램에서 흥미로운 것은 칸트에 전혀 얽매이지 않는다는 것입니다. 앞 예제에서 모든 내용은 <tt class="filename">kant.xml</tt> 문법 파일에서 파생되었습니다.  프로그램에게 다른 문법 파일을 사용하라고 명령하면 (명령 줄에서 지정할 수 있음), 출력은 완전히 다를 것입니다.
+               </p>
+               <div class="example"><a name="d0e22893"></a><h3 class="title">예제&nbsp;9.4.&nbsp;<tt class="filename">kgp.py</tt>로 더 간단하게 출력</h3><pre class="screen"><tt class="prompt">[you@localhost kgp]$ python kgp.py -g binary.xml</tt>
+<span class="computeroutput">00101001</span>
+<tt class="prompt">[you@localhost kgp]$ python kgp.py -g binary.xml</tt>
+<span class="computeroutput">10110100</span></pre></div>
+               <p>이 장의 후반부에서 문법의 구조를 더 자세히 살펴봅니다. 지금은 문법 파일에 출력의 구조가 정의되어 있으며, <tt class="filename">kgp.py</tt> 프로그램은 그 문법을 쭉 읽어서 무작위로 어디에 어느 단어를 끼워 넣을지 결정한다는 사실만 알면 됩니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="kgp.packages"></a>9.2.&nbsp;패키지(Packages)
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>실제로 <span class="acronym">XML</span> 문서를 해석하는 일은 아주 단순합니다:코드 한 줄이면 됩니다. 그렇지만, 그 한 줄의 코드를 보기 전에 먼저, 잠깐 샛길로 벗어나 패키지를 알아 볼 필요가 있습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e22925"></a><h3 class="title">예제&nbsp;9.5.&nbsp; <span class="acronym">XML</span> 문서 적재하기 (잠시 엿보기)
+                  </h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from xml.dom import minidom</span> <a name="kgp.packages.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xmldoc = minidom.parse('~/diveintopython/common/py/kgp/binary.xml')</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.packages.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 전에 보지 못했던 구문입니다. 이미 알고 좋아해 마지 않는 <tt class="literal">from <i class="replaceable">module</i> import</tt> 구문과 많이 닮아 있지만, <tt class="literal">"."</tt>는 단순한 반입 그 이상으로 발전합니다. 실제로, <tt class="filename">xml</tt>은 패키지라는 것입니다. <tt class="filename">dom</tt>은 <tt class="filename">xml</tt> 안에 내포된 패키지이고, <tt class="filename">minidom</tt>은 <tt class="filename">xml.dom</tt> 안에 있는 모듈입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>복잡하게 보이지만, 실제로는 그렇지 않습니다. 실제 구현을 보면 도움이 될 것입니다. 패키지는 모듈이 담긴 디렉토리나 별반 차이가 없습니다; 내포된 패키지는 하부디렉토리라 할 수 있습니다. 꾸러미 안에 든 모듈은 (즉 내포된 패키지는) 여전히 예와 같이 <tt class="filename">.py</tt> 파일입니다. 다만 <span class="application">파이썬</span>이 설치된 메인 <tt class="filename">lib/</tt> 디렉토리가 아니라 하부 디렉토리에 있다는 점만 제외하면 말입니다.
+               </p>
+               <div class="example"><a name="d0e22983"></a><h3 class="title">예제&nbsp;9.6.&nbsp;패키지의 파일 조감도</h3><pre class="screen"><span class="computeroutput"><span class="application">python</span>21/           <span class="application">파이썬</span>이 설치된 루트 (실행 파일이 있는 곳)
+|
++--lib/             라이브러리 디렉토리 (표준 라이브러리 모듈이 있는 곳)
+   |
+   +-- xml/         xml package (실제로는 그냥 안에 다른 것들을 담고 있는 디렉토리에 불과함)
+       |
+       +--sax/      xml.sax package (역시, 그냥 디렉토리)
+       |
+       +--dom/      xml.dom package (minidom.py가 들어 있음)
+       |
+       +--parsers/  xml.parsers package (내부적으로 사용됨)</span></pre></div>
+               <p>그래서 <tt class="literal">from xml.dom import minidom</tt>이라고 기술하면 <span class="application">파이썬</span>은 이렇게 이해합니다. &#8220;<span class="quote"><tt class="filename">xml</tt> 디렉토리에서 <tt class="filename">dom</tt> 디렉토리를 찾고, <span class="emphasis"><em>그 디렉토리에서</em></span> <tt class="filename">minidom</tt> 모듈을 찾아, 그것을 <tt class="filename">minidom</tt></span>&#8221;으로 반입하라는 뜻으로 말입니다. 그러나 <span class="application">파이썬</span>은 그 보다 훨씬 더 똑똑합니다; 패키지 안에 있는 모듈을 모두 반입할 수도 있고, 패키지 안에 담긴 모듈로부터 특정 클래스나 함수를 선택적으로 반입할 수도 있습니다. 패키지 자체를 모듈로 반입할 수도 있습니다. 구문은 모두 같습니다; <span class="application">파이썬</span>은 패키지의 파일 배치에 근거하여 무엇을 의도하는지 이해를 하고 자동으로 올바르게 일을 합니다.
+               </p>
+               <div class="example"><a name="d0e23025"></a><h3 class="title">예제&nbsp;9.7.&nbsp;패키지도 모듈이다</h3><pre class="screen"><tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from xml.dom import minidom</span>         <a name="kgp.packages.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">minidom</span>
+<span class="computeroutput">&lt;module 'xml.dom.minidom' from 'C:\Python21\lib\xml\dom\minidom.pyc'&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">minidom.Element</span>
+<span class="computeroutput">&lt;class xml.dom.minidom.Element at 01095744&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from xml.dom.minidom import Element</span> <a name="kgp.packages.2.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">Element</span>
+<span class="computeroutput">&lt;class xml.dom.minidom.Element at 01095744&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">minidom.Element</span>
+<span class="computeroutput">&lt;class xml.dom.minidom.Element at 01095744&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from xml import dom</span>                 <a name="kgp.packages.2.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">dom</span>
+<span class="computeroutput">&lt;module 'xml.dom' from 'C:\Python21\lib\xml\dom\__init__.pyc'&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import xml</span>                          <a name="kgp.packages.2.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xml</span>
+<span class="computeroutput">&lt;module 'xml' from 'C:\Python21\lib\xml\__init__.pyc'&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.packages.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">내포된 꾸러미(<tt class="filename">xml.dom</tt>)로부터 모듈(<tt class="filename">minidom</tt>)을 반입하고 있습니다. 그 결과로 <tt class="filename">minidom</tt>이 <a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.locals" title="8.5.&nbsp;locals and globals">이름공간</a> 안으로 반입되었고, (<tt class="classname">Element</tt>같은) <tt class="filename">minidom</tt> 모듈 안에 있는 클래스를 참조하려면 모듈 이름을 앞에 두면 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.packages.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">내포된 패키지(<tt class="filename">xml.dom</tt>)에 있는 모듈(<tt class="filename">minidom</tt>)로부터 클래스(<tt class="classname">Element</tt>)를 반입하고 있습니다. 그 결과 <tt class="classname">Element</tt>가 직접적으로 이름공간 안에 반입되었습니다. 이렇게 하면 앞에서 반입한 것과 방해받지 않음에 주목하세요; <tt class="classname">Element</tt> 클래스는 이제 두 가지 방법으로 참조할 수 있습니다 (그러나 둘 모두 여전히 같은 클래스입니다).
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.packages.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">dom</tt>(<tt class="filename">xml</tt>에 내포된 패키지) 패키지를 모듈로 그리고 단독으로 반입합니다. 어느 수준의 패키지이든 모듈로 취급할 수 있습니다. 잠시 후에 보시겠습니다. 앞서 보았던 모듈과 마찬가지로 자신만의 속성과 메쏘드를 가질 수도 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.packages.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">루트 수준의 <tt class="filename">xml</tt> 패키지를 모듈로 반입하고 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>그래서  (디스크 상의 그냥 디렉토리일 뿐인데) 어떻게 패키지가 모듈로 반입되고 또 그렇게 취급될 수 있을까? 그 대답은 마법의 <tt class="filename">__init__.py</tt> 파일에 있습니다. 아시다시피, 패키지는 단순한 디렉토리가 아닙니다; 안에 특정한 파일 <tt class="filename">__init__.py</tt> 파일이 있는 디렉토리입니다. 이 파일에는 패키지의 속성과 메쏘드가 정의됩니다. 예를 들면 <tt class="filename">xml.dom</tt>에는 <tt class="classname">Node</tt> 클래스가 들어 있는데, 이는 <tt class="filename">xml/dom/__init__.py</tt>에 정의됩니다. 패키지를 모듈로 반입하면 (예를 들어 <tt class="filename">xml</tt>으로부터 <tt class="filename">dom</tt>을 반입하면), 실제로는 그의 <tt class="filename">__init__.py</tt> 파일을 반입합니다.
+               </p><a name="d0e23185"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">패키지는 그 안에 특별한 <tt class="filename">__init__.py</tt> 파일이 있는 디렉토리입니다. <tt class="filename">__init__.py</tt> 파일에는 패키지의 속성과 메쏘드가 정의됩니다. 아무것도 정의할 필요가 없습니다; 그냥 빈 파일도 되지만 존재해야 합니다. 그러나 <tt class="filename">__init__.py</tt>이 존재하지 않으면 그 디렉토리는 그냥 디렉토리일 뿐, 패키지가 아니며 반입할 수도 없고 안에 모듈이나 내포된 패키지도 담을 수 없습니다.
+                     </td>
+                  </tr>
+               </table>
+               <p>그래서 왜 패키지에 신경쓰는가?  자, 패키지는 관련 모듈을 논리적으로 무리지어 줍니다. <tt class="filename">xml</tt> 패키지 안에다 <tt class="filename">sax</tt> 패키지와 <tt class="filename">dom</tt> 패키지를 두는 대신에, 저자는 모든 <tt class="filename">sax</tt> 기능을 <tt class="filename">xmlsax.py</tt>나 둘 수도 있었고, 모든 <tt class="filename">dom</tt> 기능을 <tt class="filename">xmldom.py</tt>에 두거나 또는 심지어 모두 뽑아서 한 모듈에 집어 넣을 수도 있었습니다.  그러나 그렇게 하면 너무 부피가 커졌을 것이고 (이 글을 쓰는 시점에서 <span class="acronym">XML</span> 패키지는 코드가 3000 줄이 넘고 있음) 관리하기도 어렵습니다 (따로 소스 파일을 관리하면 여러 사람이 동시에 다양한 영역에서 작업할 수 있다는 뜻입니다).
+               </p>
+               <p>혹시라도 <span class="application">파이썬</span>으로 방대한 서브시스템을 작성하신다면 (또는, 이게 더 현실성이 있는데, 작은 서브시스템이 방대한 시스템으로 성장했다는 사실을 깨닫는다면), 좀 시간을 투자해서 패키지 골격구조를 잘 디자인해 보세요. 이는 <span class="application">파이썬</span>이 잘하는 일 중의 하나이므로, 적극 이용해 보세요.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="kgp.parse"></a>9.3.&nbsp;<span class="acronym">XML</span> 해석하기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>말씀 드렸다시피, 실제로 <span class="acronym">XML</span> 문서를 해석하는 작업은 아주 간단합니다: 코드 한 줄이면 됩니다. 거기에서부터 어디로 갈지는 여러분의 몫입니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e23245"></a><h3 class="title">예제&nbsp;9.8.&nbsp; <span class="acronym">XML</span> 문서 적재하기 (이번에는 진짜로)
+                  </h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from xml.dom import minidom</span>                                          <a name="kgp.parse.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xmldoc = minidom.parse('~/diveintopython/common/py/kgp/binary.xml')</span>  <a name="kgp.parse.1.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xmldoc</span>                                                               <a name="kgp.parse.1.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;xml.dom.minidom.Document instance at 010BE87C&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print xmldoc.toxml()</span>                                                 <a name="kgp.parse.1.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;?xml version="1.0" ?&gt;
+&lt;grammar&gt;
+&lt;ref id="bit"&gt;
+  &lt;p&gt;0&lt;/p&gt;
+  &lt;p&gt;1&lt;/p&gt;
+&lt;/ref&gt;
+&lt;ref id="byte"&gt;
+  &lt;p&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;\
+&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;/p&gt;
+&lt;/ref&gt;
+&lt;/grammar&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="#kgp.packages" title="9.2.&nbsp;Packages">앞 섹션</a>에서 보셨다시피, 이렇게 하면 <tt class="filename">minidom</tt> 모듈이 <tt class="filename">xml.dom</tt> 패키지로부터 반입됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이것이 바로 모든 일을 해주는 한 줄의 코드입니다: <tt class="function">minidom.parse</tt>는 인자를 받아 <span class="acronym">XML</span> 문서를 해석한 표현을 돌려줍니다. 인자는 무엇이든 될 수 있습니다; 이 경우, 단순히 본인의 하드디스크에 있는 <span class="acronym">XML</span> 문서의 파일이름입니다. (따라 오시려면 경로를 바꾸어서 내려받은 예제 디렉토리를 가리킬 필요가 있습니다.) 그러나 <a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.files" title="6.2.&nbsp;Working with File Objects">파일 객체</a>를 건네도 되고, 심지어 <a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.extract.urllib" title="Example&nbsp;8.5.&nbsp;Introducing urllib">파일-류의 객체</a>를 건넬수도 있습니다. 이 장의 후반부에서 이 유연성을 이용해 보겠습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">minidom.parse</tt>으로부터 반환된 객체는 <tt class="classname">Document</tt> 객체로서, <tt class="classname">Node</tt> 클래스의 자손입니다. 이 <tt class="classname">Document</tt> 객체는 <span class="application">파이썬</span> 객체가 내부적으로 얽힌 루트 수준의 복잡한 트리-형태 구조로서 <tt class="function">minidom.parse</tt>에 건넨 <span class="acronym">XML</span> 문서를 완벽하게 표현합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">toxml</tt>은 <tt class="classname">Node</tt> 클래스의 메쏘드입니다 (그러므로 <tt class="function">minidom.parse</tt>로부터 돌려받은 <tt class="classname">Document</tt> 객체에서 얻을 수 있습니다).  <tt class="function">toxml</tt>은 이 <tt class="classname">Node</tt>가 표현하는 <span class="acronym">XML</span>을 인쇄합니다. <tt class="classname">Document</tt> 노드에 대하여, 전체 <span class="acronym">XML</span> 문서를 인쇄합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이제 <span class="acronym">XML</span> 문서가 메모리에 있으므로, 순회를 시작할 수 있습니다.
+               </p>
+               <div class="example"><a name="kgp.parse.gettingchildnodes.example"></a><h3 class="title">예제&nbsp;9.9.&nbsp;자손 노드 얻기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xmldoc.childNodes</span>    <a name="kgp.parse.2.1"></a><span class="round">①</span>
+<span class="computeroutput">[&lt;DOM Element: grammar at 17538908&gt;]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xmldoc.childNodes[0]</span> <a name="kgp.parse.2.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;DOM Element: grammar at 17538908&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xmldoc.firstChild</span>    <a name="kgp.parse.2.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;DOM Element: grammar at 17538908&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">Node</tt> 마다 <tt class="function">childNodes</tt> 속성이 있는데, 이는 <tt class="classname">Node</tt> 객체로 구성된 리스트입니다. <tt class="classname">Document</tt>는 언제나 오직 자손 노드가 하나, 즉 <span class="acronym">XML</span> 문서의 루트 원소입니다 (이 경우, <tt class="sgmltag-element">grammar</tt> 원소입니다).
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">첫 (이 경우, 유일한) 자손 노드를 얻으려면 그냥 보통의 리스트 구문을 사용하면 됩니다. 기억하세요. 여기에 특별한 것은 없습니다; 이는 그저 보통의 <span class="application">파이썬</span> 객체로 구성된 보통의 <span class="application">파이썬</span> 리스트일 뿐입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">한 노드의 첫 자손 노드를 얻는 일은 유용하고 자주 있는 일이기 때문에, <tt class="classname">Node</tt> 클래스에 <tt class="function">firstChild</tt> 속성이 있습니다. 이는 <tt class="literal">childNodes[0]</tt>과 동의어입니다.  (<tt class="function">lastChild</tt> 속성도 있는데, 이는  <tt class="literal">childNodes[-1]</tt>과 동의어입니다.)
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e23458"></a><h3 class="title">예제&nbsp;9.10.&nbsp;<tt class="function">toxml</tt>은 어느 노드에도 작동한다
+                  </h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">grammarNode = xmldoc.firstChild</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print grammarNode.toxml()</span> <a name="kgp.parse.3.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;grammar&gt;
+&lt;ref id="bit"&gt;
+  &lt;p&gt;0&lt;/p&gt;
+  &lt;p&gt;1&lt;/p&gt;
+&lt;/ref&gt;
+&lt;ref id="byte"&gt;
+  &lt;p&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;\
+&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;/p&gt;
+&lt;/ref&gt;
+&lt;/grammar&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">toxml</tt> 메쏘드는 <tt class="classname">Node</tt> 클래스에 정의되어 있으므로, <tt class="classname">Document</tt>  원소는 물론이고, 어느 <span class="acronym">XML</span> 노드에서도 얻을 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="kgp.parse.childnodescanbetext.example"></a><h3 class="title">예제&nbsp;9.11.&nbsp;자손 노드는 텍스트도 된다</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">grammarNode.childNodes</span>                  <a name="kgp.parse.4.1"></a><span class="round">①</span>
+<span class="computeroutput">[&lt;DOM Text node "\n"&gt;, &lt;DOM Element: ref at 17533332&gt;, \
+&lt;DOM Text node "\n"&gt;, &lt;DOM Element: ref at 17549660&gt;, &lt;DOM Text node "\n"&gt;]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print grammarNode.firstChild.toxml()</span>    <a name="kgp.parse.4.2"></a><span class="round">②</span>
+<span class="computeroutput">
+
+</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print grammarNode.childNodes[1].toxml()</span> <a name="kgp.parse.4.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;ref id="bit"&gt;
+  &lt;p&gt;0&lt;/p&gt;
+  &lt;p&gt;1&lt;/p&gt;
+&lt;/ref&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print grammarNode.childNodes[3].toxml()</span> <a name="kgp.parse.4.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;ref id="byte"&gt;
+  &lt;p&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;\
+&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;/p&gt;
+&lt;/ref&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print grammarNode.lastChild.toxml()</span>     <a name="kgp.parse.4.5"></a><span class="round">⑤</span>
+<span class="computeroutput">
+
+</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">binary.xml</tt>에서 <span class="acronym">XML</span>을 보면 <tt class="sgmltag-element">grammar</tt>에 오직 두개의 자손 노드, 즉 두개의 <tt class="sgmltag-element">ref</tt> 원소가 있다고 생각하실 수 있습니다. 그러나 놓치고 있는 것이 있습니다: 행갈이-문자가 그것이지요! <tt class="literal">'&lt;grammar&gt;'</tt> 뒤 그리고 첫 <tt class="literal">'&lt;ref&gt;'</tt> 자손 앞에 행갈이-문자가 있습니다. 그리고 이 텍스트는 <tt class="sgmltag-element">grammar</tt> 원소의 자손 노드로 간주됩니다. 비슷하게, 행갈이-문자가 <tt class="literal">'&lt;/ref&gt;'</tt>마다 뒤에 있습니다; 이것들 역시 자손 노드로 간주됩니다. 그래서 <tt class="literal">grammar.childNodes</tt>는 실제로는 5개의 객체가 담긴 리스트입니다: 3개는 <tt class="classname">Text</tt> 객체이고 2개는 <tt class="classname">Element</tt> 객체입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">첫 자손은 <tt class="classname">Text</tt> 객체로서 <tt class="literal">'&lt;grammar&gt;'</tt> 태그 뒤에 그리고 첫 <tt class="literal">'&lt;ref&gt;'</tt> 태그 앞에 있는 행갈이 문자를 나타냅니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.4.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">두 번째 자손은 <tt class="classname">Element</tt> 객체로서 첫 <tt class="sgmltag-element">ref</tt> 원소를 나타냅니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.4.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">네 번째 자손은 <tt class="classname">Element</tt> 객체로서 두 번째 <tt class="sgmltag-element">ref</tt> 원소를 나타냅니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.4.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">마지막 자손은 <tt class="classname">Text</tt> 객체로서 <tt class="literal">'&lt;/ref&gt;'</tt> 끝 태그 뒤 그리고 <tt class="literal">'&lt;/grammar&gt;'</tt> 끝 태그 앞에 있는 행갈이 문자를 나타냅니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e23628"></a><h3 class="title">예제&nbsp;9.12.&nbsp;텍스트 안으로 깊숙히 뚫고 들어가는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">grammarNode</span>
+<span class="computeroutput">&lt;DOM Element: grammar at 19167148&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">refNode = grammarNode.childNodes[1]</span> <a name="kgp.parse.5.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">refNode</span>
+<span class="computeroutput">&lt;DOM Element: ref at 17987740&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">refNode.childNodes</span>                  <a name="kgp.parse.5.2"></a><span class="round">②</span>
+<span class="computeroutput">[&lt;DOM Text node "\n"&gt;, &lt;DOM Text node "  "&gt;, &lt;DOM Element: p at 19315844&gt;, \
+&lt;DOM Text node "\n"&gt;, &lt;DOM Text node "  "&gt;, \
+&lt;DOM Element: p at 19462036&gt;, &lt;DOM Text node "\n"&gt;]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pNode = refNode.childNodes[2]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pNode</span>
+<span class="computeroutput">&lt;DOM Element: p at 19315844&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print pNode.toxml()</span>                 <a name="kgp.parse.5.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;p&gt;0&lt;/p&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pNode.firstChild</span>                    <a name="kgp.parse.5.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;DOM Text node "0"&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pNode.firstChild.data</span>               <a name="kgp.parse.5.5"></a><span class="round">⑤</span>
+<span class="computeroutput">u'0'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.5.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞 예제에서 보셨다시피, 첫 <tt class="sgmltag-element">ref</tt> 원소는 <tt class="literal">grammarNode.childNodes[1]</tt>입니다. 왜냐하면 childNodes[0]가 행갈이 문자를 나타내는 <tt class="classname">Text</tt> 노드이기 때문입니댜.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.5.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="sgmltag-element">ref</tt> 원소는 따로 자신의 자손 노드 세트가 있습니다. 하나는 행갈이 문자를 나타내고, 또 하나는 공간문자를, 나머지 하나는 <tt class="sgmltag-element">p</tt> 원소를 나타내는 등등의 집합이 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.5.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서도 <tt class="function">toxml</tt> 메쏘드를 사용할 수 있습니다. 문서 깊숙히 내포된 곳에서도 말입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.5.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="sgmltag-element">p</tt> 원소는 오직 자손 노드 하나만 있으며 (이 예제에서는 구분할 수 없습니다. 믿지 못하신다면 <tt class="literal">pNode.childNodes</tt>를 보세요), <tt class="literal">'0'</tt>이라는 문자 하나를 나타내는 <tt class="classname">Text</tt> 노드입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.parse.5.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">Text</tt> 노드의 <tt class="literal">.data</tt> 속성에서 텍스트 노드를 나타내는 실제 문자열을 얻습니다. 그러나 문자열 앞에 있는 <tt class="literal">'u'</tt>는 도대체 무엇인가? 그 대답은 따로 한 섹션에 다룰 가치가 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="kgp.unicode"></a>9.4.&nbsp;유니코드</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>유니코드는 전세계의 다양한 언어에서 사용되는 문자들을 나타내는 시스템입니다.  <span class="application">파이썬</span>이 <span class="acronym">XML</span> 문서를 해석할 때, 모든 데이터는 메모리에 유니코드로 저장됩니다.
+                  </p>
+               </div>
+               <p>잠시 후에 그에 관하여 다루겠지만, 먼저 배경지식을 알아 보겠습니다.</p>
+               <p><b>역사적 지식.&nbsp;</b>유니코드 이전에는 각 언어마다 따로 문자 인코딩 시스템이 있었고, 각 언어는 똑 같은 숫자 (0-255)를 사용하여 문자를 표현했습니다. (러시아어 같은) 어떤 언어는 상충하는 여러 표준을 가지고 같은 문자를 표현했습니다; (일본어 같은) 언어들은 문자가 많아서 다중-바이트 문자 세트가 필요했습니다. 시스템 사이에 문서를 교환하는 일은 어려웠습니다. 문서 저자가 어떤 문자 인코딩 체계를 사용했는지 컴퓨터가 알 수가 없었기 때문입니다; 컴퓨터는 오직 숫자만을 이해했으며, 숫자는 다른 것을 의미할 수도 있습니다. 그렇다면 이런 문서들을 같은 곳에 (예를 들어 같은 데이터베이스 테이블에) 저장하려고 시도해 보면 어떻게 될까요; 문자 인코딩을 텍스트 마다 저장할 필요가 있을 것이고, 텍스트를 건넬 대마다 문자 인코딩도 확실하게 건네야 할 것입니다. 다음 다중 언어로된 문서에 관하여, 즉 여러 언어에서 가져 온 문자가 같은 문서 안에 존재한다면 어떻게 할까요.  (전형적으로 그런 문서들은 모드를 전환하기 위하여 피신 코드를 사용했습니다; 자, 이제 러시아어 koi8-r 모드에 있으므로, 문자 241은 이것을 의미한다; 자, 이제 Mac Greek 모드이므로, 문자 241은 다른 무언가를 뜻한다. 등등)  이 문제를 해결하기 위하여 유니코드가 설계되었습니다.
+               </p>
+               <p>이런 문제들을 해결하기 위하여, 유니코드는 각 문자를 0에서부터 65535까지 2-바이트 숫자로 나타냅니다.<sup>[<a name="d0e23786" href="#ftn.d0e23786">5</a>]</sup>  2-바이트 숫자는 각자 적어도 전세계의 언어중 하나에 사용된 유일한 문자를 표현합니다. (여러 언어에서 사용된 문자들은 숫자 코드가 같습니다.)  문자당 정확하게 1개의 숫자가 있으며, 숫자 하나당 정확하게 1개의 문자가 있습니다. 유니코드 데이터는 절대로 중복되지 않습니다.
+               </p>
+               <p>물론, 이 모든 전통 인코딩 시스템은 여전히 중요합니다. 예를 들면 숫자 범위가 0에서 127까지인 7-비트 <span class="acronym">ASCII</span>는 영어 문자를 0에서  127까지의 범위에 저장합니다.  (65는 대문자 &#8220;<span class="quote"><tt class="literal">A</tt></span>&#8221;이며, 97은 소문자 &#8220;<span class="quote"><tt class="literal">a</tt></span>&#8221;입니다. 등등.)  
+			   영어는 아주 간단한 알파벳입니다. 그래서 완벽하게 7-비트 <span class="acronym">ASCII</span>로 표현됩니다. 프랑스어나 스페인어 그리고 독일어 같은 서유럽 언어는 모두 ISO-8859-1이라는 인코딩을 사용합니다 (&#8220;<span class="quote">latin-1</span>&#8221;이라고도 불림). 이 인코딩은 7-비트 <span class="acronym">ASCII</span> 문자를 0에서부터 127까지 사용하지만, 윗물결-붙은 n(241)과 윗쌍점-붙은 u(252) 문자들에 대하여 범위를 128-255까지 확장합니다.  그리고 유니코드는 0에서 127까지는 7-비트 <span class="acronym">ASCII</span>와 같은 문자를 사용하고 128부터 255까지는 ISO-8859-1과 같은 문자를 사용하며, 그리고 거기에서부터 나머지 숫자, 256에서부터 65535까지는 언어별로 문자를 확장합니다.
+               </p>
+               <p>유니코드를 다룰 때, 어떤 시점에서부터 데이터를 다시 이런 전통 인코딩 시스템중의 하나로 변환할 필요가 있습니다. 예를 들면 그의 데이터가 특정한 1-바이트 인코딩 체계라고 예상하는 다른 컴퓨터 시스템과 통합하기 위하여, 또는 유니코드를-인지하지-못하는 터미널이나 프린터에 데이터를 인쇄하기 위하여 말입니다. 또는 명시적으로 인코딩 체계가 지정된 <span class="acronym">XML</span> 문서에 저장하려면 말입니다.
+               </p>
+               <p>이 지식을 참고하고, 다시 <span class="application">파이썬</span>으로 돌아가겠습니다.
+               </p>
+               <p><span class="application">파이썬</span>은 버전 2.0이후로 유니코드를 지원합니다.  <span class="acronym">XML</span> 패키지는 모두 유니코드를 사용하여 <span class="acronym">XML</span> 데이터를 해석하지만, 어디에나 유니코드를 사용할 수 있습니다.
+               </p>
+               <div class="example"><a name="d0e23841"></a><h3 class="title">예제&nbsp;9.13.&nbsp;유니코드 소개</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s = u'Dive in'</span>            <a name="kgp.unicode.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s</span>
+<span class="computeroutput">u'Dive in'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print s</span>                   <a name="kgp.unicode.1.2"></a><span class="round">②</span>
+<span class="computeroutput">Dive in</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">보통의 <span class="acronym">ASCII</span> 문자열 대신에 유니코드 문자열을 만들려면 문자 &#8220;<span class="quote"><tt class="literal">u</tt></span>&#8221;를 문자열 앞에 덧붙이면 됩니다. 이 특별한 문자에는 비--<span class="acronym">ASCII</span> 문자가 전혀 없습니다. 문제 없습니다; 유니코드는 <span class="acronym">ASCII</span>의 수퍼세트이며 (아주 커다란 수퍼집합입니다), 그래서 보통의 <span class="acronym">ASCII</span> 문자열은 유니코드로도 저장이 가능합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">문자열을 인쇄할 때, <span class="application">파이썬</span>은 기본 인코딩으로 변환하려고 시도합니다. 기본 인코딩은 보통 <span class="acronym">ASCII</span>입니다.  (잠시 후에 더 자세히 다룸.) 이 유니코드 문자열은 <span class="acronym">ASCII</span> 문자이기도 하므로, 인쇄하면 보통의 <span class="acronym">ASCII</span> 문자열을 인쇄한 것과 결과가 같습니다; 변환은 아무 문제가 없으며, <tt class="varname">s</tt>가 유니코드 문자열이라는 것을 몰랐다고 할지라도, 그 차이를 인지하지 못할 것입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e23908"></a><h3 class="title">예제&nbsp;9.14.&nbsp;<span class="acronym">ASCII</span>-아닌 문자 저장하기
+                  </h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s = u'La Pe\xf1a'</span>         <a name="kgp.unicode.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print s</span>                   <a name="kgp.unicode.2.2"></a><span class="round">②</span>
+<span class="traceback">Traceback (innermost last):
+  File "&lt;interactive input&gt;", line 1, in ?
+UnicodeError: ASCII encoding error: ordinal not in range(128)</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print s.encode('latin-1')</span> <a name="kgp.unicode.2.3"></a><span class="round">③</span>
+<span class="computeroutput">La Pe&ntilde;a</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">물론, 유니코드의 진짜 장점은 예를 들어 스페인어 &#8220;<span class="quote"><tt class="literal">&ntilde;</tt></span>&#8221; (위에 물결붙은 <tt class="literal">n</tt> 문자)와 같이 <span class="acronym">ASCII</span>-아닌 문자를 저장할 수 있다는 것입니다. 유니코드 틸드-n 문자에 대한 코드는 십육진수로 <tt class="literal">0xf1</tt> (십진수로 241)인데, 다음과 같이 타자할 수 있습니다: <tt class="literal">\xf1</tt>.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">기억하십니까. <tt class="function">print</tt> 함수는 유니코드 문자열을 인쇄하기 위해 <span class="acronym">ASCII</span>로 변환하려고 한다고 말씀드렸습니다. 자, 여기에서는 변환이 작동하지 않습니다. 왜냐하면 유니코드 문자열에 비-<span class="acronym">ASCII</span> 문자가 들어있기 때문인데, 그래서 <span class="application">파이썬</span>은 <tt class="errorname">UnicodeError</tt> 에러를 일으킵니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기가 유니코드를-다른-인코딩-체계로 변환하는 방법이 들어오는 곳입니다.  <tt class="varname">s</tt>는 유니코드 문자열이지만, <tt class="function">print</tt> 함수는 오직 보통의 문자열만 인쇄할 수 있습니다. 이 문제를 해결하기 위하여, 유니코드 문자열마다 <tt class="function">encode</tt> 메쏘드를 호출하면 유니코드 문자열을 주어진 인코딩 체계의 정규 문자열로 변환할 수 있습니다. 인코딩은 매개변수로 건넵니다. 이 경우, (<tt class="literal">iso-8859-1</tt>로도 알려진) <tt class="literal">latin-1</tt>을 건네는데, 여기에 틸드-n 문자가 포함되어 있습니다 (반면에 기본 <span class="acronym">ASCII</span> 인코딩 체계에는 포함되어 있지 않습니다. 0에서부터 127까지의 문자만 포함되어 있기 때문입니다).
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>기억하십니까. <span class="application">파이썬</span>은 보통 유니코드 문자열로부터 정규 문자열을 만들 필요가 있을 때마다 유니코드를 <span class="acronym">ASCII</span>로 변환합니다. 자, 이 기본 인코딩 체계는 마음대로 선택할 수 있습니다.
+               </p>
+               <div class="example"><a name="d0e24009"></a><h3 class="title">예제&nbsp;9.15.&nbsp;<tt class="filename">sitecustomize.py</tt></h3><pre class="programlisting">
+# sitecustomize.py                   <a name="kgp.unicode.3.1"></a><span class="round">①</span>
+# 이 파일은 파이썬 경로 어디에 두어도 되지만,
+# 보통은 ${pythondir}/lib/site-packages/에 둔다.
+import sys
+sys.setdefaultencoding('iso-8859-1') <a name="kgp.unicode.3.2"></a><span class="round">②</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">sitecustomize.py</tt>는 특별한 스크립트입니다; <span class="application">파이썬</span>은 기동시에 이 스크립트를 반입하려고 시도합니다. 그래서 그 안에 든 코드는 자동으로 실행됩니다. 주석에 언급되어 있듯이, (<tt class="literal">import</tt>가 찾을 수 있는 한) 아무 곳에나 둘 수 있지만, 보통  <span class="application">파이썬</span> <tt class="filename">lib</tt> 디렉토리 아래의 <tt class="filename">site-packages</tt> 디렉토리에 위치합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">setdefaultencoding</tt> 함수는 기본 인코딩을 설정합니다. 이는 <span class="application">파이썬</span>이 유니코드 문자열을 정규 문자열로 강제로 자동 변환할 필요가 있을 때마다 사용하려고 시도하는 기본 인코딩 체계입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e24048"></a><h3 class="title">예제&nbsp;9.16.&nbsp;기본 인코딩을 지정한 효과</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import sys</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">sys.getdefaultencoding()</span> <a name="kgp.unicode.4.1"></a><span class="round">①</span>
+<span class="computeroutput">'iso-8859-1'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s = u'La Pe\xf1a'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print s</span>                  <a name="kgp.unicode.4.2"></a><span class="round">②</span>
+<span class="computeroutput">La Pe&ntilde;a</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 예제는 앞 예제에서 보여준대로 <tt class="filename">sitecustomize.py</tt> 파일을 수정하고, <span class="application">파이썬</span>을 재시작했다고 간주합니다. 기본 인코딩이 여전히 <tt class="literal">'ascii'</tt>이면 제대로 <tt class="filename">sitecustomize.py</tt>를 설정하지 못한 것이거나, <span class="application">파이썬</span>을 재시작하지 않은 것입니다.  기본 인코딩은 <span class="application">파이썬</span>이 시작하는 동안에만 바꿀 수 있습니다; 이후에는 바꿀 수 없습니다.  (지금 당장은 설명할 수 없는 해괴한 프로그래밍 트릭 때문에, <span class="application">파이썬</span>이 기동을 끝내고 나면 <tt class="function">sys.setdefaultencoding</tt>을 호출할 수조차 없습니다. 작동 방식을 이해하려면 <tt class="filename">site.py</tt>에 깊이 들어가 &#8220;<span class="quote"><tt class="literal">setdefaultencoding</tt></span>&#8221;를 찾아 보세요.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 문자열에 사용한 문자가 모두 기본 인코딩 체계에 포함되어 있으므로, <span class="application">파이썬</span>은 문제없이 문자열을 자동변환하여 인쇄합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e24123"></a><h3 class="title">예제&nbsp;9.17.&nbsp;<tt class="filename">.py</tt> 파일에 인코딩 지정하는 법
+                  </h3>
+                  <p>비-ASCII 문자열을 <span class="application">파이썬</span> 코드 안에 넣을 생각이라면 <tt class="filename">.py</tt> 파일마다 상단에 인코딩 선언을 두어 인코딩을 지정할 필요가 있습니다. 이 선언은 <tt class="filename">.py</tt> 파일을 UTF-8로 지정합니다:
+                  </p><pre class="programlisting">
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+</pre></div>
+               <p>이제, <span class="acronym">XML</span>은 어떤가?  자, <span class="acronym">XML</span> 문서마다 특정한 인코딩이 선언됩니다. 역시, ISO-8859-1이 서유럽 언어의 데이터에 인기있는 인코딩입니다. KOI8-R은 러시아어 텍스트에 인기가 있습니다. 인코딩은 지정되면 <span class="acronym">XML</span> 문서의 헤더에 존재합니다.
+               </p>
+               <div class="example"><a name="d0e24153"></a><h3 class="title">예제&nbsp;9.18.&nbsp;<tt class="filename">russiansample.xml</tt></h3><pre class="screen"><span class="computeroutput">
+&lt;?xml version="1.0" encoding="koi8-r"?&gt;       </span><a name="kgp.unicode.5.1"></a><span class="round">①</span><span class="computeroutput">
+&lt;preface&gt;
+&lt;title&gt;&#1055;&#1088;&#1077;&#1076;&#1080;&#1089;&#1083;&#1086;&#1074;&#1080;&#1077;&lt;/title&gt;                    </span><a name="kgp.unicode.5.2"></a><span class="round">②</span><span class="computeroutput">
+&lt;/preface&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.5.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 진짜 러시아어 <span class="acronym">XML</span> 문서에서 뽑아 온 샘플입니다; 바로 이 책의 러시아어 번역본에서 뽑아왔습니다. 인코딩 <tt class="literal">koi8-r</tt>이 헤더에 지정되어 있음에 주목하세요.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.5.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 문자들은 시릴(Cyrillic) 문자인데, 본인이 알기로는, 이 철자는 &#8220;<span class="quote">서문</span>&#8221;이라는 뜻의 러시아어 단어를 표현합니다. 정규 텍스트 편집기에서 이 파일을 열어 보면 문자들이 거의 쓰레기처럼 보일 것입니다. 왜냐하면 <tt class="literal">koi8-r</tt> 인코딩 체계로 인코드되어 있으나, 화면에는 <tt class="literal">iso-8859-1</tt>로 표시되기 때문입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e24188"></a><h3 class="title">예제&nbsp;9.19.&nbsp;<tt class="filename">russiansample.xml</tt> 해석</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from xml.dom import minidom</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xmldoc = minidom.parse('russiansample.xml')</span> <a name="kgp.unicode.6.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">title = xmldoc.getElementsByTagName('title')[0].firstChild.data</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">title</span>                                       <a name="kgp.unicode.6.2"></a><span class="round">②</span>
+<span class="computeroutput">u'\u041f\u0440\u0435\u0434\u0438\u0441\u043b\u043e\u0432\u0438\u0435'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print title</span>                                 <a name="kgp.unicode.6.3"></a><span class="round">③</span>
+<span class="traceback">Traceback (innermost last):
+  File "&lt;interactive input&gt;", line 1, in ?
+UnicodeError: ASCII encoding error: ordinal not in range(128)</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">convertedtitle = title.encode('koi8-r')</span>     <a name="kgp.unicode.6.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">convertedtitle</span>
+<span class="computeroutput">'\xf0\xd2\xc5\xc4\xc9\xd3\xcc\xcf\xd7\xc9\xc5'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print convertedtitle</span>                        <a name="kgp.unicode.6.5"></a><span class="round">⑤</span>
+<span class="computeroutput">&#1055;&#1088;&#1077;&#1076;&#1080;&#1089;&#1083;&#1086;&#1074;&#1080;&#1077;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.6.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서 앞 예제를 <tt class="filename">russiansample.xml</tt>로 현재 디렉토리에 저장했다고 간주하겠습니다. 또 완벽을 기하기 위해, <tt class="filename">sitecustomize.py</tt> 파일을 제거하거나, 또는 적어도 <tt class="function">setdefaultencoding</tt> 줄을 주석처리함으로써 기본 인코딩을 다시 <tt class="literal">'ascii'</tt>로 바꾸었다고 간주하겠습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.6.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="sgmltag-element">title</tt> 태그의 텍스트 데이터에 주목하세요 (이제 <tt class="varname">title</tt> 변수 안에 있는데, 파이썬 함수를 기다랗게 결합한 덕분입니다. 이에 관하여 서둘러 건너 뛰었는데, 조급하시겠지만, 다음 섹션에서 설명드리겠습니다.) --                               <span class="acronym">XML</span> 문서의 <tt class="sgmltag-element">title</tt> 원소의 텍스트 데이터는 유니코드로 저장되어 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.6.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">타이틀을 인쇄할 수 없습니다. 왜냐하면 이 유니코드 문자열에 비-<span class="acronym">ASCII</span> 문자가 포함되어 있기 때문입니다. 그래서 <span class="application">파이썬</span>은 그것을 이해할 수 없기 때문에 <span class="acronym">ASCII</span>로 변환할 수 없습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.6.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">그렇지만, 명시적으로 <tt class="literal">koi8-r</tt>로 변환할 수 있습니다. 이 경우 단일-바이트 문자들로 구성된 (유니코드가 아닌, 정규) 문자열을 얻습니다 (<tt class="literal">f0</tt>, <tt class="literal">d2</tt>, <tt class="literal">c5</tt>, 그리고 등등). 이 문자열은 원래 유니코드 문자열로부터 <tt class="literal">koi8-r</tt>-인코드된 버전의 문자열입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.unicode.6.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">koi8-r</tt>-인코드된 문자열을 인쇄하면 아마도 화면에 지저분하게 표시될 텐데, 왜냐하면 <span class="application">파이썬</span> <span class="acronym">IDE</span>가 그 문자들을 <tt class="literal">koi8-r</tt>이 아니라 <tt class="literal">iso-8859-1</tt>로 해석할 것이기 때문입니다. 그러나 적어도 인쇄는 됩니다.  (그리고, 자세히 살펴보면 유니코드-미-인식 텍스트 편집기에서 원래 <span class="acronym">XML</span> 문서를 열었을 때 보았던 것과 똑 같이 지저분합니다.  <span class="application">파이썬</span>은 <span class="acronym">XML</span> 문서를 해석할 때 그것을 <tt class="literal">koi8-r</tt>로부터 유니코드로 변환했고, 방금 다시 원래대로 변환했습니다.)
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>요약하면 유니코드 자체는 이전에 보지 못했다면 약간 부담스럽지만, 유니코드 데이터는 실제로 <span class="application">파이썬</span>에서 아주 다루기 쉽습니다. <span class="acronym">XML</span> 문서가 모두 (이 장에서의 예제들과 같이) 7-비트 <span class="acronym">ASCII</span>라면 문자 그대로 유니코드에 관하여 신경쓰지 않아도 됩니다. <span class="application">파이썬</span>은 해석하면서, <span class="acronym">XML</span> 문서의 <span class="acronym">ASCII</span> 데이터를 유니코드로 변환하고, 필요하면 자동으로 다시 <span class="acronym">ASCII</span>로 변환하므로, 그 변화를 느끼지 못합니다. 그러나 다른 언어로 그를 다룰 필요가 있다면 <span class="application">파이썬</span>은 준비되어 있습니다.
+               </p>
+               <div class="itemizedlist">
+                  <h3 class="title">더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.unicode.org/">Unicode.org</a>는 유니코드 표준의 홈 페이지이다. 간략하게 <a href="http://www.unicode.org/standard/principles.html">기술적 소개</a>를 한다.
+                     </li>
+                     <li><a href="http://www.reportlab.com/i18n/python_unicode_tutorial.html">Unicode 자습서</a>는  <span class="application">파이썬</span>이 실제로는 원하지 않을 경우에도 강제로 유니코드를 <span class="acronym">ASCII</span>로 바꾸게 하는 법을 포함하여, <span class="application">파이썬</span>에서 유니코드 함수를 사용하는 법에 대한 몇가지 예가 더 있다.
+                     </li>
+                     <li><a href="http://www.python.org/peps/pep-0263.html">PEP 263</a>은 더 자세하게 들어가 어떻게 언제 문자 인코딩을 <tt class="filename">.py</tt> 파일에 정의하는지 설명한다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="kgp.search"></a>9.5.&nbsp;원소 검색하기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>노드마다 찾아 다니면서 <span class="acronym">XML</span> 문서를 순회하는 일은 따분한 작업이 될 수 있습니다. 특히, <span class="acronym">XML</span> 문서 안에 깊숙히 묻힌 무언가를 찾고 있다면 그것을 신속하게 찾는데 사용할 수 있는 지름길이 있습니다: <tt class="function">getElementsByTagName</tt>가 그것입니다.
+                  </p>
+               </div>
+               <p>다음 섹션에서는 <tt class="filename">binary.xml</tt> 문법 파일을 사용합니다. 이 파일은 다음과 같이 생겼습니다:
+               </p>
+               <div class="example"><a name="d0e24431"></a><h3 class="title">예제&nbsp;9.20.&nbsp;<tt class="filename">binary.xml</tt></h3><pre class="screen"><span class="computeroutput">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE grammar PUBLIC "-//diveintopython.org//DTD Kant Generator Pro v1.0//EN" "kgp.dtd"&gt;
+&lt;grammar&gt;
+&lt;ref id="bit"&gt;
+  &lt;p&gt;0&lt;/p&gt;
+  &lt;p&gt;1&lt;/p&gt;
+&lt;/ref&gt;
+&lt;ref id="byte"&gt;
+  &lt;p&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;\
+&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;/p&gt;
+&lt;/ref&gt;
+&lt;/grammar&gt;</span></pre></div>
+               <p><tt class="sgmltag-element">ref</tt>가 두개, 즉 <tt class="literal">'bit'</tt>와 <tt class="literal">'byte'</tt>기 있습니다.  <tt class="literal">bit</tt>는 <tt class="literal">'0'</tt>이거나 <tt class="literal">'1'</tt>이고, <tt class="literal">byte</tt>는 <tt class="literal">bit</tt>입니다.
+               </p>
+               <div class="example"><a name="d0e24464"></a><h3 class="title">예제&nbsp;9.21.&nbsp; <tt class="function">getElementsByTagName</tt> 소개</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">from xml.dom import minidom</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xmldoc = minidom.parse('binary.xml')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">reflist = xmldoc.getElementsByTagName('ref')</span> <a name="kgp.search.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">reflist</span>
+<span class="computeroutput">[&lt;DOM Element: ref at 136138108&gt;, &lt;DOM Element: ref at 136144292&gt;]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print reflist[0].toxml()</span>
+<span class="computeroutput">&lt;ref id="bit"&gt;
+  &lt;p&gt;0&lt;/p&gt;
+  &lt;p&gt;1&lt;/p&gt;
+&lt;/ref&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print reflist[1].toxml()</span>
+<span class="computeroutput">&lt;ref id="byte"&gt;
+  &lt;p&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;\
+&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;/p&gt;
+&lt;/ref&gt;
+</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.search.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">getElementsByTagName</tt>는 인자를 한 개, 찾고 싶은 원소의 이름을 취합니다. <tt class="classname">Element</tt> 객체들로 구성된 리스트를 돌려주는데, 객체들은 그 이름을 가진 <span class="acronym">XML</span> 원소에 상응합니다. 이 경우, 두개의 <tt class="literal">ref</tt> 원소를 찾습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e24526"></a><h3 class="title">예제&nbsp;9.22.&nbsp;어떤 요소라도 찾을 수 있다</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">firstref = reflist[0]</span>                      <a name="kgp.search.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print firstref.toxml()</span>
+<span class="computeroutput">&lt;ref id="bit"&gt;
+  &lt;p&gt;0&lt;/p&gt;
+  &lt;p&gt;1&lt;/p&gt;
+&lt;/ref&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">plist = firstref.getElementsByTagName("p")</span> <a name="kgp.search.2.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">plist</span>
+<span class="computeroutput">[&lt;DOM Element: p at 136140116&gt;, &lt;DOM Element: p at 136142172&gt;]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print plist[0].toxml()</span>                     <a name="kgp.search.2.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;p&gt;0&lt;/p&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print plist[1].toxml()</span>
+<span class="computeroutput">&lt;p&gt;1&lt;/p&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.search.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞 예제에 연이어서, <tt class="varname">reflist</tt>의 첫 객체는 <tt class="literal">'bit'</tt> <tt class="sgmltag-element">ref</tt> 원소입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.search.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 <tt class="classname">Element</tt>에 같은 <tt class="function">getElementsByTagName</tt> 메쏘드를 사용하면 <tt class="literal">'bit'</tt> <tt class="sgmltag-element">ref</tt> 원소 안에 있는 <tt class="sgmltag-element">&lt;p&gt;</tt> 원소들을 모두 찾을 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.search.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">바로 앞과 같이, <tt class="function">getElementsByTagName</tt> 메쏘드는 발견한 모든 원소들을 리스트에 담아 돌려줍니다. 이 경우, 원소는 두 개인데, 각 비트마다 하나씩입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e24615"></a><h3 class="title">예제&nbsp;9.23.&nbsp;실제로는 재귀적으로 찾는다</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">plist = xmldoc.getElementsByTagName("p")</span> <a name="kgp.search.3.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">plist</span>
+<span class="computeroutput">[&lt;DOM Element: p at 136140116&gt;, &lt;DOM Element: p at 136142172&gt;, &lt;DOM Element: p at 136146124&gt;]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">plist[0].toxml()</span>                         <a name="kgp.search.3.2"></a><span class="round">②</span>
+<span class="computeroutput">'&lt;p&gt;0&lt;/p&gt;'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">plist[1].toxml()</span>
+<span class="computeroutput">'&lt;p&gt;1&lt;/p&gt;'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">plist[2].toxml()</span>                         <a name="kgp.search.3.3"></a><span class="round">③</span>
+<span class="computeroutput">'&lt;p&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;\
+&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;xref id="bit"/&gt;&lt;/p&gt;'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.search.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 예제와 앞 예제 사이의 차이점을 주의깊게 살펴보세요.  앞 예제에서는 <tt class="varname">firstref</tt>에서 <tt class="sgmltag-element">p</tt> 원소를 검색했지만, 여기에서는 <span class="acronym">XML</span> 문서 전체를 대표하는 루트-수준의 객체인 <tt class="varname">xmldoc</tt> 안에서 <tt class="sgmltag-element">p</tt> 원소들을 검색합니다. <span class="emphasis"><em>여기에서</em></span> <tt class="sgmltag-element">p</tt> 원소들은 <tt class="sgmltag-element">ref</tt> 원소 안에 내포되어 있고 <tt class="sgmltag-element">ref</tt> 원소는 루트 <tt class="sgmltag-element">grammar</tt> 원소 안에 내포되어 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.search.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞의 두 <tt class="sgmltag-element">p</tt> 원소는 첫 <tt class="sgmltag-element">ref</tt> (<tt class="literal">'bit'</tt> <tt class="sgmltag-element">ref</tt>) 안에 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.search.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">마지막 <tt class="sgmltag-element">p</tt> 원소는 두 번째 <tt class="sgmltag-element">ref</tt> (<tt class="literal">'byte'</tt> <tt class="sgmltag-element">ref</tt>) 안에 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="kgp.attributes"></a>9.6.&nbsp;원소 속성에 접근하는 법</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="acronym">XML</span> 원소들은 하나 이상의 속성을 가질 수 있으며, 해석된 <span class="acronym">XML</span> 문서만 확보하면 놀랍도록 간단하게 접근할 수 있습니다.
+                  </p>
+               </div>
+               <p>이 섹션에서는 <a href="#kgp.search" title="9.5.&nbsp;Searching for elements">앞 섹션에서 본</a> <tt class="filename">binary.xml</tt> 문법 파일을 사용합니다.
+               </p><a name="d0e24744"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">이 섹션은 전문용어가 중첩되어 사용되므로 약간 어려울 수 있습니다. <span class="acronym">XML</span> 문서의 원소들은 속성이 있고, <span class="application">파이썬</span>도 역시 속성이 있습니다. <span class="acronym">XML</span> 문서를 해석하면 수 많은 <span class="application">파이썬</span> 객체로 <span class="acronym">XML</span>  문서의 모든 조각을 표현하며, 이 <span class="application">파이썬</span> 객체중 일부는 <span class="acronym">XML</span> 원소의 속성을 표현합니다. 그러나 (<span class="acronym">XML</span>)속성은 (<span class="application">파이썬</span>)객체로 나타내고, (<span class="acronym">XML</span>)속성의 여러 부분에 접근하는데 그 (파이썬)객체의 (<span class="application">파이썬</span>)속성이 사용됩니다. 말씀드렸다시피 혼란스럽습니다.  이 개념들을 보다 명료하게 구분하는 법에 관하여 제안을 주신다면 언제나 겸허하게 받아들이겠습니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="d0e24787"></a><h3 class="title">예제&nbsp;9.24.&nbsp;요소 속성에 접근하는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">xmldoc = minidom.parse('binary.xml')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">reflist = xmldoc.getElementsByTagName('ref')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">bitref = reflist[0]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print bitref.toxml()</span>
+<span class="computeroutput">&lt;ref id="bit"&gt;
+  &lt;p&gt;0&lt;/p&gt;
+  &lt;p&gt;1&lt;/p&gt;
+&lt;/ref&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">bitref.attributes</span>          <a name="kgp.attributes.1.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;xml.dom.minidom.NamedNodeMap instance at 0x81e0c9c&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">bitref.attributes.keys()</span>   <a name="kgp.attributes.1.2"></a><span class="round">②</span> <a name="kgp.attributes.1.3"></a><span class="round">③</span>
+<span class="computeroutput">[u'id']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">bitref.attributes.values()</span> <a name="kgp.attributes.1.4"></a><span class="round">④</span>
+<span class="computeroutput">[&lt;xml.dom.minidom.Attr instance at 0x81d5044&gt;]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">bitref.attributes["id"]</span>    <a name="kgp.attributes.1.5"></a><span class="round">⑤</span>
+<span class="computeroutput">&lt;xml.dom.minidom.Attr instance at 0x81d5044&gt;</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.attributes.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">Element</tt> 객체마다 <tt class="literal">attributes</tt>라는 속성이 있습니다. 이는 <tt class="classname">NamedNodeMap</tt> 객체입니다. 두려워 보이지만, 그렇지 않습니다. <tt class="classname">NamedNodeMap</tt>는 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.userdict" title="5.5.&nbsp;Exploring UserDict: A Wrapper Class">사전처럼 행위하는 객체</a>이기 대문에, 이미 어떻게 사용하는지 알고 계십니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.attributes.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">NamedNodeMap</tt>를 사전처럼 취급하여 <tt class="function">attributes.keys()</tt>를 사용하면 이 원소의 속성 이름이 담긴 리스트를 얻습니다. 이 원소는 오직 한개의 속성 <tt class="literal">'id'</tt>가 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.attributes.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">속성 이름은 <span class="acronym">XML</span> 문서에 있는 다른 모든 텍스트처럼 <a href="#kgp.unicode" title="9.4.&nbsp;Unicode">unicode</a>에 저장됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.attributes.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">역시 <tt class="classname">NamedNodeMap</tt>를 사전처럼 간주하여 <tt class="function">attributes.values()</tt>를 사용하면 속성 값이 담긴 리스트를 얻을 수 있습니다. 값들은 그 자체로 유형이 <tt class="classname">Attr</tt>인 객체입니다. 다음 예제에서 이 객체로부터 유용한 정보를 뽑아내는 법을 보시겠습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.attributes.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">역시 <tt class="classname">NamedNodeMap</tt>를 사전처럼 취급하여 보통의 사전 구문을 사용하면 이름으로 각 속성에 접근할 수 있습니다.  (주의 깊게 관찰하신 독자라면 이미 <tt class="classname">NamedNodeMap</tt> 클래스가 다음의 깔끔한 트릭을 완수한다는 것을 눈치채셨을 것입니다: <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.specialmethods" title="5.6.&nbsp;Special Class Methods"><tt class="function">__getitem__</tt> 특수 메쏘드</a>를 정의함으로써 말입니다. 다른 독자분들은 그것을 효과적으로 사용하기 위하여 어떻게 작동하는지 이해할 필요가 없다는 사실에 안심하셔도 좋습니다.)
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e24922"></a><h3 class="title">예제&nbsp;9.25.&nbsp;속성에 따로따로 접근하는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">a = bitref.attributes["id"]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">a</span>
+<span class="computeroutput">&lt;xml.dom.minidom.Attr instance at 0x81d5044&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">a.name</span>  <a name="kgp.attributes.2.1"></a><span class="round">①</span>
+<span class="computeroutput">u'id'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">a.value</span> <a name="kgp.attributes.2.2"></a><span class="round">②</span>
+<span class="computeroutput">u'bit'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.attributes.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">Attr</tt> 객체는 <span class="acronym">XML</span> 원소의 <span class="acronym">XML</span> 속성을 완벽하게 나타냅니다. 속성의 이름(<tt class="literal">bitref.attributes</tt> <tt class="classname">NamedNodeMap</tt> 의사-사전에서 이 객체를 찾는데 사용한 것과 똑 같은 이름)은 <tt class="literal">a.name</tt>에 저장됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#kgp.attributes.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><span class="acronym">XML</span> 속성의 실제 텍스트 값은 <tt class="literal">a.value</tt>에 저장됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="d0e24990"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">사전처럼, <span class="acronym">XML</span> 원소에는 순서가 없습니다. 속성들은 <span class="emphasis"><em>어쩌다가 우연히</em></span> 원래 <span class="acronym">XML</span> 문서의 특정 순서로 나열될 뿐입니다. <tt class="classname">Attr</tt> 객체는 <span class="emphasis"><em>어쩌다가</em></span> <span class="acronym">XML</span> 문서가 <span class="application">파이썬</span> 객체로 해석되어 들어갈 때의 특정 순서로 나열되기도 합니다. 그러나 이 순서는 제멋대로이고 특별한 의미가 없습니다. 언제나 이름으로 따로따로 속성에 접근해야 합니다. 사전의 키처럼 말입니다.
+                     </td>
+                  </tr>
+               </table>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="kgp.segue"></a>9.7.&nbsp;맺는 말
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>좋습니다. 이것은 하드-코어 XML 문제입니다.  다음 장에서는 계속해서 이와 같은 예제 프로그램들을 사용하겠지만, 주의를 돌려 프로그램을 더욱 유연하게 만드는 면에 초점을 두겠습니다: 입력 처리에 스트림을 사용하고, 메쏘드 분배에 <tt class="function">getattr</tt>을 사용하며, 그리고 명령어-줄 플래그를 사용하여 사용자가 코드의 변경없이 프로그램을 재구성할 수 있도록 해 보겠습니다.
+                  </p>
+               </div>
+               <p>다음 장으로 나아가기 전에, 다음의 일들을 편안하게 할 수 있어야 합니다:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><tt class="filename">minidom</tt>을 사용하여 <a href="#kgp.parse" title="9.3.&nbsp;Parsing XML"><span class="acronym">XML</span> 문서를 해석하는 법</a>, <a href="#kgp.search" title="9.5.&nbsp;Searching for elements">해석된 문서를 검색하는 법</a>, 그리고 마음대로 <a href="#kgp.attributes" title="9.6.&nbsp;Accessing element attributes">원소 속성</a>과 <a href="http://coreapython.hosting.paran.com/dive/chap10.html#kgp.child" title="10.4.&nbsp;Finding direct children of a node">원소 자손</a>에 접근하는 법</li>
+                     <li>복잡한 라이브러리를 <a href="#kgp.packages" title="9.2.&nbsp;Packages">패키지</a> 안으로 조직해 넣는 법</li>
+                     <li><a href="#kgp.unicode" title="9.4.&nbsp;Unicode">유니코드 문자열을</a> 다양한 문자 인코딩으로 변환하는 법
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="footnotes"><br><hr width="100" align="left">
+               <div class="footnote">
+                  <p><sup>[<a name="ftn.d0e23786" href="#d0e23786">5</a>] </sup>슬프게도, 이 <span class="emphasis"><em>역시</em></span> 너무 단순화시킨 것이다. 유니코드는 이제 한국어와 일본어 그리고 중국어를 처리하도록 확장되었는데, 이 세 언어는 너무나 문자가 많아서 2-바이트 유니코드 시스템으로는 모두 표현하지 못한다. 그러나 <span class="application">파이썬</span>은 현재 그를 지원하지 못하며, 그를 지원하는 프로젝트가 있는지는 모르겠다. 안타깝게도, 여기까지가 나의 한계이다.
+                  </p>
+               </div>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap08.html">☜ 제 08 장 HTML 처리</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap10.html">제 10 장 스크립트와 스트림 ☞</A></TD>
+</TR>
+</TABLE>
+   </body>
+</html>

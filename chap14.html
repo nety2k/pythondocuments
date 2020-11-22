@@ -1,0 +1,1027 @@
+        <!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap14.html">http://coreapython.hosting.paran.com/dive/chap14.html</a><br>
+<b>Title:</b> 14. 테스트-먼저 프로그래밍 &nbsp;&bull;&nbsp; <b>Size:</b> 78788<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap13.html">☜ 제 13 장 유닛테스트</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap15.html">제 15 장 리팩토링 ☞</A></TD>
+</TR>
+</TABLE>
+		 <div name="14장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="roman1.5"></a>제&nbsp;14 장&nbsp;테스트-먼저 프로그래밍</h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.stage1"></a>14.1.&nbsp;<tt class="filename">roman.py</tt>, 1 단계
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>유닛 테스트가 완성되었으므로, 이제 테스트 사례로 테스트할 코드를 작성할 시간입니다. 단계별로 작성해 보겠습니다. 그래서 모든 유닛 테스트가 실패하고, 그 다음에  하나하나 <tt class="filename">roman.py</tt>에 벌어진 틈새를 채워 넣어 보겠습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e32864"></a><h3 class="title">예제&nbsp;14.1.&nbsp;<tt class="filename">roman1.py</tt></h3>
+                  <p>이 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage1/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">다음 예제와 기타 예제들</a>을 내려받을 수 있습니다.
+                  </p><pre class="programlisting">
+"""로마 숫자를 변환한다"""
+
+# 예외를 정의한다.
+class RomanError(Exception): pass                <a name="roman.stage1.1.1"></a><span class="round">①</span>
+class OutOfRangeError(RomanError): pass          <a name="roman.stage1.1.2"></a><span class="round">②</span>
+class NotIntegerError(RomanError): pass
+class InvalidRomanNumeralError(RomanError): pass <a name="roman.stage1.1.3"></a><span class="round">③</span>
+
+def toRoman(n):
+    """정수를 로마 숫자로 변환한다"""
+    pass                                         <a name="roman.stage1.1.4"></a><span class="round">④</span>
+
+def fromRoman(s):
+    """로마 숫자를 정수로 변환한다"""
+    pass
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage1.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 <span class="application">파이썬</span>에서 맞춤 예외를 정의하는 법입니다. 예외는 클래스이며, 기존의 예외를 상속받으면 자신만의 예외를 만들 수 있습니다. 특히 (필수는 아니지만) <tt class="errorcode">Exception</tt> 클래스를 상속받기를 권장합니다. 이 예외 클래스는 모든 내장 예외의 바탕 클래스입니다. 여기에서 <tt class="errorcode">RomanError</tt>가 (<tt class="errorcode">Exception</tt>를 상속받아) 다른 모든 예외가 따를 바탕 클래스로 행위하도록 정의합니다. 이는 스타일의 문제입니다; 예외마다 직접 <tt class="errorcode">Exception</tt> 클래스로부터 아주 쉽게 상속받을 수 있었습니다. 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage1.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="errorcode">OutOfRangeError</tt> 예외와 <tt class="errorcode">NotIntegerError</tt> 예외는 결국 <tt class="function">toRoman</tt>이 사용해서 <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.tobadinput.example" title="Example&nbsp;13.3.&nbsp;Testing bad input to toRoman"><tt class="classname">ToRomanBadInput</tt></a>에 지정된대로, 다양한 형태의 무효한 입력을 판별합니다.                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage1.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="errorcode">InvalidRomanNumeralError</tt> 예외는 결국 <tt class="function">fromRoman</tt>이 사용하여  <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.frombadinput.example" title="Example&nbsp;13.4.&nbsp;Testing bad input to fromRoman"><tt class="classname">FromRomanBadInput</tt></a>예 지정된대로, 무효한 입력을 판별합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage1.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 단계에서는 함수의 <span class="acronym">API</span>는 지정하고, 그러나 아직 코드하고 싶지는 않습니다. 그래서 파이썬의 <span class="application">파이썬</span> 예약어 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.class.simplest" title="Example&nbsp;5.3.&nbsp;The Simplest Python Class"><tt class="literal">pass</tt></a>를 사용하여 임시로 함수를 만듭니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>가슴 뛰는 순간입니다 (드럼 소리 두두두): 마침내 이 임시의 작은 모듈에 대해서 유닛 테스트를 실행하게 되었습니다. 이 시점에서 모든 테스트 사례는 실패해야 합니다. 사실, 1 단계에서 테스트 사례가 하나라도 통과하면 다시 <tt class="filename">romantest.py</tt>로 돌아가서 왜 아무것도 하지 않는 함수로 통과하도록 테스트를 쓸모없이 코딩했는지 재평가해야 합니다.
+               </p>
+               <p>명령어 줄에서 <tt class="option">-v</tt> 옵션을 가지고 <tt class="filename">romantest1.py</tt>를 실행해 보세요. 그러면 출력이 더 상세해서, 테스트 사례가 실행될 때마다 정확하게 무슨 일이 진행되고 있는지 볼 수 있습니다. 운이 좋으면 출력은 다음과 같이 보일 것입니다:
+               </p>
+               <div class="example"><a name="roman.stage1.output"></a><h3 class="title">예제&nbsp;14.2.&nbsp; <tt class="filename">roman1.py</tt>에 대한 <tt class="filename">romantest1.py</tt>의 출력</h3><pre class="screen"><span class="computeroutput">fromRoman should only accept uppercase input ... ERROR
+toRoman should always return uppercase ... ERROR
+fromRoman should fail with malformed antecedents ... FAIL
+fromRoman should fail with repeated pairs of numerals ... FAIL
+fromRoman should fail with too many repeated numerals ... FAIL
+fromRoman should give known result with known input ... FAIL
+toRoman should give known result with known input ... FAIL
+fromRoman(toRoman(n))==n for all n ... FAIL
+toRoman should fail with non-integer input ... FAIL
+toRoman should fail with negative input ... FAIL
+toRoman should fail with large input ... FAIL
+toRoman should fail with 0 input ... FAIL
+
+======================================================================
+ERROR: fromRoman should only accept uppercase input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 154, in testFromRomanCase
+    roman1.fromRoman(numeral.upper())
+AttributeError: 'None' object has no attribute 'upper'</span><span class="computeroutput">
+======================================================================
+ERROR: toRoman should always return uppercase
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 148, in testToRomanCase
+    self.assertEqual(numeral, numeral.upper())
+AttributeError: 'None' object has no attribute 'upper'</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with malformed antecedents
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 133, in testMalformedAntecedent
+    self.assertRaises(roman1.InvalidRomanNumeralError, roman1.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with repeated pairs of numerals
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 127, in testRepeatedPairs
+    self.assertRaises(roman1.InvalidRomanNumeralError, roman1.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with too many repeated numerals
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 122, in testTooManyRepeatedNumerals
+    self.assertRaises(roman1.InvalidRomanNumeralError, roman1.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should give known result with known input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 99, in testFromRomanKnownValues
+    self.assertEqual(integer, result)
+  File "c:\python21\lib\unittest.py", line 273, in failUnlessEqual
+    raise self.failureException, (msg or '%s != %s' % (first, second))
+AssertionError: 1 != None</span><span class="computeroutput">
+======================================================================
+FAIL: toRoman should give known result with known input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 93, in testToRomanKnownValues
+    self.assertEqual(numeral, result)
+  File "c:\python21\lib\unittest.py", line 273, in failUnlessEqual
+    raise self.failureException, (msg or '%s != %s' % (first, second))
+AssertionError: I != None</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman(toRoman(n))==n for all n
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 141, in testSanity
+    self.assertEqual(integer, result)
+  File "c:\python21\lib\unittest.py", line 273, in failUnlessEqual
+    raise self.failureException, (msg or '%s != %s' % (first, second))
+AssertionError: 1 != None</span><span class="computeroutput">
+======================================================================
+FAIL: toRoman should fail with non-integer input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 116, in testNonInteger
+    self.assertRaises(roman1.NotIntegerError, roman1.toRoman, 0.5)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: NotIntegerError</span><span class="computeroutput">
+======================================================================
+FAIL: toRoman should fail with negative input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 112, in testNegative
+    self.assertRaises(roman1.OutOfRangeError, roman1.toRoman, -1)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: OutOfRangeError</span><span class="computeroutput">
+======================================================================
+FAIL: toRoman should fail with large input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 104, in testTooLarge
+    self.assertRaises(roman1.OutOfRangeError, roman1.toRoman, 4000)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: OutOfRangeError</span><span class="computeroutput">
+======================================================================
+FAIL: toRoman should fail with 0 input                                 </span><a name="roman.stage1.2.1"></a><span class="round">①</span><span class="computeroutput">
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage1\romantest1.py", line 108, in testZero
+    self.assertRaises(roman1.OutOfRangeError, roman1.toRoman, 0)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: OutOfRangeError                                        </span><a name="roman.stage1.2.2"></a><span class="round">②</span><span class="computeroutput">
+----------------------------------------------------------------------
+Ran 12 tests in 0.040s                                                 </span><a name="roman.stage1.2.3"></a><span class="round">③</span><span class="computeroutput">
+
+FAILED (failures=10, errors=2)                                         </span><a name="roman.stage1.2.4"></a><span class="round">④</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage1.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">스크립트를 실행하면 <tt class="function">unittest.main()</tt>이 실행되는데, 여기에서 각 테스트 사례가 실행되며, <tt class="filename">romantest.py</tt>의 각 클래스 안에 정의된 메쏘드를 하나하나 보고합니다. 테스트 사례마다, 그 메쏘드의 문서화 문자열(<tt class="literal">Doc string</tt>)이 인쇄되고 테스트가 통과했는지 실패했는지 인쇄됩니다. 예상대로, 모든 테스트 사례가 실패했습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage1.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">테스트 사례가 실패할 때마다, <tt class="filename">unittest</tt>는 정확하게 무슨 일이 일어났는지 추적 정보를 화면에 보여줍니다. 이 경우, <tt class="function">assertRaises</tt>를 호출했더니 (<tt class="function">failUnlessRaises</tt>라고도 불리우는) <tt class="errorcode">AssertionError</tt>가 일어났습니다. 왜냐하면 <tt class="function">toRoman</tt>이 <tt class="errorcode">OutOfRangeError</tt>를 일으킬 거라고 예상했는데 그렇지 않았기 때문입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage1.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">상세 정보가 출력된 후, <tt class="filename">unittest</tt>는 얼마나 많은 테스트가 수행되었는지 그리고 얼마나 오래 걸렸는지 요약하여 화면에 표시합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage1.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">전반적으로, 유닛 테스트는 적어도 하나의 테스트 사례는 통과하지 못했기 때문에 실패했습니다.  테스트 사례가 통과하지 못하면 <tt class="filename">unittest</tt>는 실패와 에러를 구별합니다. 실패는 예를 들어 <tt class="function">assertEqual</tt>나 <tt class="function">assertRaises</tt> 같은 <tt class="function">assertXYZ</tt> 메쏘드를 호출할 때, 표명된 조건이 참이 아니거나 예상한 예외가 일어나지 않기 때문에 일어납니다. 에러는 테스트중인 코드에서 또는 유닛 테스트 자체에서 일어난 나머지 모든 예외입니다. 예를 들면 (&#8220;<span class="quote"><tt class="function">fromRoman</tt>은 오직 대문자만 입력받기 때문에</span>&#8221;) <tt class="function">testFromRomanCase</tt> 메쏘드는 에러였습니다. 왜냐하면 <tt class="function">numeral.upper()</tt>를 호출하면 <tt class="errorcode">AttributeError</tt> 예외가 일어났기 때문입니다. <tt class="function">toRoman</tt>은 문자열을 돌려주도록 되어있지만 그렇지 않았습니다. 그러나 <tt class="function">testZero</tt>는 (&#8220;<span class="quote"><tt class="function">toRoman</tt>은 0이 입력되면 실패해야 하므로</span>&#8221;) 실패했습니다. 왜냐하면 <tt class="function">fromRoman</tt>를 호출하더라도 <tt class="function">assertRaises</tt>가 찾고 있는 <tt class="errorcode">InvalidRomanNumeral</tt> 예외가 일어나지 않았기 때문입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.stage2"></a>14.2.&nbsp;<tt class="filename">roman.py</tt>, 2 단계
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이제 <tt class="filename">roman</tt> 모듈 작업틀의 기본 그림을 그렸으므로, 코드를 작성하고 테스트 사례를 통과시켜 볼 시간입니다.
+                  </p>
+               </div>
+               <div class="example"><a name="roman.stage2.example"></a><h3 class="title">예제&nbsp;14.3.&nbsp;<tt class="filename">roman2.py</tt></h3>
+                  <p>이 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage2/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">다음 예제와 다른 예제</a>를 내려 받을 수 있습니다.
+                  </p><pre class="programlisting">
+"""로마 숫자를 변환한다"""
+
+# 예외를 정의한다.
+class RomanError(Exception): pass
+class OutOfRangeError(RomanError): pass
+class NotIntegerError(RomanError): pass
+class InvalidRomanNumeralError(RomanError): pass
+
+# 자리 짝짓기를 정의한다.
+romanNumeralMap = (('M',  1000), <a name="roman.stage2.1.1"></a><span class="round">①</span>
+                   ('CM', 900),
+                   ('D',  500),
+                   ('CD', 400),
+                   ('C',  100),
+                   ('XC', 90),
+                   ('L',  50),
+                   ('XL', 40),
+                   ('X',  10),
+                   ('IX', 9),
+                   ('V',  5),
+                   ('IV', 4),
+                   ('I',  1))
+
+def toRoman(n):
+    """정수를 로마 숫자로 변환한다"""
+    result = ""
+    for numeral, integer in romanNumeralMap:
+        while n &gt;= integer:      <a name="roman.stage2.1.2"></a><span class="round">②</span>
+            result += numeral
+            n -= integer
+    return result
+
+def fromRoman(s):
+    """로마 숫자를 정수로 변환한다"""
+    pass
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage2.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">romanNumeralMap</tt>은 터플로 구성된 터플로서 세 가지가 정의되어 있습니다:
+                              <div class="orderedlist">
+                                 <ol type="1">
+                                    <li>가장 기본적인 로마 숫자의 문자 표현이 정의되어 있습니다. 이는 단순히 한개짜리 로마 숫자만이 아님에 주목하세요;  <tt class="literal">CM</tt>와 같은 문자-두개짜리 쌍도 정의하고 있습니다 (&#8220;<span class="quote">천보다 백이 작은 수</span>&#8221;); 이렇게 하면 나중에 <tt class="function">toRoman</tt> 코드가 더 단순해 집니다.
+                                    </li>
+                                    <li>로마 숫자의 순서가 정의되어 있습니다. <tt class="literal">M</tt>에서부터 <tt class="literal">I</tt>까지 내림차순으로 나열됩니다.
+                                    </li>
+                                    <li>로마 숫자의 값이 정의되어 있습니다. 안쪽 터플은 하나하나가 한 쌍의 <tt class="literal">(<i class="replaceable">numeral</i>, <i class="replaceable">value</i>)</tt>입니다.
+                                    </li>
+                                 </ol>
+                              </div>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage2.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서 풍부한 데이터 구조가 효과를 발휘합니다. 왜냐하면 빼기 규칙을 처리하기 위하여 특별한 로직이 필요없기 때문입니다. 로마 숫자로 변환하기 위하여, 그냥 단순히 <tt class="varname">romanNumeralMap</tt>을 회돌이하면서 입력 이하의 가장 큰 정수 값을 찾습니다. 발견되면 로마 숫자 표현을 출력의 끝에 더하고, 상응하는 정수 값을 입력에서 빼는 일을 계속 반복합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e33197"></a><h3 class="title">예제&nbsp;14.4.&nbsp;어떻게 <tt class="function">toRoman</tt>는 작동하는가
+                  </h3>
+                  <p><tt class="function">toRoman</tt>이 어떻게 작동하는지 잘 모르겠다면 <tt class="function">print</tt> 서술문을 <tt class="literal">while</tt> 회돌이의 끝에 추가하세요:
+                  </p><pre class="programlisting">
+        while n &gt;= integer:
+            result += numeral
+            n -= integer
+            print 'subtracting', integer, 'from input, adding', numeral, 'to output'</pre><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import roman2</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">roman2.toRoman(1424)</span>
+<span class="computeroutput">subtracting 1000 from input, adding M to output
+subtracting 400 from input, adding CD to output
+subtracting 10 from input, adding X to output
+subtracting 10 from input, adding X to output
+subtracting 4 from input, adding IV to output
+'MCDXXIV'</span>
+</pre></div>
+               <p>그래서 <tt class="function">toRoman</tt>은 작동하는 것처럼 보입니다. 적어도 이렇게 수작업으로 위치를 점검하면 말입니다. 그러나 유닛 테스트는 통과할까요? 아닙니다. 완전히는 아닙니다.
+               </p>
+               <div class="example"><a name="d0e33236"></a><h3 class="title">예제&nbsp;14.5.&nbsp; <tt class="filename">roman2.py</tt>에 대한 <tt class="filename">romantest2.py</tt>의 출력</h3>
+                  <p>잊지말고 <tt class="literal">-v</tt> 명령어-줄 플래그를 가지고 <tt class="filename">romantest2.py</tt>를 실행시켜서 상세 모드를 활성화 시키세요.
+                  </p><pre class="screen"><span class="computeroutput">fromRoman should only accept uppercase input ... FAIL
+toRoman should always return uppercase ... ok                  </span><a name="roman.stage2.2.1"></a><span class="round">①</span><span class="computeroutput">
+fromRoman should fail with malformed antecedents ... FAIL
+fromRoman should fail with repeated pairs of numerals ... FAIL
+fromRoman should fail with too many repeated numerals ... FAIL
+fromRoman should give known result with known input ... FAIL
+toRoman should give known result with known input ... ok       </span><a name="roman.stage2.2.2"></a><span class="round">②</span><span class="computeroutput">
+fromRoman(toRoman(n))==n for all n ... FAIL
+toRoman should fail with non-integer input ... FAIL            </span><a name="roman.stage2.2.3"></a><span class="round">③</span><span class="computeroutput">
+toRoman should fail with negative input ... FAIL
+toRoman should fail with large input ... FAIL
+toRoman should fail with 0 input ... FAIL</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage2.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">사실 <tt class="function">toRoman</tt>은 언제나 대문자를 돌려줍니다. 왜냐하면 <tt class="varname">romanNumeralMap</tt>에 로마 숫자 표현이 대문자로 정의되어 있기 때문입니다. 그래서 이 테스트는 이미 통과했습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage2.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">다음은 굉장한 뉴스입니다: 이 버전의 <tt class="function">toRoman</tt> 함수는 <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.testtoromanknownvalues.example" title="Example&nbsp;13.2.&nbsp;testToRomanKnownValues">알려진 값 테스트</a>를 통과합니다.  기억하세요. 이 테스트는 종합적이지는 않지만 함수를 다양한 좋은 입력에 맞추어 시행합니다. 여기에는 문자-한개짜리 로마 숫자 입력과 가장 큰 입력(<tt class="literal">3999</tt>) 그리고 가장 긴 로마숫자 입력(<tt class="literal">3888</tt>)이 포함됩니다. 이 시점에서 어떤 값이든 좋은 값을 던져 넣으면 함수는 제대로 작동한다고 충분히 확신할 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage2.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">그렇지만 함수는 나쁜 값에 대하여 &#8220;<span class="quote">작동하지 않습니다</span>&#8221;; 한개짜리 <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.tobadinput.example" title="Example&nbsp;13.3.&nbsp;Testing bad input to toRoman">나쁜 입력 테스트마다</a> 실패합니다.  나쁜 입력을 점검하지 않았기 때문에 당연합니다. 그런 테스트 사례는 (<tt class="function">assertRaises</tt>를 통하여) 특정한 예외가 일어나기를 기대하는데, 전혀 그런 예외는 일어나지 않습니다. 다음 단계에서 그렇게 해 보겠습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+                  <p>다음은 유닛 테스트의 나머지 출력으로서, 모든 실패를 자세하게 나열하고 있습니다. 실패는 10개까지 내려갑니다.</p><pre class="screen"><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should only accept uppercase input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 156, in testFromRomanCase
+    roman2.fromRoman, numeral.lower())
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with malformed antecedents
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 133, in testMalformedAntecedent
+    self.assertRaises(roman2.InvalidRomanNumeralError, roman2.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with repeated pairs of numerals
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 127, in testRepeatedPairs
+    self.assertRaises(roman2.InvalidRomanNumeralError, roman2.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with too many repeated numerals
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 122, in testTooManyRepeatedNumerals
+    self.assertRaises(roman2.InvalidRomanNumeralError, roman2.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should give known result with known input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 99, in testFromRomanKnownValues
+    self.assertEqual(integer, result)
+  File "c:\python21\lib\unittest.py", line 273, in failUnlessEqual
+    raise self.failureException, (msg or '%s != %s' % (first, second))
+AssertionError: 1 != None</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman(toRoman(n))==n for all n
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 141, in testSanity
+    self.assertEqual(integer, result)
+  File "c:\python21\lib\unittest.py", line 273, in failUnlessEqual
+    raise self.failureException, (msg or '%s != %s' % (first, second))
+AssertionError: 1 != None</span><span class="computeroutput">
+======================================================================
+FAIL: toRoman should fail with non-integer input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 116, in testNonInteger
+    self.assertRaises(roman2.NotIntegerError, roman2.toRoman, 0.5)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: NotIntegerError</span><span class="computeroutput">
+======================================================================
+FAIL: toRoman should fail with negative input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 112, in testNegative
+    self.assertRaises(roman2.OutOfRangeError, roman2.toRoman, -1)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: OutOfRangeError</span><span class="computeroutput">
+======================================================================
+FAIL: toRoman should fail with large input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 104, in testTooLarge
+    self.assertRaises(roman2.OutOfRangeError, roman2.toRoman, 4000)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: OutOfRangeError</span><span class="computeroutput">
+======================================================================
+FAIL: toRoman should fail with 0 input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage2\romantest2.py", line 108, in testZero
+    self.assertRaises(roman2.OutOfRangeError, roman2.toRoman, 0)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: OutOfRangeError</span><span class="computeroutput">
+----------------------------------------------------------------------
+Ran 12 tests in 0.320s
+
+FAILED (failures=10)</span></pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.stage3"></a>14.3.&nbsp;<tt class="filename">roman.py</tt>, 3 단계
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이제 <tt class="function">toRoman</tt>은 좋은 입력 (<tt class="literal">1</tt>에서 <tt class="literal">3999</tt> 까지의 정수)에 대하여 올바르게 행위하므로, (다른 무엇이든) 나쁜 입력에 대해서 올바르게 작동하도록 만들 시간입니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e33364"></a><h3 class="title">예제&nbsp;14.6.&nbsp;<tt class="filename">roman3.py</tt></h3>
+                  <p>이 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage3/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">다음 예제와 다른 예제를</a> 내려 받을 수 있습니다.
+                  </p><pre class="programlisting">
+"""로마 숫자를 변환한다"""
+
+# 예외를 정의한다.
+class RomanError(Exception): pass
+class OutOfRangeError(RomanError): pass
+class NotIntegerError(RomanError): pass
+class InvalidRomanNumeralError(RomanError): pass
+
+# 자리 짝짓기를 정의한다.
+romanNumeralMap = (('M',  1000),
+                   ('CM', 900),
+                   ('D',  500),
+                   ('CD', 400),
+                   ('C',  100),
+                   ('XC', 90),
+                   ('L',  50),
+                   ('XL', 40),
+                   ('X',  10),
+                   ('IX', 9),
+                   ('V',  5),
+                   ('IV', 4),
+                   ('I',  1))
+
+def toRoman(n):
+    """정수를 로마 숫자로 변환한다"""
+    if not (0 &lt; n &lt; 4000):                                             <a name="roman.stage3.1.1"></a><span class="round">①</span>
+        raise OutOfRangeError, "number out of range (must be 1..3999)" <a name="roman.stage3.1.2"></a><span class="round">②</span>
+    if int(n) &lt;&gt; n:                                                    <a name="roman.stage3.1.3"></a><span class="round">③</span>
+        raise NotIntegerError, "non-integers can not be converted"
+
+    result = ""                                                        <a name="roman.stage3.1.4"></a><span class="round">④</span>
+    for numeral, integer in romanNumeralMap:
+        while n &gt;= integer:
+            result += numeral
+            n -= integer
+    return result
+
+def fromRoman(s):
+    """로마 숫자를 정수로 변환한다"""
+    pass
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage3.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 <span class="application">파이썬</span>스러운 멋진 지름길입니다: 여러 비교를 한 번에 행합니다.  이는 '<tt class="literal">if not ((0 &lt; n) and (n &lt; 4000))</tt>'과 동등하지만 훨씬 더 읽기 좋습니다. 이것은 범위 점검이고, 너무 크거나 음수 또는 0인 입력을 잡아야 합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage3.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">raise</tt> 서술문으로 직접 예외를 일으킵니다. 내장 예외를 모두 일으킬 수 있으며, 손수 정의한 맞춤 예외를 일으킬 수도 있습니다. 두 번째 매개변수인 에러 메시지는 선택적입니다; 두 번째 매개변수가 주어지면 예외가 처리되지 못할 경우 인쇄되는 역추적 메시지 안에 표시됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage3.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이것은 비-정수 점검입니다. 비-정수는 로마 숫자로 변환할 수 없습니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage3.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">나머지 함수는 그대로입니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e33410"></a><h3 class="title">예제&nbsp;14.7.&nbsp; <tt class="function">toRoman</tt>이 어떻게 나쁜 입력을 다루는지 살펴보기
+                  </h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import roman3</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">roman3.toRoman(4000)</span>
+<span class="traceback">Traceback (most recent call last):
+  File "&lt;interactive input&gt;", line 1, in ?
+  File "roman3.py", line 27, in toRoman
+    raise OutOfRangeError, "number out of range (must be 1..3999)"
+OutOfRangeError: number out of range (must be 1..3999)</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">roman3.toRoman(1.5)</span>
+<span class="traceback">Traceback (most recent call last):
+  File "&lt;interactive input&gt;", line 1, in ?
+  File "roman3.py", line 29, in toRoman
+    raise NotIntegerError, "non-integers can not be converted"
+NotIntegerError: non-integers can not be converted</span>
+</pre></div>
+               <div class="example"><a name="d0e33439"></a><h3 class="title">예제&nbsp;14.8.&nbsp;<tt class="filename">roman3.py</tt>에 대한 <tt class="filename">romantest3.py</tt>의 출력</h3><pre class="screen"><span class="computeroutput">fromRoman should only accept uppercase input ... FAIL
+toRoman should always return uppercase ... ok
+fromRoman should fail with malformed antecedents ... FAIL
+fromRoman should fail with repeated pairs of numerals ... FAIL
+fromRoman should fail with too many repeated numerals ... FAIL
+fromRoman should give known result with known input ... FAIL
+toRoman should give known result with known input ... ok </span><a name="roman.stage3.2.1"></a><span class="round">①</span><span class="computeroutput">
+fromRoman(toRoman(n))==n for all n ... FAIL
+toRoman should fail with non-integer input ... ok        </span><a name="roman.stage3.2.2"></a><span class="round">②</span><span class="computeroutput">
+toRoman should fail with negative input ... ok           </span><a name="roman.stage3.2.3"></a><span class="round">③</span><span class="computeroutput">
+toRoman should fail with large input ... ok
+toRoman should fail with 0 input ... ok</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage3.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">toRoman</tt> 함수도 <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.testtoromanknownvalues.example" title="Example&nbsp;13.2.&nbsp;testToRomanKnownValues">알려진 값 테스트</a>를 통과합니다. 고맙군요.  <a href="#roman.stage2" title="14.2.&nbsp;roman.py, stage 2">2 단계</a>를 통과한 테스트도 모두 통과합니다. 그래서 최신 코드는 아무것도 망가트리지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage3.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">더 신나는 것은 이제 <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.tobadinput.example" title="Example&nbsp;13.3.&nbsp;Testing bad input to toRoman">나쁜 입력 테스트</a>가 모두 통과한다는 것입니다. 이 <tt class="function">testNonInteger</tt> 테스트는 <tt class="literal">int(n) &lt;&gt; n</tt> 점검 때문에 통과합니다. 비-정수가 <tt class="function">toRoman</tt>에 건네지면 <tt class="literal">int(n) &lt;&gt; n</tt> 점검은 그것을 알아채고 <tt class="errorcode">NotIntegerError</tt> 예외를 일으키는데, 이 예외는  <tt class="function">testNonInteger</tt>가 기대하고 있는 것입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage3.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 <tt class="function">testNegative</tt> 테스트는 <tt class="literal">not (0 &lt; n &lt; 4000)</tt> 점검 때문에 통과하는데, 이는 <tt class="errorcode">OutOfRangeError</tt> 예외를 일으키고, 이 예외는 <tt class="function">testNegative</tt>가 기대하고 있는 것입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div><pre class="screen"><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should only accept uppercase input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage3\romantest3.py", line 156, in testFromRomanCase
+    roman3.fromRoman, numeral.lower())
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with malformed antecedents
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage3\romantest3.py", line 133, in testMalformedAntecedent
+    self.assertRaises(roman3.InvalidRomanNumeralError, roman3.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with repeated pairs of numerals
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage3\romantest3.py", line 127, in testRepeatedPairs
+    self.assertRaises(roman3.InvalidRomanNumeralError, roman3.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with too many repeated numerals
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage3\romantest3.py", line 122, in testTooManyRepeatedNumerals
+    self.assertRaises(roman3.InvalidRomanNumeralError, roman3.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should give known result with known input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage3\romantest3.py", line 99, in testFromRomanKnownValues
+    self.assertEqual(integer, result)
+  File "c:\python21\lib\unittest.py", line 273, in failUnlessEqual
+    raise self.failureException, (msg or '%s != %s' % (first, second))
+AssertionError: 1 != None</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman(toRoman(n))==n for all n
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage3\romantest3.py", line 141, in testSanity
+    self.assertEqual(integer, result)
+  File "c:\python21\lib\unittest.py", line 273, in failUnlessEqual
+    raise self.failureException, (msg or '%s != %s' % (first, second))
+AssertionError: 1 != None</span><span class="computeroutput">
+----------------------------------------------------------------------
+Ran 12 tests in 0.401s
+
+FAILED (failures=6)</span> <a name="roman.stage3.3.1"></a><span class="round">①</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage3.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">실패가 6 개까지 내려왔습니다. 그리고 그 모두가 <tt class="function">fromRoman</tt>에 관련되어 있습니다: 알려진 값 테스트, 세 개로 나뉜 나쁜 입력 테스트, 대소문자 점검, 그리고 위생 점검이 그것입니다. 그것은 <tt class="function">toRoman</tt>이 스스로 통과할 수 있는 모든 테스트를 통과했다는 뜻입니다. (위생 점검에 관련되어 있을 뿐만 아니라 또한 아직 작성되지 않은 <tt class="function">fromRoman</tt>이 이미 작성되어 있기를 요구합니다.)  이는 이제 <tt class="function">toRoman</tt>의 코딩을 멈추어야 한다는 뜻입니다. &#8220;<span class="quote">사례마다 딱 맞게</span>&#8221; 더 손 댈 것도, 더 조작할 것도, 추가로 더 점검할 필요도 없습니다. 이제 멈추세요. 키보드로부터 멀리 떨어져 앉으세요.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="d0e33558"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">종합적인 유닛 테스트가 알려주어야 할 가장 중요한 일은 코딩을 멈추어야 할 때를 알려주는 것입니다. 한 함수에 대하여 모든 유닛 테스트가 통과하면 코딩을 멈추세요. 전체 모듈에 대하여 유닛 테스트가 모두 통과하면 바로 코딩을 멈추세요.
+                     </td>
+                  </tr>
+               </table>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.stage4"></a>14.4.&nbsp;<tt class="filename">roman.py</tt>, 4 단계
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이제 <tt class="function">toRoman</tt>이 완성되었으므로, <tt class="function">fromRoman</tt>을 코딩할 차례입니다. 로마 숫자를 정수 값을 짝지어 주는 풍부한 데이터 구조 덕분에, <tt class="function">toRoman</tt> 함수보다 어렵지 않게 코딩할 수 있습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e33582"></a><h3 class="title">예제&nbsp;14.9.&nbsp;<tt class="filename">roman4.py</tt></h3>
+                  <p>다음 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage4/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">다음 예제와 기타 예제를</a> 내려받을 수 있습니다.
+                  </p><pre class="programlisting">
+"""로마 숫자를 변환한다"""
+
+# 예외를 정의한다.
+class RomanError(Exception): pass
+class OutOfRangeError(RomanError): pass
+class NotIntegerError(RomanError): pass
+class InvalidRomanNumeralError(RomanError): pass
+
+# 자리 짝짓기를 정의한다
+romanNumeralMap = (('M',  1000),
+                   ('CM', 900),
+                   ('D',  500),
+                   ('CD', 400),
+                   ('C',  100),
+                   ('XC', 90),
+                   ('L',  50),
+                   ('XL', 40),
+                   ('X',  10),
+                   ('IX', 9),
+                   ('V',  5),
+                   ('IV', 4),
+                   ('I',  1))
+
+# 깨끗하게 toRoman 함수는 생략됨 (바뀌지 않음)
+
+def fromRoman(s):
+    """로마 숫자를 정수로 변환한다"""
+    result = 0
+    index = 0
+    for numeral, integer in romanNumeralMap:
+        while s[index:index+len(numeral)] == numeral: <a name="roman.stage4.1.1"></a><span class="round">①</span>
+            result += integer
+            index += len(numeral)
+    return result
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage4.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서 패턴은 <a href="#roman.stage2.example" title="Example&nbsp;14.3.&nbsp;roman2.py"><tt class="function">toRoman</tt></a>와 똑같습니다. 로마 숫자 데이터 구조(터플로 구성된 터플)를 회돌이하면서, 그리고 가능하면 가장 큰 정수 값을 일치시키는 대신에, 가능하면 &#8220;<span class="quote">가장 큰</span>&#8221; 로마 숫자 문자열을 일치시킵니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e33611"></a><h3 class="title">예제&nbsp;14.10.&nbsp;어떻게 <tt class="function">fromRoman</tt>은 작동하는가
+                  </h3>
+                  <p><tt class="function">fromRoman</tt>이 어떻게 작동하는지 잘 이해가 안 가신다면 <tt class="function">print</tt> 서술문을 <tt class="literal">while</tt> 회돌이의 끝에 추가하세요:
+                  </p><pre class="programlisting">
+        while s[index:index+len(numeral)] == numeral:
+            result += integer
+            index += len(numeral)
+            print 'found', numeral, 'of length', len(numeral), ', adding', integer</pre><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import roman4</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">roman4.fromRoman('MCMLXXII')</span>
+<span class="computeroutput">found M , of length 1, adding 1000
+found CM , of length 2, adding 900
+found L , of length 1, adding 50
+found X , of length 1, adding 10
+found X , of length 1, adding 10
+found I , of length 1, adding 1
+found I , of length 1, adding 1
+1972</span></pre></div>
+               <div class="example"><a name="d0e33644"></a><h3 class="title">예제&nbsp;14.11.&nbsp;<tt class="filename">roman4.py</tt>에 대한 <tt class="filename">romantest4.py</tt>의 출력</h3><pre class="screen"><span class="computeroutput">fromRoman should only accept uppercase input ... FAIL
+toRoman should always return uppercase ... ok
+fromRoman should fail with malformed antecedents ... FAIL
+fromRoman should fail with repeated pairs of numerals ... FAIL
+fromRoman should fail with too many repeated numerals ... FAIL
+fromRoman should give known result with known input ... ok </span><a name="roman.stage4.2.1"></a><span class="round">①</span><span class="computeroutput">
+toRoman should give known result with known input ... ok
+fromRoman(toRoman(n))==n for all n ... ok                  </span><a name="roman.stage4.2.2"></a><span class="round">②</span><span class="computeroutput">
+toRoman should fail with non-integer input ... ok
+toRoman should fail with negative input ... ok
+toRoman should fail with large input ... ok
+toRoman should fail with 0 input ... ok</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage4.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서 두 가지 기쁜 소식이 있습니다. 첫 소식은 <tt class="function">fromRoman</tt>이 좋은 입력에 대하여 작동하며, 적어도 테스트된 모든 <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.testtoromanknownvalues.example" title="Example&nbsp;13.2.&nbsp;testToRomanKnownValues">알려진 값</a>에 대하여 작동한다는 것입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage4.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">두번째 소식은 <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.sanity.example" title="Example&nbsp;13.5.&nbsp;Testing toRoman against fromRoman">위생 점검</a>도 통과했다는 사실입니다. 알려진 값 테스트와 결합하면 <tt class="function">toRoman</tt>과 <tt class="function">fromRoman</tt>가 모든 가능한 좋은 값에 대하여 적절하게 작동한다고 충분히 확신할 수 있습니다.  (이는 보증되지는 않습니다; 이론적으로 특정한 입력 집합에 대하여 그릇된 로마 숫자를 산출하는 버그가 <tt class="function">toRoman</tt>에 있을 수 있기 때문입니다. <span class="emphasis"><em>그리고</em></span> <tt class="function">toRoman</tt>이 엉터리로 생성한 똑 같은 로마 숫자 집합에 대하여 서로 그릇된 정수 값을 산출하는 버그가 <tt class="function">fromRoman</tt>에도 있을 수 있기 때문입니다. 어플리케이션과 요구조건에 따라, 이 가능성 때문에 곤란을 겪을 수도 있습니다; 그렇다면 괴롭히지 않을 때까지 더 종합적인 테스트 사례를 작성하세요.)
+                           </td>
+                        </tr>
+                     </table>
+                  </div><pre class="screen"><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should only accept uppercase input
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage4\romantest4.py", line 156, in testFromRomanCase
+    roman4.fromRoman, numeral.lower())
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with malformed antecedents
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage4\romantest4.py", line 133, in testMalformedAntecedent
+    self.assertRaises(roman4.InvalidRomanNumeralError, roman4.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with repeated pairs of numerals
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage4\romantest4.py", line 127, in testRepeatedPairs
+    self.assertRaises(roman4.InvalidRomanNumeralError, roman4.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+======================================================================
+FAIL: fromRoman should fail with too many repeated numerals
+----------------------------------------------------------------------
+</span><span class="traceback">Traceback (most recent call last):
+  File "C:\docbook\dip\py\roman\stage4\romantest4.py", line 122, in testTooManyRepeatedNumerals
+    self.assertRaises(roman4.InvalidRomanNumeralError, roman4.fromRoman, s)
+  File "c:\python21\lib\unittest.py", line 266, in failUnlessRaises
+    raise self.failureException, excName
+AssertionError: InvalidRomanNumeralError</span><span class="computeroutput">
+----------------------------------------------------------------------
+Ran 12 tests in 1.222s
+
+FAILED (failures=4)</span></pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="roman.stage5"></a>14.5.&nbsp;<tt class="filename">roman.py</tt>, 5 단계
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이제 <tt class="function">fromRoman</tt>은 좋은 입력에 대하여 적절하게 작동하므로, 마지막 퍼즐 조각을 맞출 시간입니다: 나쁜 입력에 작동하도록 만들 시간입니다. 즉, 문자열을 보고 유효한 로마 숫자인지 결정하는 방법을 찾는다는 뜻입니다. 이는 근본적으로 <tt class="function">toRoman</tt>에서 <a href="#roman.stage3" title="14.3.&nbsp;roman.py, stage 3">숫치 입력을 평가하는 것</a>보다 어렵지만 강력한 도구가 준비되어 있습니다: 정규 표현식이 바로 그것입니다.
+                  </p>
+               </div>
+               <p>정규 표현식을 잘 모르고 <a href="http://coreapython.hosting.paran.com/dive/chap07.html#re" title="Chapter&nbsp;7.&nbsp;Regular Expressions">제&nbsp;7 장, <i>정규 표현식</i></a>을 읽지 못하셨다면 지금이 좋은 기회입니다.
+               </p>
+               <p><a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.roman" title="7.3.&nbsp;Case Study: Roman Numerals">섹션&nbsp;7.3, &#8220;사례 연구: 로마 숫자&#8221;</a>에서 보셨듯이, 로마 숫자를 만드는 방법에는 간단한 규칙이 여럿 있습니다. <tt class="literal">M</tt>, <tt class="literal">D</tt>, <tt class="literal">C</tt>, <tt class="literal">L</tt>, <tt class="literal">X</tt>, <tt class="literal">V</tt>, 그리고 <tt class="literal">I</tt>라는 기호를 사용합니다.  규칙을 복습해 보겠습니다:
+               </p>
+               <div class="orderedlist">
+                  <ol type="1">
+                     <li>문자는 부가적이다.  <tt class="literal">I</tt>는 <tt class="constant">1</tt>이며, <tt class="literal">II</tt>는 <tt class="literal">2</tt>이고, <tt class="literal">III</tt>는 <tt class="literal">3</tt>이다.  <tt class="literal">VI</tt>는 <tt class="literal">6</tt>이고 (문자 그대로, &#8220;<span class="quote"><tt class="literal">5</tt>와 <tt class="literal">1</tt></span>&#8221;임), <tt class="literal">VII</tt>는 <tt class="literal">7</tt>이며, <tt class="literal">VIII</tt>는 <tt class="literal">8</tt>이다.
+                     </li>
+                     <li>십단위 문자(<tt class="literal">I</tt>, <tt class="literal">X</tt>, <tt class="literal">C</tt>, 그리고 <tt class="literal">M</tt>)는 세 번까지 반복될 수 있다.  <tt class="literal">4</tt>에 이르면 다음 높은 오 단위 문자에서 뺄 필요가 있다. <tt class="literal">4</tt>를 <tt class="literal">IIII</tt>로 나타낼 수 없다; 대신에, <tt class="literal">IV</tt>로 표현된다 (&#8220;<span class="quote"><tt class="literal">5</tt>보다 <tt class="literal">1</tt> 작은 수</span>&#8221;).  <tt class="literal">40</tt>은 <tt class="literal">XL</tt>로 표기되며 (&#8220;<span class="quote"><tt class="literal">50</tt>보다 <tt class="literal">10</tt> 작은 수</span>&#8221;), <tt class="literal">41</tt>은 <tt class="literal">XLI</tt>로, <tt class="literal">42</tt>는 <tt class="literal">XLII</tt>로, <tt class="literal">43</tt>은 <tt class="literal">XLIII</tt>로 표기되고, 그리고 <tt class="literal">44</tt>는 <tt class="literal">XLIV</tt>로 표기된다 (&#8220;<span class="quote"><tt class="literal">50</tt>보다 <tt class="literal">10</tt> 작고, <tt class="literal">5</tt>보다 <tt class="literal">1</tt> 작음</span>&#8221;).
+                     </li>
+                     <li>비슷하게 <tt class="literal">9</tt>에서, 다음 10 단위 문자에서 뺄 필요가 있다: <tt class="literal">8</tt>은 <tt class="literal">VIII</tt>이지만 <tt class="literal">9</tt>는 <tt class="literal">IX</tt>이다 (&#8220;<span class="quote"><tt class="literal">10</tt>보다 <tt class="literal">1</tt> 작음</span>&#8221;). <tt class="literal">VIIII</tt>이 아니다 (<tt class="literal">I</tt> 문자는 네 번 반복할 수 없기 때문이다).  <tt class="literal">90</tt>은 <tt class="literal">XC</tt>이고, <tt class="literal">900</tt>은 <tt class="literal">CM</tt>이다.
+                     </li>
+                     <li>오 단위 문자는 반복할 수 없다.  <tt class="literal">10</tt>은 언제나 <tt class="literal">X</tt>로 표현되지, <tt class="literal">VV</tt>로 표현되지 않는다.  <tt class="literal">100</tt>은 언제나 <tt class="literal">C</tt>이지, 절대로 <tt class="literal">LL</tt>이 되지 않는다.
+                     </li>
+                     <li>로마 숫자는 언제나 높은 자리에서 낮은 자리 순서로 표기된다. 그리고 왼쪽에서 오른쪽으로 읽는다. 그래서 문자의 문서가 대단히 중요하다.  <tt class="literal">DC</tt>는 <tt class="literal">600</tt>이며; <tt class="literal">CD</tt>는 완전히 다른 숫자이다 (&#8220;<span class="quote"> <tt class="literal">500</tt>보다 <tt class="literal">100</tt> 작은</span>&#8221;<tt class="literal">400</tt>임).  <tt class="literal">CI</tt>는 <tt class="literal">101</tt>이다; <tt class="literal">IC</tt>는 로마 숫자로 유효하지도 않다 (<tt class="literal">100</tt>에서 직접적으로 <tt class="literal">1</tt>을 뺄 수 없기 때문이다;&#8220;<span class="quote"><tt class="literal">100</tt>보다 <tt class="literal">10</tt> 작고, <tt class="literal">10</tt>보다 <tt class="literal">1</tt> 작게</span>&#8221; <tt class="literal">XCIX</tt>로 작성할 필요가 있다).
+                     </li>
+                  </ol>
+               </div>
+               <div class="example"><a name="d0e34010"></a><h3 class="title">예제&nbsp;14.12.&nbsp;<tt class="filename">roman5.py</tt></h3>
+                  <p>이 파일은 예제 디렉토리의 <tt class="filename">py/roman/stage5/</tt>에 있습니다.
+                  </p>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">다음 예제와 기타 예제</a>를 내려받을 수 있습니다.
+                  </p><pre class="programlisting">
+"""로마 숫자를 변환한다"""
+import re
+
+# 예외를 정의한다.
+class RomanError(Exception): pass
+class OutOfRangeError(RomanError): pass
+class NotIntegerError(RomanError): pass
+class InvalidRomanNumeralError(RomanError): pass
+
+# 자리수 짝짓기를 정의한다.
+romanNumeralMap = (('M',  1000),
+                   ('CM', 900),
+                   ('D',  500),
+                   ('CD', 400),
+                   ('C',  100),
+                   ('XC', 90),
+                   ('L',  50),
+                   ('XL', 40),
+                   ('X',  10),
+                   ('IX', 9),
+                   ('V',  5),
+                   ('IV', 4),
+                   ('I',  1))
+
+def toRoman(n):
+    """정수를 로마 숫자로 변환한다"""
+    if not (0 &lt; n &lt; 4000):
+        raise OutOfRangeError, "number out of range (must be 1..3999)"
+    if int(n) &lt;&gt; n:
+        raise NotIntegerError, "non-integers can not be converted"
+
+    result = ""
+    for numeral, integer in romanNumeralMap:
+        while n &gt;= integer:
+            result += numeral
+            n -= integer
+    return result
+
+# 유효한 로마 숫자를 탐지하기 위한 패턴을 정의한다.
+romanNumeralPattern = '^M?M?M?(CM|CD|D?C?C?C?)(XC|XL|L?X?X?X?)(IX|IV|V?I?I?I?)$' <a name="roman.stage5.3.1"></a><span class="round">①</span>
+
+def fromRoman(s):
+    """로마 숫자를 정수로 변환한다"""
+    if not re.search(romanNumeralPattern, s):                                    <a name="roman.stage5.3.2"></a><span class="round">②</span>
+        raise InvalidRomanNumeralError, 'Invalid Roman numeral: %s' % s
+
+    result = 0
+    index = 0
+    for numeral, integer in romanNumeralMap:
+        while s[index:index+len(numeral)] == numeral:
+            result += integer
+            index += len(numeral)
+    return result
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage5.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 패턴은 <a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.roman" title="7.3.&nbsp;Case Study: Roman Numerals">섹션&nbsp;7.3, &#8220;사례 연구: 로마 숫자&#8221;</a>에서 연구한 바와 똑 같이 계속됩니다. 십의 자리는 <tt class="literal">XC</tt> (<tt class="literal">90</tt>)이거나 <tt class="literal">XL</tt> (<tt class="literal">40</tt>) 또는 선택적인 <tt class="literal">L</tt> 다음에 0에서 3개까지의 선택적인 <tt class="literal">X</tt> 문자가 옵니다. 일의 자리는 <tt class="literal">IX</tt> (<tt class="literal">9</tt>)이거나 <tt class="literal">IV</tt> (<tt class="literal">4</tt>) 또는 선택적인 <tt class="literal">V</tt> 다음에 0에서 3개까지의 선택적인 <tt class="literal">I</tt> 문자가 옵니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage5.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">모든 로직을 정규 표현식 안으로 넣었으므로, 로마 숫자가 유효한지 점검나는 코드는 전혀 어려울 게 없습니다. <tt class="function">re.search</tt>이 객체를 하나 돌려주면 일치된 정규 표현식과 그 입력은 유효합니다. 그렇지 않으면 그 입력은 유효하지 않습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이 시점에서, 이 못생긴 커다란 정규 표현식이 과연 모든 유형의 무효한 로마 숫자를 잡아낼 수 있을지 의심이 드는 것은 당연합니다. 그러나 내 말을 곧이 곧대로 믿지 마시고, 그 결과를 살펴보세요:
+               </p>
+               <div class="example"><a name="d0e34080"></a><h3 class="title">예제&nbsp;14.13.&nbsp;<tt class="filename">roman5.py</tt>에 대한 <tt class="filename">romantest5.py</tt>의 출력 </h3><pre class="screen"><span class="computeroutput">
+fromRoman should only accept uppercase input ... ok          </span><a name="roman.stage5.4.1"></a><span class="round">①</span><span class="computeroutput">
+toRoman should always return uppercase ... ok
+fromRoman should fail with malformed antecedents ... ok      </span><a name="roman.stage5.4.2"></a><span class="round">②</span><span class="computeroutput">
+fromRoman should fail with repeated pairs of numerals ... ok </span><a name="roman.stage5.4.3"></a><span class="round">③</span><span class="computeroutput">
+fromRoman should fail with too many repeated numerals ... ok
+fromRoman should give known result with known input ... ok
+toRoman should give known result with known input ... ok
+fromRoman(toRoman(n))==n for all n ... ok
+toRoman should fail with non-integer input ... ok
+toRoman should fail with negative input ... ok
+toRoman should fail with large input ... ok
+toRoman should fail with 0 input ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 2.864s
+
+OK                                                           </span><a name="roman.stage5.4.4"></a><span class="round">④</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage5.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">정규 표현식에 관하여 언급하지 않은 한가지는 기본적으로 정규 표현식이 대소문자를 구별한다는 것입니다. 정규 표현식 <tt class="varname">romanNumeralPattern</tt>는 대문자로 표현되었으므로, <tt class="function">re.search</tt> 점검은 완전히 대문자가 아니면 어떤 입력도 거부합니다. 그래서 대분자 입력 테스트는 통과합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage5.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">더 중요한 것은 나쁜 입력 테스트가 통과한다는 것입니다. 예를 들면 모양 나쁜 조상 테스트는 <tt class="literal">MCMC</tt>와 같은 사례를 점검합니다. 보시다시피, 이는 정규 표현식에 부합하지 않습니다. 그래서 <tt class="function">fromRoman</tt>은 <tt class="errorcode">InvalidRomanNumeralError</tt> 예외를 일으키고, 이는 모양이 나쁜 선조 테스트 사례가 기대하고 있던 것입니다. 그래서 테스트는 통과합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage5.4.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">실제로, 나쁜 입력 테스트가 모두 통과합니다. 이 정규 표현식은 테스트 사례를 만들 때 생각할 수 있는 어떤 것이든 잡아냅니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#roman.stage5.4.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">그리고 올해의 대종상은 &#8220;<span class="quote"><tt class="literal">OK</tt></span>&#8221;라는 단어에 돌아갑니다.&#8220;<span class="quote"><tt class="literal">OK</tt></span>&#8221;, 이 단어는 모든 테스트가 통과하면 <tt class="filename">unittest</tt> 모듈에 의하여 인쇄됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="d0e34136"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><!-- <span class="roundNote">☞</span> --><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">테스트가 모두 통과하면 코딩을 멈추세요.</td>
+                  </tr>
+               </table>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap13.html">☜ 제 13 장 유닛테스트</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap15.html">제 15 장 리팩토링 ☞</A></TD>
+</TR>
+</TABLE>
+   </body>
+</html>

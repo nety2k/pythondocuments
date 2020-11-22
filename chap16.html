@@ -1,0 +1,927 @@
+        <!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap16.html">http://coreapython.hosting.paran.com/dive/chap16.html</a><br>
+<b>Title:</b> 16. 기능적 프로그래밍 &nbsp;&bull;&nbsp; <b>Size:</b> 89522<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap15.html">☜ 제 15 장 리팩토링</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap17.html">제 17 장 동적 함수 ☞</A></TD>
+</TR>
+</TABLE>
+		 <div name="16장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="regression"></a>제&nbsp;16 장&nbsp;기능적 프로그래밍
+                     </h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="regression.divein"></a>16.1.&nbsp;뛰어 들기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>
+				  제 <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman" title="Chapter&nbsp;13.&nbsp;Unit Testing">&nbsp;13 장 <i>유닛 테스팅</i></a>에서 유닛 테스팅의 철학을 배웠습니다.  <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman1.5" title="Chapter&nbsp;14.&nbsp;Test-First Programming">제&nbsp;14장 <i>테스트-우선 프로그래밍</i></a>에서 <span class="application">파이썬</span>으로 기본적인 유닛 테스트를 구현해 보았습니다.  <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman2" title="Chapter&nbsp;15.&nbsp;Refactoring">제&nbsp;15 장 <i>재요소화(Refactoring)</i></a>에서 유닛 테스팅이 어떻게 방대한 크기의 재요소화를 쉽게 만들 수 있는지 보았습니다.  이 장은 그런 샘플 프로그램 위에서 설명하겠지만 여기에서는 유닛 테스팅 그 자체보다, 고급스런 <span class="application">파이썬에</span>-국한된 테크닉에 좀 더 집중해 볼 생각입니다.
+                  </p>
+               </div>
+               <p>
+			   다음은 완전한 <span class="application">파이썬</span> 프로그램으로서 값싸고 간단한 회귀 테스트 작업틀처럼 행동합니다.  각 모듈에 대하여 작성한 유닛 테스트를 취하고, 그것들을 모두 하나의 커다란 테스트 모듬으로 모아서, 그 모두를 한 번에 실행합니다.  실제로 이 스크립트를 이 책의 구축 과정에 사용했습니다; 일부 예제 프로그램에도 유닛 테스트가 있습니다 ( <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman" title="Chapter&nbsp;13.&nbsp;Unit Testing">제&nbsp;13 장, <i>유닛 테스트</i></a>에서 주인공인 <tt class="filename">roman.py</tt> 모듈에만 있는 것이 아닙니다). 그리고 본인의 자동 구축 스크립트가 제일 먼저 하는 일은 이 프로그램을 실행하여 모든 예제가 여전히 잘 작동하는지 확인하는 것입니다. 이 회귀 테스트가 실패하면 구축은 즉시 멈춥니다. 작동하지 않는 예제는 배포하고 싶지 않습니다. 여러분도 그런 예제들을 내려 받아 앉아서 머리를 쥐어짜면서 모니터에 대고 왜 작동하지 않는지 절규하고 싶지는 않을 것입니다.
+               </p>
+               <div class="example"><a name="d0e35275"></a><h3 class="title">예제&nbsp;16.1.&nbsp;<tt class="filename">regression.py</tt></h3>
+                  <p>아직 그렇게 하지 않았다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">예제를 내려받을 수 있습니다</a>.
+                  </p><pre class="programlisting">
+"""회귀 테스트 작업틀
+
+이 모듈은 이름이 XYZtest.py인 디렉토리에서 스크립트를 찾는다.  
+각 스크립트는 PyUnit을 통하여 모듈을 테스트하는 테스트 모듬이어야 한다.  
+(파이썬 2.1에서, PyUnit은 표준 라이브러리에 "unittest"라는 이름으로 포함되었다.)  
+이 스크립트는 발견된 모든 테스트 모듬을 모아서 
+하나의 거대한 테스트 모듬 안에 넣고 그것들을 한 번에 실행한다.
+"""
+
+import sys, os, re, unittest
+
+def regressionTest():
+    path = os.path.abspath(os.path.dirname(sys.argv[0]))   
+    files = os.listdir(path)                               
+    test = re.compile("test\.py$", re.IGNORECASE)          
+    files = filter(test.search, files)                     
+    filenameToModuleName = lambda f: os.path.splitext(f)[0]
+    moduleNames = map(filenameToModuleName, files)         
+    modules = map(__import__, moduleNames)                 
+    load = unittest.defaultTestLoader.loadTestsFromModule  
+    return unittest.TestSuite(map(load, modules))          
+
+if __name__ == "__main__":                   
+    unittest.main(defaultTest="regressionTest")
+</pre></div>
+               <p>이 책의 예제가 있는 디렉토리에서 이 스크립트를 실행하면 (이름이 <tt class="filename"><i class="replaceable"><tt>module</tt></i>test.py</tt> 형태인) 모든 유닛 테스트를 찾아서 단 한 번에 테스트하고, 한 번에 모두 통과하거나 실패합니다.
+               </p>
+               <div class="example"><a name="d0e35293"></a><h3 class="title">예제&nbsp;16.2.&nbsp; <tt class="filename">regression.py</tt>의 샘플 출력</h3><pre class="screen">
+<tt class="prompt">[you@localhost py]$ </tt><span class="userinput">python regression.py -v</span>
+<span class="computeroutput">help should fail with no object ... ok                             </span><a name="regression.divein.1.1"></a><span class="round">①</span><span class="computeroutput">
+help should return known result for apihelper ... ok
+help should honor collapse argument ... ok
+help should honor spacing argument ... ok
+buildConnectionString should fail with list input ... ok           </span><a name="regression.divein.1.2"></a><span class="round">②</span><span class="computeroutput">
+buildConnectionString should fail with string input ... ok
+buildConnectionString should fail with tuple input ... ok
+buildConnectionString handles empty dictionary ... ok
+buildConnectionString returns known result with known input ... ok
+fromRoman should only accept uppercase input ... ok                </span><a name="regression.divein.1.3"></a><span class="round">③</span><span class="computeroutput">
+toRoman should always return uppercase ... ok
+fromRoman should fail with blank string ... ok
+fromRoman should fail with malformed antecedents ... ok
+fromRoman should fail with repeated pairs of numerals ... ok
+fromRoman should fail with too many repeated numerals ... ok
+fromRoman should give known result with known input ... ok
+toRoman should give known result with known input ... ok
+fromRoman(toRoman(n))==n for all n ... ok
+toRoman should fail with non-integer input ... ok
+toRoman should fail with negative input ... ok
+toRoman should fail with large input ... ok
+toRoman should fail with 0 input ... ok
+kgp a ref test ... ok
+kgp b ref test ... ok
+kgp c ref test ... ok
+kgp d ref test ... ok
+kgp e ref test ... ok
+kgp f ref test ... ok
+kgp g ref test ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 2.799s
+
+OK</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.divein.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞의 테스트 5개는 <tt class="filename">apihelpertest.py</tt>에 있는데, 이 파일은 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper" title="Chapter&nbsp;4.&nbsp;The Power Of Introspection">제&nbsp;4 장, <i>내부검사의 힘</i></a>의 예제 스크립트를 테스트합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.divein.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">다음 테스트 5개는 <tt class="filename">odbchelpertest.py</tt>에 있는데, 이 파일은 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper" title="Chapter&nbsp;2.&nbsp;Your First Python Program">제&nbsp;2 장, <i>여러분의 첫 파이썬 프로그램</i></a>의 예제 스크립트를 테스트합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.divein.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">나머지는 <tt class="filename">romantest.py</tt>에 있는데, 이 파일은 <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman" title="Chapter&nbsp;13.&nbsp;Unit Testing">제&nbsp;13 장, <i>유닛 테스팅</i></a>에서 깊게 공부한 것입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="regression.path"></a>16.2.&nbsp;경로 검색하기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span> 스크립트를 명령어 줄에서 실행할 때, 종종 현재 실행되는 스크립트가 디스크 어디에 위치하는지 알면 유용합니다.
+                  </p>
+               </div>
+               <p>
+			   다음은 좀 어려운 작은 트릭중의 하나로서 스스로 알아내기에는 실제로 불가능합니다. 그러나 한 번 보고 나면 기억하기는 쉽습니다. 핵심 열쇠는 <tt class="literal">sys.argv</tt>입니다.  <a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp" title="Chapter&nbsp;9.&nbsp;XML Processing">제&nbsp;9 장, <i>XML 처리하기</i></a>에서 보셨다시피, 이것은 명령어 줄 인자들을 담고 있는 리스트입니다. 그렇지만 실행중인 스크립트의 이름도 담고 있습니다. 정확하게 명령어 줄로부터 호출된 그대로이고, 이 정도면 그의 위치를 결정할 충분한 정보입니다.</p>
+               <div class="example"><a name="d0e35359"></a><h3 class="title">예제&nbsp;16.3.&nbsp;<tt class="filename">fullpath.py</tt></h3>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">예제를</a> 내려받을 수 있습니다.
+                  </p><pre class="programlisting">
+import sys, os
+
+print 'sys.argv[0] =', sys.argv[0]             <a name="regression.path.1.1"></a><span class="round">①</span>
+pathname = os.path.dirname(sys.argv[0])        <a name="regression.path.1.2"></a><span class="round">②</span>
+print 'path =', pathname
+print 'full path =', os.path.abspath(pathname) <a name="regression.path.1.3"></a><span class="round">③</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">어떻게 스크립트를 실행하더라도, <tt class="literal">sys.argv[0]</tt>는 언제나 스크립트의 이름이 담깁니다. 명령어 줄에 나타난 것과 정확하게 똑 같습니다. 여기에는 경로 정보가 담길 수도 안 담길 수도 있습니다. 이에 관해서는 잠시 후에 살펴보겠습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">os.path.dirname</tt> 파일이름을 문자열로 받아서 디렉토리 경로 부분을 돌려줍니다. 주어진 파일이름에 아무 경로 정보가 포함되어 있지 않으면 <tt class="function">os.path.dirname</tt>은 빈 문자열을 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">os.path.abspath</tt>가 여기에서 핵심입니다.  부분적인 경로 또는 비어 있을 수도 있는 경로를 받아,  완전히 자격을 갖춘 경로이름을 돌려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p><tt class="function">os.path.abspath</tt>는 좀 더 설명할 가치가 있습니다. 아주 유연합니다; 어떤 종류의 경로 이름도 받습니다.
+               </p>
+               <div class="example"><a name="d0e35399"></a><h3 class="title">예제&nbsp;16.4.&nbsp;<tt class="function">os.path.abspath</tt>에 대한 상세 설명</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import os</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.getcwd()</span>                        <a name="regression.path.2.1"></a><span class="round">①</span>
+<span class="computeroutput">/home/you</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.path.abspath('')</span>                <a name="regression.path.2.2"></a><span class="round">②</span>
+<span class="computeroutput">/home/you</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.path.abspath('.ssh')</span>            <a name="regression.path.2.3"></a><span class="round">③</span>
+<span class="computeroutput">/home/you/.ssh</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.path.abspath('/home/you/.ssh')</span>  <a name="regression.path.2.4"></a><span class="round">④</span>
+<span class="computeroutput">/home/you/.ssh</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os.path.abspath('.ssh/../foo/')</span>    <a name="regression.path.2.5"></a><span class="round">⑤</span>
+<span class="computeroutput">/home/you/foo</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">os.getcwd()</tt>는 현재 작업 디렉토리를 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"> 빈 문자열로 <tt class="function">os.path.abspath</tt>를 호출하면 현재 작업 디렉토리를 돌려줍니다. <tt class="function">os.getcwd()</tt>와 똑 같습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">부분적인 경로이름으로 <tt class="function">os.path.abspath</tt>를 호출하면 그로부터, 현재 작업 디렉토리에 기반하여, 완전히 자격을 갖춘 경로이름을 구성합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">완전한 경로이름으로 <tt class="function">os.path.abspath</tt>를 호출하면 그냥 그대로 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.2.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">os.path.abspath</tt>는 자신이 돌려주는 경로이름을 <span class="emphasis"><em>정규화 시켜 주기도 합니다</em></span>.  이 예제는 실제로 'foo' 디렉토리가 없었음에도 작동했음을 주목하세요.  <tt class="function">os.path.abspath</tt>는 실제 디스크를 점검하지 않습니다; 이는 순전히 문자열 조작일 뿐입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="os.path.abspath.exist.note"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><tt class="function">os.path.abspath</tt>에 건네는 경로이름과 파일이름은 존재할 필요가 없습니다.
+                     </td>
+                  </tr>
+               </table><a name="os.path.normpath.note"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><tt class="function">os.path.abspath</tt> 는 완전한 경로 이름을 구성할 뿐만 아니라 정규화 시켜 주기도 합니다. 다시 말해  <tt class="filename">/usr/</tt> 디렉토리에 있다면 <tt class="literal">os.path.abspath('bin/../local/bin')</tt>는 <tt class="filename">/usr/local/bin</tt>를 돌려줍니다.  가능하면 간단하게 만들어서 그 경로를 정규화 시켜 줍니다. 완전한 경로이름으로 바꾸지 않고 이와 같이 경로를 정규화하고 싶을 뿐이라면 대신에, <tt class="function">os.path.normpath</tt>를 사용하세요.
+                     </td>
+                  </tr>
+               </table>
+               <div class="example"><a name="d0e35527"></a><h3 class="title">예제&nbsp;16.5.&nbsp; <tt class="filename">fullpath.py</tt>의 샘플 출력</h3><pre class="screen">
+<tt class="prompt">[you@localhost py]$ </tt><span class="userinput">python /home/you/diveintopython/common/py/fullpath.py</span>  <a name="regression.path.3.1"></a><span class="round">①</span>
+<span class="computeroutput">sys.argv[0] = /home/you/diveintopython/common/py/fullpath.py
+path = /home/you/diveintopython/common/py
+full path = /home/you/diveintopython/common/py</span>
+<tt class="prompt">[you@localhost diveintopython]$ </tt><span class="userinput">python common/py/fullpath.py</span>               <a name="regression.path.3.2"></a><span class="round">②</span>
+<span class="computeroutput">sys.argv[0] = common/py/fullpath.py
+path = common/py
+full path = /home/you/diveintopython/common/py</span>
+<tt class="prompt">[you@localhost diveintopython]$ </tt><span class="userinput">cd common/py</span>
+<tt class="prompt">[you@localhost py]$ </tt><span class="userinput">python fullpath.py</span>                                     <a name="regression.path.3.3"></a><span class="round">③</span>
+<span class="computeroutput">sys.argv[0] = fullpath.py
+path = 
+full path = /home/you/diveintopython/common/py</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">첫 사례에서, <tt class="literal">sys.argv[0]</tt>에는 그 스크립트의 완전한 경로가 들어 있습니다. 그래서 <tt class="function">os.path.dirname</tt> 함수를 사용하면 스크립트 이름을 걷어내고 완전한 경로 이름을 돌려주고, 그리고 <tt class="function">os.path.abspath</tt>는 건넨 것을 그대로 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">스크립트가 부분적인 경로이름으로 실행되더라도 <tt class="literal">sys.argv[0]</tt>는 여전히 정확하게 명령어 줄에 보이는 것이 담겨 있을 것입니다. <tt class="function">os.path.dirname</tt>는 그러면 (현재 디렉토리에 상대적인) 부분적인 경로이름을 돌려줍니다. 그리고 <tt class="function">os.path.abspath</tt>는 그 부분적인 경로이름으로 완전한 경로이름을 구성합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">스크립트가 경로가 주어지지 않고 현재 디렉토리에서 실행되면 <tt class="function">os.path.dirname</tt>는 그냥 빈 문자열을 돌려줍니다.  빈 문자열이 주어지면 <tt class="function">os.path.abspath</tt>는 현재 디렉토리를 돌려줍니다. 이것이 바로 원하는 것입니다. 왜냐하면 스크립트가 현재 디렉토리에서 실행되었기 때문입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="os.path.abspath.crossplatform.note"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%"><tt class="filename">os</tt>와 <tt class="filename">os.path</tt> 모듈에 있는 다른 함수처럼, <tt class="function">os.path.abspath</tt> 는 플랫폼에-독립적입니다.  여러분의 결과는 이 책의 예제와 약간 다를 수 있습니다. (역사선을 경로 가름자로 사용하는) 윈도우즈나 (쌍점을 사용하는)  <span class="abbrev">Mac</span> <span class="acronym">OS</span>에서 실행한다면 말입니다. 그러나 여전히 작동할 것입니다. 그것이 바로 <tt class="filename">os</tt> 모듈의 강점입니다.
+                     </td>
+                  </tr>
+               </table>
+               <p><b>추가정보.&nbsp;</b>한 독자분께서 이 해결책을 마음에 들어하지 않으셨습니다. 그리고 모든 유닛 테스트를 현재 디렉토리에서 실행하고 싶어 하셨습니다. <tt class="filename">regression.py</tt>가 위치한 디렉토리가 아니라 말입니다. 그는 대신에 다음과 같은 접근법을 제안하셨습니다:
+               </p>
+               <div class="example"><a name="regression.path.cwd.example"></a><h3 class="title">예제&nbsp;16.6.&nbsp;현재 디렉토리에서 스크립트 실행하는 법</h3><pre class="programlisting">import sys, os, re, unittest
+
+def regressionTest():
+    path = os.getcwd()       <a name="regression.path.4.1"></a><span class="round">①</span>
+    sys.path.append(path)    <a name="regression.path.4.2"></a><span class="round">②</span>
+    files = os.listdir(path) <a name="regression.path.4.3"></a><span class="round">③</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">경로(<tt class="varname">path</tt>)를 현재 실행중인 스크립트가 위치한 디렉토리로 설정하는 대신에, 현재 작업 디렉토리로 설정할 수 있습니다. 이 경로는 스크립트를 실행하기 전에 있었던 어떤 디렉토리도 될 수 있습니다. 스크립트가 있는 디렉토리와 반드시 같을 필요가 없습니다. (이해가 가실 때까지 이 문장을 몇 번이고 읽어 보세요.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 디렉토리를 <span class="application">파이썬</span> 라이브러리 검색 경로에 추가하세요. 나중에 유닛 테스트를 동적으로 반입할 때, <span class="application">파이썬</span>이 찾을 수 있도록 말입니다. 경로(<tt class="varname">path</tt>)가 현재 실행중인 스크립트가 있는 디렉토리였을 때에는 이렇게 할 필요가 없었습니다. <span class="application">파이썬</span>이 언제든지 그 디렉토리를 들여다 보고 있기 때문입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.path.4.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">함수의 나머지는 똑 같습니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+                  <p>
+				  이 테크닉을 사용하면 여러 프로젝트에 <tt class="filename">regression.py</tt> 스크립트를 재사용할 수 있습니다. 그냥 스크립트를 공통 디렉토리에 두고, 프로젝트의 디렉토리로 바꾼 다음 그것을 실행하면 됩니다.  <tt class="filename">regression.py</tt>가 위치해 있는 공통 디렉토리의 유닛 테스트가 아니라, 해당 프로젝트의 모든 유닛 테스트가 발견되고 테스트될 것입니다.
+                  </p>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="regression.filter"></a>16.3.&nbsp;리스트 여과하기 심화연구
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>여러분은 이미 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.filter" title="4.5.&nbsp;Filtering Lists">지능형 리스트를 사용하여 리스트를 여과하는 법에 익숙합니다</a>.  같은 일을 하는 또다른 방법이 있습니다. 어떤 사람들은 이 방법이 더 표현력이 좋다고 느낍니다.
+                  </p>
+               </div>
+               <p><span class="application">파이썬</span>은 내장 <tt class="function">filter</tt> 함수가 있습니다. 이 함수는 인자를 두개, 즉 함수와 리스트를 받아 리스트를 돌려줍니다.<sup>[<a name="d0e35697" href="#ftn.d0e35697">7</a>]</sup>  <tt class="function">filter</tt>에 첫 인자로 건넨 함수는 자체로 인자를 하나 취하며, <tt class="function">filter</tt> 함수가 돌려준 리스트에는 함수를 통과한 요소들이 모두 담깁니다.
+               </p>
+               <p>이해가 되셨습니까?  보기보다 그다지 어렵지 않습니다.</p>
+               <div class="example"><a name="d0e35724"></a><h3 class="title">예제&nbsp;16.7.&nbsp; <tt class="function">filter</tt> 소개</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">def odd(n):</span>                 <a name="regression.filter.1.1"></a><span class="round">①</span>
+<tt class="prompt">...     </tt><span class="userinput">return n % 2</span>
+<tt class="prompt">...     </tt>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = [1, 2, 3, 5, 9, 10, 256, -3]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">filter(odd, li)</span>             <a name="regression.filter.1.2"></a><span class="round">②</span>
+<span class="computeroutput">[1, 3, 5, 9, -3]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[e for e in li if odd(e)]</span>   <a name="regression.filter.1.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">filteredList = []</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">for n in li:</span>                <a name="regression.filter.1.4"></a><span class="round">④</span>
+<tt class="prompt">...     </tt><span class="userinput">if odd(n):</span>
+<tt class="prompt">...     </tt><span class="userinput">    filteredList.append(n)</span>
+<tt class="prompt">...     </tt>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">filteredList</span>
+<span class="computeroutput">[1, 3, 5, 9, -3]</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.filter.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">odd</tt>는 내장 mod 함수 &#8220;<span class="quote"><tt class="literal">%</tt></span>&#8221;를 사용하여 <tt class="varname">n</tt> 이 홀수이면 <tt class="constant">True</tt>를 돌려주고 <tt class="varname">n</tt>이 짝수이면 <tt class="constant">False</tt>를 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.filter.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">filter</tt>는 인자를 두개 취합니다. 함수 (<tt class="function">odd</tt>)와 리스트 (<tt class="varname">li</tt>)를 취합니다.  리스트를 회돌이하면서 원소마다 <tt class="function">odd</tt>를 호출합니다.  <tt class="function">odd</tt>가 참 값을 돌려주면 (기억하세요, 0인 아닌 모든 값은 <span class="application">파이썬</span>에서 참입니다), 그 원소는 반환 리스트에 포함됩니다. 그렇지 않으면 여과됩니다. 그 결과는 원래 리스트로부터 오직 홀수만 골라 담은 리스트입니다. 순서는 원래 리스트에 나타난 순서와 같습니다. 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.filter.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">지능형 리스트를 사용하여 같은 일을 할 수 있습니다. <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.filter" title="4.5.&nbsp;Filtering Lists">섹션&nbsp;4.5, &#8220;리스트 여과하기&#8221;</a>에서 보셨듯이 말입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.filter.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">for</tt> 회돌이로도 같은 일을 할 수 있습니다.  프로그래밍 배경에 따라 이것이 더 &#8220;<span class="quote">쉬워 보일 수도 있지만</span>&#8221;, <tt class="function">filter</tt> 같은 함수가 훨씬 더 표현력이 좋습니다. 작성하기가 더 쉬울뿐만 아니라 읽기도 더 쉽습니다. <tt class="literal">for</tt> 회돌이를 읽는 것은 그림을 너무 가까이 서서 보는 것과 같습니다; 모든 상세는 보이겠지만 잠시 시간을 내서 몇 발자국 물러서서 더 큰 그림을 보는 것이 더 좋습니다: &#8220;<span class="quote">보세요, 리스트를 여과하고 있습니다!</span>&#8221;
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e35864"></a><h3 class="title">예제&nbsp;16.8.&nbsp;<tt class="filename">regression.py</tt>에 있는 <tt class="function">filter</tt> 함수&nbsp;</h3><pre class="programlisting">
+    files = os.listdir(path)                                <a name="regression.filter.2.1"></a><span class="round">①</span>
+    test = re.compile("test\.py$", re.IGNORECASE)           <a name="regression.filter.2.2"></a><span class="round">②</span>
+    files = filter(test.search, files)                      <a name="regression.filter.2.3"></a><span class="round">③</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.filter.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="#regression.path" title="16.2.&nbsp;Finding the path">섹션&nbsp;16.2, &#8220;경로 찾기&#8221;</a>에서 보셨듯이, <tt class="varname">path</tt>는 현재 스크립트가 실행되는 디렉토리의 경로 이름을 부분적으로 또는 완전하게 담고 있을 수 있습니다. 또는 스크립트가 현재 디렉토리에서 실행되고 있다면 그냥 빈 문자열을 담고 있을 수도 있습니다. 어느 쪽이든지 <tt class="varname">files</tt>에는 실행중인 이 스크립트와 같은 디렉토리에 있는 파일의 이름들이 담기게 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.filter.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이것은 컴파일된 정규 표현식입니다. <a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.refactoring" title="15.3.&nbsp;Refactoring">섹션&nbsp;15.3, &#8220;재요소화&#8221;</a>에서 보셨듯이, 같은 정규 표현식을 재사용할 생각이라면 더 빠르게 수행하기 위하여 컴파일하면 좋습니다. 컴파일된 객체에는 <tt class="function">search</tt> 메쏘드가 있습니다. 이 메쏘드는 인자를 한개, 검색할 문자열을 받습니다. 정규 표현식이 문자열에 부합하면 <tt class="function">search</tt> 메쏘드는 <tt class="classname">Match</tt> 객체를 돌려줍니다. 여기에 정규 표현식 일치에 관한 정보가 담겨 있습니다; 그렇지 않으면 <span class="application">파이썬</span> 널 값인 <tt class="literal">None</tt>을 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.filter.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">files</tt> 리스트에 있는 각 원소에 대하여, 컴파일된 정규 표현식 객체인 <tt class="varname">test</tt>에 <tt class="function">search</tt>  메쏘드를 호출합니다. 정규 표현식이 일치하면 이 메쏘드는 <tt class="classname">Match</tt> 객체를 돌려줍니다. 이것을 <span class="application">파이썬</span>은 참이라고 간주합니다. 그래서 원소는 <tt class="function">filter</tt>가 돌려주는 리스트에 포함됩니다. 정규 표현식이 부합하지 않으면 <tt class="function">search</tt> 메쏘드는 <tt class="literal">None</tt>을 돌려주는데, 이를 <span class="application">파이썬</span>은 거짓이라고 간주하며, 그래서 그 원소는 포함되지 않습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p><b>숨은 뒷 이야기&nbsp;</b>
+			   <span class="application">파이썬</span> 2.0 이전 버전에서는 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.map" title="3.6.&nbsp;Mapping Lists">지능형 리스트(list comprehensions)</a>가 없었다. 그래서 <a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.filter" title="4.5.&nbsp;Filtering Lists">지능형 리스트를 사용하여 여과를 할 수 없었다</a>; <tt class="function">filter</tt> 함수 만이 유일한 대안이었다. 2.0 버전에 지능형 리스트가 도입되었지만 어떤 사람들은 여전히 예전-스타일의 <tt class="function">filter</tt>을 선호하였다 (그리고 그의 짝, <tt class="function">map</tt> 함수를 선호하였다. 이에 관해서는 이 장의 후반부에서 살펴보겠다).  두 테크닉 모두 현재 작동하므로, 어느 것을 사용할지는 스타일의 문제이다. 미래의 <span class="application">파이썬</span> 버전에서는 <tt class="function">map</tt> 함수와 <tt class="function">filter</tt> 함수를 빼야 한다는 논의가 진행중이지만 아직 아무 것도 결정된 바 없다.
+               </p>
+               <div class="example"><a name="d0e35972"></a><h3 class="title">예제&nbsp;16.9.&nbsp;대신에 지능형 리스트를 사용하여 여과하기</h3><pre class="programlisting">
+    files = os.listdir(path)                               
+    test = re.compile("test\.py$", re.IGNORECASE)          
+    files = [f for f in files if test.search(f)] <a name="regression.filter.3.1"></a><span class="round">①</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.filter.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 코드는 <tt class="function">filter</tt> 함수를 사용한 것과 정확하게 똑 같은 결과를 산출합니다. 어느 것이 더 표현력이 좋은가? 판단은 여러분에게 맡기겠습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="regression.map"></a>16.4.&nbsp;리스트 짝짓기 심화연구
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이미 <a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.map" title="3.6.&nbsp;Mapping Lists">지능형 리스트</a>를 사용하여 한 리스트와 또 하나의 리스트를 짝짓는 법을 잘 알고 있습니다. 같은 일을 달성하는 또다른 방법이 있습니다. 내장 <tt class="function">map</tt> 함수를 사용해서 말입니다. <a href="#regression.filter" title="16.3.&nbsp;Filtering lists revisited"><tt class="function">filter</tt></a> 함수와 거의 같은 방식으로 작동합니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e36003"></a><h3 class="title">예제&nbsp;16.10.&nbsp; <tt class="function">map</tt> 소개</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">def double(n):</span>
+<tt class="prompt">...     </tt>return n*2
+<tt class="prompt">...     </tt>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = [1, 2, 3, 5, 9, 10, 256, -3]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">map(double, li)</span>                       <a name="regression.map.1.1"></a><span class="round">①</span>
+<span class="computeroutput">[2, 4, 6, 10, 18, 20, 512, -6]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">[double(n) for n in li]</span>               <a name="regression.map.1.2"></a><span class="round">②</span>
+<span class="computeroutput">[2, 4, 6, 10, 18, 20, 512, -6]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">newlist = []</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">for n in li:</span>                          <a name="regression.map.1.3"></a><span class="round">③</span>
+<tt class="prompt">...     </tt><span class="userinput">newlist.append(double(n))</span>
+<tt class="prompt">...     </tt>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">newlist</span>
+<span class="computeroutput">[2, 4, 6, 10, 18, 20, 512, -6]</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.map.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">map</tt> 함수는 함수 하나와 리스트를 받아서<sup>[<a name="d0e36079" href="#ftn.d0e36079">8</a>]</sup> 리스트의 각 원소에 순서대로 그 함수를 호출함으로써 새로운 리스트를 돌려줍니다. 이 경우, 함수는 단순히 각 원소를 2배로 만듭니다.                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.map.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">지능형 리스트로 같은 일을 달성할 수 있습니다. 지능형 리스트는 처음 <span class="application">파이썬</span> 2.0에 도입되었습니다; <tt class="function">map</tt>은 그 이전부터 항상 있어 왔던 것입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.map.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">비주얼 베이직(<span class="application">Visual Basic</span>) 프로그래머 같이 생각해야겠다고 마음 먹었다면 <tt class="literal">for</tt> 회돌이를 사용하여 같은 일을 달성하면 됩니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e36107"></a><h3 class="title">예제&nbsp;16.11.&nbsp; 혼합 데이터유형의 리스트 짝짓기 (<tt class="function">map</tt>)
+                  </h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">li = [5, 'a', (2, 'b')]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">map(double, li)</span>                       <a name="regression.map.2.1"></a><span class="round">①</span>
+<span class="computeroutput">[10, 'aa', (2, 'b', 2, 'b')]</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.map.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">덧붙이자면 <tt class="function">map</tt> 함수는 혼합 데이터유형이 원소인 리스트와 아주 잘 작동한다고 지적하고 싶습니다. 사용하려는 그 함수가 각 유형을 제대로 처리하기만 한다면 말입니다. 이 경우 <tt class="function">double</tt> 함수는 단순히 주어진 인자를 2배할 뿐이며, <span class="application">파이썬</span>은 인자의 데이터 유형에 따라 올바르게 일을 합니다. 정수에 대하여 이는 실제로 2를 곱한다는 뜻입니다; 문자열이라면 문자열 그 자체를 한번 더 결합한다는 뜻입니다; 터플이라면 원래 터플의 모든 원소에다 또 한번 더 그 모든 원소를 가진 터플을 만든다는 뜻입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>좋습니다. 놀이 시간은 충분히 즐겼습니다. 이제 실제 코드를 보겠습니다.</p>
+               <div class="example"><a name="d0e36143"></a><h3 class="title">예제&nbsp;16.12.&nbsp;<tt class="filename">regression.py</tt>에 있는 <tt class="function">map</tt> 함수 &nbsp;</h3>
+<pre class="programlisting">    filenameToModuleNam = lambda f: os.path.splitext(f)[0]  <a name="regression.map.3.1"></a><span class="round">①</span>
+    moduleNames = map(filenameToModuleName, files)          <a name="regression.map.3.2"></a><span class="round">②</span></pre>
+	
+	
+	<div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.map.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.lambda" title="4.7.&nbsp;Using lambda Functions">섹션&nbsp;4.7, &#8220;람다 함수 사용하기&#8221;</a>에서 보셨듯이, <tt class="literal">lambda</tt>는 인라인 함수를 정의합니다. 그리고 <a href="http://coreapython.hosting.paran.com/dive/chap06.html#splittingpathnames.example" title="Example&nbsp;6.17.&nbsp;Splitting Pathnames">예제&nbsp;6.17, &#8220;경로이름 가르는 법&#8221;</a>에서 보셨듯이, <tt class="function">os.path.splitext</tt>은 파일이름을 받아 터플 <tt class="literal">(<i class="replaceable">name</i>, <i class="replaceable">extension</i>)</tt>을 돌려줍니다.  
+						   
+						   그래서 <tt class="function">filenameToModuleName</tt>은 파일이름을 받아서 파일 확장자를 걷어내고, 그냥 이름을 돌려주는 함수입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.map.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">map</tt>을 호출하면 <tt class="varname">files</tt>에 나열된 각 원소를 취해, 그 원소를 <tt class="function">filenameToModuleName</tt> 함수에 건네고, 그 함수 호출의 각 결과를 리스트에 담아 돌려줍니다. 다른 말로 하면 파일 확장자를 각 파일이름에서 걷어내고, 그렇게 걷어낸 파일이름을 모두 담은 리스트를 <tt class="varname">moduleNames</tt>에 저장합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이후의 장에서 보시겠지만 이런 유형의 데이터-중심적 사고방식을 최종 목표까지 확대할 수 있습니다. 궁극적 목표는 단 하나의 테스트 모듬을 정의하고 실행하는 것입니다. 이 테스트 모듬에는 모든 개별 데스트 모듬으로부터 가져온 테스트들이 담깁니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="regression.datacentric"></a>16.5.&nbsp;데이터-중심적 프로그래밍</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>
+				  지금 아마도 머리를 긁적이면서 왜 <tt class="literal">for</tt> 회돌이를 사용하고 직접적으로 함수를 호출하는 것보다 이게 더 좋은지 궁금하실 겁니다. 그리고 당연한 질문입니다. 거의 관점의 문제입니다. <tt class="function">map</tt> 함수와 <tt class="function">filter</tt> 함수를 사용하면 어쩔 수 없이 데이터를 중심으로 생각할 수 밖에 없습니다.
+                  </p>
+               </div>
+               <p>
+			   이 경우 전혀 데이터 없이 시작했습니다; 제일 먼저 현재 스크립트의 <a href="#regression.path" title="16.2.&nbsp;Finding the path">디렉토리 경로를 얻고</a>, 그 디렉토리 안에 있는 파일의 리스트를 얻었습니다. 그게 시작입니다. 작업할 실제 데이터를 얻었습니다: 파일이름 리스트를 말이지요.
+               </p>
+               <p>
+			   그렇지만 그 파일 모두에 신경쓰는 것은 아닙니다. 오직 실제 테스트 모듬인 파일에만 관심이 있습니다. <span class="emphasis"><em>데이터가 너무 많고</em></span>, 그래서 여과할(<tt class="function">filter</tt>) 필요가 있습니다. 어느 데이터를 취해야 할지 어떻게 알까요?  그것을 결정해야 할 테스트가 필요합니다. 그래서 테스트를 하나 정의하고 그것을 <tt class="function">filter</tt> 함수에 건넸습니다. 이 경우 정규 표현식을 사용하여 결정했지만 어떻게 테스트를 구성하는가에 상관 없이 개념은 똑 같습니다.
+               </p>
+               <p>
+			   이제 테스트 모듬의 파일이름을 확보했습니다 (오직 테스트 모듬만 남았습니다. 왜냐하면 다른 것들은 모두 여과해 버렸기 때문입니다). 그러나 대신에 모듈 이름이 필요합니다. 데이터 양은 적당하지만 <span class="emphasis"><em>형식이 올바르지 않습니다</em></span>. 그래서 파일이름을 모듈 이름으로 바꾸어 줄 함수를 정의했습니다. 그리고 그 함수를 전체 리스트에 짝지었습니다(mapped). 파일이름 하나에 모듈 이름 하나를 얻을 수 있습니다; 파일이름 리스트에 모듈이름 리스트를 얻을 수 있습니다.
+               </p>
+               <p>
+			   <tt class="function">filter</tt> 대신에, <tt class="literal">for</tt> 회돌이와 <tt class="literal">if</tt> 서술문을 사용할 수 있습니다.  <tt class="function">map</tt> 대신에, <tt class="literal">for</tt> 회돌이와 함수 호출을 사용할 수 있습니다. 그러나 이와 같이 <tt class="literal">for</tt> 회돌이를 사용하면 번잡합니다. 잘해봐야 시간 낭비일 뿐이고; 못하면 애매모호한 버그나 도입할 뿐입니다. 예를 들면 어쨌든 &#8220;<span class="quote">이 파일이 테스트 모듬인가?</span>&#8221; 조건을 테스트 하는 법을 알아낼 필요가 있습니다; 그것은 어플리케이션-종속적 로직이며, 어떤 언어도 우리를 위해 그것을 작성해 줄 수 없습니다. 그러나 그 방법을 알아 냈다고 할지라도 정말 온갖 고통을 경험하고 싶습니까? 새로 빈 리스트를 정의하고 <tt class="literal">for</tt> 회돌이와 <tt class="literal">if</tt> 서술문을 작성해서 손수 그 조건을 통과하면 <tt class="function">append</tt>를 호출하여 그 새 리스트에 각 원소를 추가하며, 다음 어느 변수가 새로 여과된 데이터를 담고 있는지 어느 변수가 예전의 여과되지 않은 데이터를 담고 있는지 추적 유지해야 합니다.  그냥 테스트 조건을 정의하고, <span class="application">파이썬</span>에게 나머지 일은 맡겨두는 것이 어떨까요?
+               </p>
+               <p>
+			   네 물론, 새로 리스트를 만들지 않고 제자리에서 멋지게 원소를 삭제할 수도 있습니다. 그러나 그 때문에 전에 호되게 당한 적이 있습니다. 회돌이 중에 데이터 구조를 바꾸는 일은 위험합니다. 원소를 하나 제거하고 다음 원소로 회돌이합니다. 그런데 갑자기 원소 하나를 건너뜁니다. <span class="application">파이썬</span>이 그런 식으로 작동하는 언어인가요?  그 문제를 인지할 때까지 얼마나 시간이 걸릴까요? 다음 번에 시도할 때 과연 안전한지 확실하게 기억할까요?  프로그래머는 순수하게 기술적 문제를 다루는데 너무 많은 시간을 들여 너무 많은 실수를 합니다. 그리고 그 모든 것은 아무 의미가 없습니다. 프로그램도 전혀 개선되지 않습니다; 그냥 번잡할 뿐입니다.
+               </p>
+               <p>
+			   본인은 처음 <span class="application">파이썬</span>을 배울 때 지능형 리스트를 거부했고 <tt class="function">filter</tt>와 <tt class="function">map</tt>은 더 오랫동안 거부했습니다. 고집을 꺽지 않고 삶을 더 어렵게, <tt class="literal">for</tt> 회돌이와 <tt class="literal">if</tt> 서술문 그리고 단계별 코드-중심적 프로그래밍이라는 친숙한 방식을 고집하면서 살았습니다. 나의 <span class="application">파이썬</span> 프로그램은 비주얼 베이직(<span class="application">Visual Basic</span>) 프로그램을 많이 닮아서, 함수마다 매 기능마다 단계별로 상세하게 기술했습니다. 그래서 모두 같은 유형의 작은 문제들과 애매모호한 버그가 있었습니다. 그 모든 것이 의미가 없었습니다.
+               </p>
+               <p>자연스럽게 흘러가도록 두세요. 번잡하게 바쁜 코드는 중요하지 않습니다. 데이터가 중요합니다. 데이터는 어렵지 않으며, 그저 데이터일 뿐입니다. 데이터가 너무 많으면 여과하면 됩니다. 원하는 데이터가 아니면 짝짓기 하면 됩니다. 데이터에 집중하시고; 번잡한 일은 뒤에 그대로 두세요.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="regression.import"></a>16.6.&nbsp;동적으로 모듈 반입하기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>좋습니다. 철학 강의는 이만 접겠습니다. 동적으로 모듈을 반입하는 법에 관하여 말해 보겠습니다.</p>
+               </div>
+               <p>
+			   먼저, 보통 어떻게 모듈을 반입하는지 살펴보겠습니다. <tt class="literal">import <i class="replaceable">module</i></tt> 구문은 지명된 모듈을 검색 경로에서 찾아 그 이름으로 반입합니다. 쉼표로 가른 리스트로 여러 모듈을 동시에 이런 식으로 반입할 수도 있습니다. 이 장의 스크립트 바로 첫 줄에서 이렇게 했습니다.
+               </p>
+               <div class="example"><a name="d0e36316"></a><h3 class="title">예제&nbsp;16.13.&nbsp;여러 모듈을 한번에 반입하기</h3><pre class="programlisting">
+import sys, os, re, unittest <a name="regression.import.1.1"></a><span class="round">①</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.import.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 모듈 네 개를 한 번에 반입합니다: (시스템 함수와 명령어 줄 매개변수에 접근하기 위하여) <tt class="filename">sys</tt>, (디렉토리 목록 같은 운영체제 함수를 위하여) <tt class="filename">os</tt>, (정규 표현식을 위하여) <tt class="filename">re</tt>, 그리고 (유닛 테스트를 위하여) <tt class="filename">unittest</tt>를 반입합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이제 같은 일을 해 보겠습니다. 그러나 동적으로 반입합니다.</p>
+               <div class="example"><a name="d0e36341"></a><h3 class="title">예제&nbsp;16.14.&nbsp;동적으로 모듈 반입하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">sys = __import__('sys')</span>           <a name="regression.import.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os = __import__('os')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re = __import__('re')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">unittest = __import__('unittest')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">sys</span>                               <a name="regression.import.2.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="computeroutput">&lt;module 'sys' (built-in)&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">os</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="computeroutput">&lt;module 'os' from '/usr/local/lib/python2.2/os.pyc'&gt;</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.import.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">내장된 <tt class="function">__import__</tt> 함수는  <tt class="literal">import</tt> 서술문을 사용하는 것과 같은 목적을 달성합니다. 그러나 이것이 실제 함수로서, 문자열을 인자로 받습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.import.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">변수 <tt class="varname">sys</tt>는 이제 <tt class="filename">sys</tt> 모듈입니다. 마치  <tt class="literal">import sys</tt>라고 명령한 것과 같습니다.  변수 <tt class="varname">os</tt>는 이제 <tt class="filename">os</tt> 모듈입니다. 등등.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>
+			   그래서 <tt class="function">__import__</tt>는 모듈을 반입하지만 그렇게 하기 위해 문자열 인자를 받습니다. 이 경우 반입한 모듈은 그냥 하드-코드된 문자열이지만 변수도 될 수 있고 함수 호출의 결과도 될 수 있습니다.  모듈에 할당한 변수는 그 모듈 이름과 일치할 필요도 역시 없습니다.  일련의 모듈을 반입해서 그것을 리스트에 할당해도 됩니다.
+               </p>
+               <div class="example"><a name="d0e36423"></a><h3 class="title">예제&nbsp;16.15.&nbsp;모듈 리스트를 동적으로 반입하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">moduleNames = ['sys', 'os', 're', 'unittest']</span> <a name="regression.import.3.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">moduleNames</span>
+<span class="computeroutput">['sys', 'os', 're', 'unittest']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">modules = map(__import__, moduleNames)</span>        <a name="regression.import.3.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">modules</span>                                       <a name="regression.import.3.3"></a><span class="round">③</span>
+<span class="computeroutput">[&lt;module 'sys' (built-in)&gt;,
+&lt;module 'os' from 'c:\Python22\lib\os.pyc'&gt;,
+&lt;module 're' from 'c:\Python22\lib\re.pyc'&gt;,
+&lt;module 'unittest' from 'c:\Python22\lib\unittest.pyc'&gt;]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">modules[0].version</span>                            <a name="regression.import.3.4"></a><span class="round">④</span>
+<span class="computeroutput">'2.2.2 (#37, Nov 26 2002, 10:24:37) [MSC 32 bit (Intel)]'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import sys</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">sys.version</span>
+<span class="computeroutput">'2.2.2 (#37, Nov 26 2002, 10:24:37) [MSC 32 bit (Intel)]'</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.import.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">moduleNames</tt>는 그냥 문자열로 구성된 리스트일 뿐입니다. 특별히 멋질 것도 없습니다. 문자열이 어쩌다가 원한다면 반입할 수 있는 모듈의 이름이라는 사실만 제외하면 말입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.import.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">놀랍습니다. 반입하고 싶었고 반입했습니다. <tt class="function">__import__</tt> 함수를 리스트에 짝지어서 말입니다. 기억하세요. 이는 리스트(<tt class="varname">moduleNames</tt>)의 각 원소를 받아 그 함수(<tt class="function">__import__</tt>)를 리스트의 원소마다 한 번씩 호출하고 또 호출하여, 반환 값 리스트를 구축한 다음 그 결과를 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.import.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">그래서 이제 문자열 리스트로부터 실제 모듈의 리스트를 만들었습니다 (경로는 파이썬이 설치된 운영체제에 따라 다릅니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.import.3.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이것들이 실제 모듈인지 보증하기 위하여 모듈 속성을 살펴보겠습니다. 기억하세요. <tt class="varname">modules[0]</tt> <span class="emphasis"><em>은 </em></span> <tt class="filename">sys</tt> 모듈입니다. 그래서 <tt class="varname">modules[0].version</tt> <span class="emphasis"><em>은 </em></span> <tt class="varname">sys.version</tt>입니다.  다른 모든 속성과 메쏘드도 역시 얻을 수 있습니다.  <tt class="literal">import</tt> 서술문에는 어떤 마법도 없으며, 모듈에도 마법은 없습니다. 모듈은 객체입니다. 모든 것이 객체입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이제 이 모든 것을 하나로 조립해서 이 장의 코드 샘플이 무슨 일을 하고 있는지 아실 수 있으리라 믿습니다.</p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="regression.alltogether"></a>16.7.&nbsp;하나로 조립하기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이제 이 장의 코드 샘플에서 첫 일곱 줄을 분해하면서 충분히 배웠습니다: 디렉토리를 읽어 그 안에서 모듈을 선택하여 반입하는 방법을 배웠습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e36538"></a><h3 class="title">예제&nbsp;16.16.&nbsp; <tt class="function">regressionTest</tt> 함수
+                  </h3><pre class="programlisting">
+def regressionTest():
+    path = os.path.abspath(os.path.dirname(sys.argv[0]))   
+    files = os.listdir(path)                               
+    test = re.compile("test\.py$", re.IGNORECASE)          
+    files = filter(test.search, files)                     
+    filenameToModuleName = lambda f: os.path.splitext(f)[0]
+    moduleNames = map(filenameToModuleName, files)         
+    modules = map(__import__, moduleNames)                 
+load = unittest.defaultTestLoader.loadTestsFromModule  
+return unittest.TestSuite(map(load, modules))          
+</pre></div>
+               <p>한줄 한줄 상호대화적으로 살펴보겠습니다. 현재 디렉토리가 <tt class="filename">c:\diveintopython\py</tt>라고 간주하겠습니다. 이 디렉토리에는 이 장의 스크립트는 물론이고, 이 책에 함께 따라오는 예제들이 담겨 있습니다. <a href="#regression.path" title="16.2.&nbsp;Finding the path">섹션&nbsp;16.2, &#8220;경로 찾기&#8221;</a>에서 보셨듯이, 스크립트 디렉토리는 결국 <tt class="varname">path</tt> 변수에 있습니다. 그래서 그것을 하드-코딩하고 거기에서 시작해 봅시다.
+               </p>
+               <div class="example"><a name="d0e36556"></a><h3 class="title">예제&nbsp;16.17.&nbsp; 1 단계: 모든 파일을 얻는다</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import sys, os, re, unittest</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">path = r'c:\diveintopython\py'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">files = os.listdir(path)                               </span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">files</span> <a name="regression.alltogether.1.1"></a><span class="round">①</span>
+<span class="computeroutput">['BaseHTMLProcessor.py', 'LICENSE.txt', 'apihelper.py', 'apihelpertest.py',
+'argecho.py', 'autosize.py', 'builddialectexamples.py', 'dialect.py',
+'fileinfo.py', 'fullpath.py', 'kgptest.py', 'makerealworddoc.py',
+'odbchelper.py', 'odbchelpertest.py', 'parsephone.py', 'piglatin.py',
+'plural.py', 'pluraltest.py', 'pyfontify.py', 'regression.py', 'roman.py', 'romantest.py',
+'uncurly.py', 'unicode2koi8r.py', 'urllister.py', 'kgp', 'plural', 'roman',
+'colorize.py']</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">files</tt>는 스크립트 디렉토리의 파일과 디렉토리가 모두 담긴 리스트입니다. (이미 예제들을 실행해 보셨다면 거기에서 <tt class="filename">.pyc</tt> 파일도 보일 것입니다.)
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e36595"></a><h3 class="title">예제&nbsp;16.18.&nbsp; 2 단계: 해당 파일을 찾기 위하여 여과한다</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">test = re.compile("test\.py$", re.IGNORECASE)          </span> <a name="regression.alltogether.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">files = filter(test.search, files)                     </span> <a name="regression.alltogether.2.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">files</span>                                                   <a name="regression.alltogether.2.3"></a><span class="round">③</span>
+<span class="computeroutput">['apihelpertest.py', 'kgptest.py', 'odbchelpertest.py', 'pluraltest.py', 'romantest.py']</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 정규 표현식은 <tt class="literal">test.py</tt>로 끝나기만 하면 어떤 문자열에도 부합합니다. 점 문자를 피신시킬 필요가 있음에 주의하세요. 왜냐하면 정규 표현식에서 점 문자는 보통 &#8220;<span class="quote">문자 하나에 부합한다</span>&#8221;는 뜻이지만 실제로는 그 대신에 문자 그대로의 점 문자에 부합시키고 싶기 때문입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">컴파일된 정규 표현식은 함수처럼 행위합니다. 그래서 파일과 디렉토리가 담긴 방대한 리스트를 여과하여 그 정규 표현식에 부합하는 것들만 찾는데 사용할 수 있습니다.          </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">유닛 테스트 스크립트가 담긴 리스트만 남았습니다. 왜냐하면 이름이 <tt class="filename">SOMETHINGtest.py</tt>의 형태이기 때문입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e36643"></a><h3 class="title">예제&nbsp;16.19.&nbsp; 3단계: 파일이름을 모듈이름에 짝짓는다</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">filenameToModuleName = lambda f: os.path.splitext(f)[0]</span> <a name="regression.alltogether.3.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">filenameToModuleName('romantest.py')</span>                    <a name="regression.alltogether.3.2"></a><span class="round">②</span>
+<span class="computeroutput">'romantest'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">filenameToModuleName('odchelpertest.py')</span>
+<span class="computeroutput">'odbchelpertest'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">moduleNames = map(filenameToModuleName, files)         </span> <a name="regression.alltogether.3.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">moduleNames</span>                                             <a name="regression.alltogether.3.4"></a><span class="round">④</span>
+<span class="computeroutput">['apihelpertest', 'kgptest', 'odbchelpertest', 'pluraltest', 'romantest']</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.lambda" title="4.7.&nbsp;Using lambda Functions">섹션&nbsp;4.7, &#8220;람다 함수 사용하기&#8221;</a>에서 보셨듯이, <tt class="literal">lambda</tt>는 한줄짜리 인라인 함수를 만드는 신속 간편한 방법입니다. 이 람다함수는 확장자와 함께 파일이름을 받아 그냥 파일이름 부분만 돌려줍니다. 표준 라이브러리 <tt class="function">os.path.splitext</tt> 함수를 사용했는데 이 함수는 <a href="http://coreapython.hosting.paran.com/dive/chap06.html#splittingpathnames.example" title="Example&nbsp;6.17.&nbsp;Splitting Pathnames">예제&nbsp;6.17, &#8220;경로이름 가르기&#8221;</a>에서 보신 바 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">filenameToModuleName</tt>은 함수입니다. <tt class="literal">def</tt> 서술문으로 정의한 정규 함수에 비하여  <tt class="literal">lambda</tt> 함수에는 어떤 마법도 없습니다.  다른 함수들처럼 그냥 <tt class="varname">filenameToModuleName</tt> 함수를 호출하면 됩니다. 그러면 원하는 바를 해줍니다: 그의 인자에서 파일 확장자를 걷어내 줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 <tt class="function">map</tt>을 사용하면 이 함수를 유닛 테스트 파일이 담긴 리스트의 각 파일에 적용할 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.3.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">바로 원하던 결과입니다: 문자열로 된 모듈 리스트를 얻었습니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e36727"></a><h3 class="title">예제&nbsp;16.20.&nbsp; 4 단계: 모듈 이름을 모듈에 짝짓는다</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">modules = map(__import__, moduleNames)                 </span> <a name="regression.alltogether.4.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">modules</span>                                                 <a name="regression.alltogether.4.2"></a><span class="round">②</span>
+<span class="computeroutput">[&lt;module 'apihelpertest' from 'apihelpertest.py'&gt;,
+&lt;module 'kgptest' from 'kgptest.py'&gt;,
+&lt;module 'odbchelpertest' from 'odbchelpertest.py'&gt;,
+&lt;module 'pluraltest' from 'pluraltest.py'&gt;,
+&lt;module 'romantest' from 'romantest.py'&gt;]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">modules[-1]</span>                                             <a name="regression.alltogether.4.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;module 'romantest' from 'romantest.py'&gt;</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><a href="#regression.import" title="16.6.&nbsp;Dynamically importing modules">섹션&nbsp;16.6, &#8220;동적으로 모듈 반입하기&#8221;</a>에서 보셨듯이, <tt class="function">map</tt>과 <tt class="function">__import__</tt>를 조합 사용하여 (문자열로 된) 모듈 이름 리스트를 실제 모듈에 짝지을 수 있습니다 (다른 모듈들처럼 호출하고 접근할 수 있습니다).
+                              
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">modules</tt>은 이제 모듈이 담긴 리스트입니다. 다른 모듈들처럼 완벽하게 접근할 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.4.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">리스트에서 가장 마지막 모듈은 <span class="emphasis"><em></em></span><tt class="filename">romantest</tt> 모듈인데, 마치 <tt class="literal">import romantest</tt>로 명령한 것과 똑 같습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e36788"></a><h3 class="title">예제&nbsp;16.21.&nbsp; 5 단계: 모듈을 테스트 모듬 안에 적재한다</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">load = unittest.defaultTestLoader.loadTestsFromModule  </span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">map(load, modules)</span>                     <a name="regression.alltogether.5.1"></a><span class="round">①</span>
+<span class="computeroutput">[&lt;unittest.TestSuite tests=[
+  &lt;unittest.TestSuite tests=[&lt;apihelpertest.BadInput testMethod=testNoObject&gt;]&gt;,
+  &lt;unittest.TestSuite tests=[&lt;apihelpertest.KnownValues testMethod=testApiHelper&gt;]&gt;,
+  &lt;unittest.TestSuite tests=[
+    &lt;apihelpertest.ParamChecks testMethod=testCollapse&gt;, 
+    &lt;apihelpertest.ParamChecks testMethod=testSpacing&gt;]&gt;, 
+    ...
+  ]
+]</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">unittest.TestSuite(map(load, modules))</span> <a name="regression.alltogether.5.2"></a><span class="round">②</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.5.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이것들은 진짜 모듈 객체입니다. 다른 모듈들처럼 접근할 수 있고 클래스를 실체화하며 함수를 호출할 수도 있을 뿐만 아니라 모듈을 들여다 보고 어느 클래스와 함수가 제일 처음에 있는지 알아볼 수도 있습니다. 그것이 바로 <tt class="function">loadTestsFromModule</tt> 메쏘드가 하는 일입니다: 이 메쏘드는 모듈마다 조사해서 각 모듈에 대하여 <tt class="literal">unittest.TestSuite</tt> 객체를 돌려줍니다. 각 <tt class="literal">unittest.TestSuite</tt> 객체에는 실제로  <tt class="literal">TestSuite</tt> 객체가 담긴 리스트가 있는데,  <tt class="literal">TestSuite</tt> 객체는 모듈의 <tt class="literal">TestCase</tt> 클래스마다 하나씩입니다. 그리고  그런 <tt class="literal">TestSuite</tt> 객체마다 테스트 리스트가 담겨 있는데, 테스트는 모듈의 각 테스트 메쏘드마다 하나씩입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#regression.alltogether.5.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">마지막으로, <tt class="literal">TestSuite</tt> 객체가 담긴 리스트를 하나의 커다란 테스트 모듬 안으로 싸 넣습니다.  <tt class="filename">unittest</tt>은 문제없이 이 내포된 테스트 모듬 트리를 순회합니다; 마침내 개별 테스트 메쏘드에 도착하여 실행한 다음, 실패하는지 성공하는지 검증하고 계속해서 다음 메쏘드를 처리합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이 내부검사 과정은 보통 <tt class="filename">unittest</tt> 모듈이 대신해 줍니다. 테스트 모듈마다 기동을 위하여 호출했던 마법처럼-보이는 <tt class="literal">unittest.main()</tt> 함수를 기억하십니까? <tt class="function">unittest.main()</tt>은 실제로 <tt class="literal">unittest.TestProgram</tt>의 실체를 만듭니다. 차례로 이 실체는 <tt class="literal">unittest.defaultTestLoader</tt>의 실체를 만들어 그것을 자신을 호출한 모듈에 적재합니다. (참조점을 제공하지 않았음에도 어떻게 자신을 호출한 모듈을 가리키는 참조점을 얻을까? 현재-실행 중인 모듈을 동적으로 반입하는, 똑같이-마법같은 <tt class="literal">__import__('__main__')</tt> 명령어를 사용하여, 본인은 <tt class="filename">unittest</tt> 모듈에 사용된 모든 트릭과 테크닉에 관한 책을 쓸 수 있었지만 이 마법은 풀지 못했습니다.)
+               </p>
+               <div class="example"><a name="d0e36869"></a><h3 class="title">예제&nbsp;16.22.&nbsp; 6 단계: <tt class="filename">unittest</tt>에게 테스트 모듬을 사용하라고 명령한다
+                  </h3><pre class="programlisting">
+if __name__ == "__main__":                   
+    unittest.main(defaultTest="regressionTest") <a name="regression.alltogether.6.1"></a><span class="round">①</span>
+</pre></div>
+               <div class="calloutlist">
+                  <table border="0" summary="Callout list">
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#regression.alltogether.6.1"><span class="round">①</span></a> 
+                        </td>
+                        <td valign="top" align="left">
+						<tt class="filename">unittest</tt> 모듈이 모든 마법을 수행하도록 하는 대신에, 손수 대부분의 일을 마쳤습니다. 모듈을 반입하는 함수(<tt class="function">regressionTest</tt>)를 직접 만들었고, 손수 <tt class="literal">unittest.defaultTestLoader</tt>를 호출해서, 그 모든 것을 테스트 모듬에 싸 넣습니다. 이제 <tt class="filename">unittest</tt>에게 명령할 일만 남았습니다. 테스트를 찾아 보통의 방식대로 테스트 모듬을 구축하지 말고, 그냥 <tt class="function">regressionTest</tt> 함수만 호출하라고 말입니다. 그러면 바로-사용이-준비된 <tt class="literal">TestSuite</tt>를 돌려줍니다.
+                        </td>
+                     </tr>
+                  </table>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="regression.summary"></a>16.8.&nbsp;요약
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>
+				  <tt class="filename">regression.py</tt> 프로그램의 그의 출력이 이제는 완전히 이해가 되셨을 줄로 믿습니다.
+                  </p>
+               </div>
+               <p>이제 다음과 같은 일을 편안한 느낌으로 할 수 있어야 합니다:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li>명령어 줄에서 <a href="#regression.path" title="16.2.&nbsp;Finding the path">경로 정보 관리하기</a>.
+                     </li>
+                     <li>지능형 리스트 대신에 <a href="#regression.filter" title="16.3.&nbsp;Filtering lists revisited"><tt class="function">filter</tt>를 사용하여 리스트를 여과하기</a>.
+                     </li>
+                     <li>지능형 리스트 대신에 <a href="#regression.map" title="16.4.&nbsp;Mapping lists revisited"><tt class="function">map</tt>을 사용하여 리스트를 여과하기</a>.
+                     </li>
+                     <li>동적으로 <a href="#regression.import" title="16.6.&nbsp;Dynamically importing modules">모듈을 반입하기</a>.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="footnotes"><br><hr width="100" align="left">
+               <div class="footnote">
+                  <p><sup>[<a name="ftn.d0e35697" href="#d0e35697">7</a>] </sup>기술적으로, <tt class="function">filter</tt>에 건네는 두 번째 인자는 연속열이면 무엇이든 될 수 있습니다. 여기에는 리스트와 터플 그리고 맞춤 클래스가 포함됩니다. 클래스는 <tt class="function">__getitem__</tt> 특수 메쏘드를 정의하여 리스트처럼 행위하기만 하면 됩니다.  가능하면 <tt class="function">filter</tt>는 건넨 것과 같은 데이터유형을 돌려줍니다.  그래서 리스트를 여과하면 리스트를 돌려주지만 터플을 여과하면 터플을 돌려줍니다.
+                  </p>
+               </div>
+               <div class="footnote">
+                  <p><sup>[<a name="ftn.d0e36079" href="#d0e36079">8</a>] </sup>또, <tt class="function">map</tt>은 리스트나 터플을 받으며 어떤 객체이든 연속열처럼 행위하면 받을 수 있다는 것을 지적해야겠습니다. <tt class="function">filter</tt>에 관한 앞의 각주를 보세요.
+                  </p>
+               </div>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap15.html">☜ 제 15 장 리팩토링</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap17.html">제 17 장 동적 함수 ☞</A></TD>
+</TR>
+</TABLE>
+	</body>
+</html>

@@ -1,0 +1,366 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <title>Dive Into Python</title>
+      <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:f8dy@diveintopython.org">
+      <meta name="generator" content="DocBook XSL Stylesheets V1.52.2">
+      <meta name="description" content="다이빙 파이썬">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:49.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap00.html#revhistory">http://coreapython.hosting.paran.com/dive/chap00.html#revhistory</a><br>
+<b>Title:</b> Dive Into Python &nbsp;&bull;&nbsp; <b>Size:</b> 31691<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap18.html">☜ 제 18 장 수행성능 조율</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap01.html">제 01장 파이썬 설치 ☞</A></TD>
+</TR>
+</TABLE>
+      <div name="00장" class="book" lang="en">
+         <div class="titlepage">
+            <div>
+               <div>
+                  <h1 class="title"><a name="d0e1">제 0 장 <span class="application">파이썬</span>에 뛰어들기</a></h1>
+               </div>
+               <div>
+                  <p class="pubdate">20 May 2004</p>
+               </div>
+               <div>
+                  <p class="copyright">Copyright &copy; 2000, 2001, 2002, 2003, 2004 <a href="mailto:mark@diveintopython.org">Mark Pilgrim</a>
+                  <BR>한글판 <a href="mailto:">johnsonj</a> 2008.10.03 開天節</p>
+               </div>
+               <div>
+                  <div class="abstract">
+                     <h3 class="title"></h3>
+                     <p>이 책은 <a href="http://diveintopython.org/">http://diveintopython.org/</a>에 있습니다.  다른 곳에서 이 책을 읽고 있다면 최신 버전인지 꼭 확인해 보세요.
+                     </p>
+                  </div>
+               </div>
+               <div>
+                  <div class="legalnotice">
+                     <p>
+					 자유 소프트웨어 재단이 발간한 <span class="acronym">GNU</span> 자유 문서 라이센스 1.1 이상 버전 아래에서 이 문서를 복사나 배포 또는 변형해도 좋습니다; 단, 섹션 수정은 불가하고 앞표지와 뒷표지도 없어야 합니다. 라이센스의 사본은 <a href="#gfdl" title="Appendix&nbsp;G.&nbsp;GNU Free Documentation License">부록&nbsp;G, <i>GNU 자유 문서 라이센스</i></a>에 포함되어 있습니다.
+                     </p>
+                     <p>이 책에 사용된 예제들은 자유 소프트웨어입니다;  <span class="application">파이썬</span> 소프트웨어 재단이 발간한 <span class="application">파이썬</span> 라이센스의 조항 아래에서 재배포 또는 변형해도 좋습니다. 라이센스의 사본은 <a href="#license" title="Appendix&nbsp;H.&nbsp;Python license">부록&nbsp;H, <i>파이썬 라이센스</i></a>에 포함되어 있습니다.
+                     </p>
+                  </div>
+               </div>
+            </div>
+            <div></div>
+         </div>
+         <div class="toc">
+            <p><b>목차</b></p>
+            <ul>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap01.html#install">1. 파이썬 설치하기</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap01.html#install.choosing">1.1. 어느 파이썬이 알맞을까?</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap01.html#install.windows">1.2. 윈도우즈 위의 파이썬</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap01.html#install.macosx">1.3. 맥 OS X 위의 파이썬</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap01.html#install.macos9">1.4. 맥 OS 9 위의 파이썬</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap01.html#install.redhat">1.5. 레드헷 리눅스 위의 파이썬</a></span></li>
+                     <li><span class="section"><a href="#chap01.htmlinstall.debian">1.6. 데비안 GNU/Linux 위의 파이썬</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap01.html#install.source">1.7. 소스로부터 파이썬 설치하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap01.html#install.shell">1.8. 상호 대화 쉘</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap01.html#install.summary">1.9. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper">2. 첫 파이썬 프로그램</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.divein">2.1. 뛰어들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.funcdef">2.2. 함수 선언</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#d0e4188">2.2.1. 파이썬은 어떤 종류의 언어인가</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.docstring">2.3. 문서화 기능</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.objects">2.4. 모든 것이 객체이다</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#d0e4550">2.4.1. 반입 검색 경로</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#d0e4665">2.4.2. 객체란 무엇인가?</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.indenting">2.5. 코드 들여쓰기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap02.html#odbchelper.testing">2.6. 모듈 테스트</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#datatypes">3. 고유의 데이터유형</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.dict">3.1. 사전 소개</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e5174">3.1.1. 사전 정의</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e5269">3.1.2. 사전 변경</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e5450">3.1.3. 사전에서 원소 지우기</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.list">3.2. 리스트 소개</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e5623">3.2.1. 리스트 정의</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e5887">3.2.2. 리스트에 요소 추가하기</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e6115">3.2.3. 리스트 검색</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e6277">3.2.4. 리스트 요소 지우기</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e6392">3.2.5. 리스트 연산자 사용하기</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.tuple">3.3. 터플 소개</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.vardef">3.4. 변수 선언</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e6873">3.4.1. 변수 참조</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.multiassign">3.4.2. 여러 값을 한 번에 할당하기</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.stringformatting">3.5. 문자열의 형식화</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.map">3.6. 리스트 짝짓기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.join">3.7. 리스트 결합과 문자열 분리</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#d0e7982">3.7.1. 문자열 메쏘드에 대한 역사적 사실</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap03.html#odbchelper.summary">3.8. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper">4. 내부검사의 힘</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.divein">4.1. 뛰어들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.optional">4.2. 선택적인 인자와 이름붙은 인자 사용하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.builtin">4.3. type, str, dir, 등등 기타 내장 함수들</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#d0e8510">4.3.1. type 함수</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#d0e8609">4.3.2. str 함수</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#d0e8958">4.3.3. 내장 함수</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.getattr">4.4. getattr로 객체 참조하기</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#d0e9194">4.4.1. 모듈에 작동하는 getattr</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#d0e9362">4.4.2. 분배자로서의 getattr</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.filter">4.5. 리스트 여과하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.andor">4.6. and와 or의 특이한 본성</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#d0e9975">4.6.1. and-or 트릭 사용하기</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.lambda">4.7. 람다 함수 사용하기</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#d0e10403">4.7.1. 실-세계의 람다 함수</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.alltogether">4.8. 하나로 조립하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.summary">4.9. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo">5. 객체와 객체-지향</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.divein">5.1. 뛰어들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.fromimport">5.2. 모듈 반입하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.class">5.3. 클래스 정의하기</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#d0e11720">5.3.1. 클래스 초기화와 코딩</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#d0e11896">5.3.2. self와 __init__을 사용해야 할 때</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.create">5.4. 클래스 실체화하기</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#d0e12165">5.4.1. 쓰레기 수집</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.userdict">5.5. UserDict 탐험: 감싸개 클래스</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.specialmethods">5.6. 특수한 클래스 메쏘드</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#d0e12822">5.6.1. 원소를 얻고 설정하기</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.morespecial">5.7. 고급의 특수 클래스 메쏘드</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.classattributes">5.8. 클래스 속성 소개하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.private">5.9. 사적 함수</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.summary">5.10. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#filehandling">6. 예외와 파일 처리</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.exception">6.1. 예외 처리</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#d0e14344">6.1.1. 다른 목적으로 예외 사용하기</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.files">6.2. 파일 객체와 작업하기</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#d0e14670">6.2.1. 파일 읽기</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#d0e14800">6.2.2. 파일 닫기</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#d0e14928">6.2.3. I/O 에러 처리하기</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#d0e15055">6.2.4. 파일에 쓰기</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.for">6.3. for 회돌이로 반복하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.modules">6.4. sys.modules</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.os">6.5. 디렉토리와 작업하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.alltogether">6.6. 모두 하나로 조립하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap06.html#fileinfo.summary2">6.7. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#re">7. 정규 표현식</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.intro">7.1. 뛰어 들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.matching">7.2. 사례 연구: 길 이름</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.roman">7.3. 사례 연구: 로마 숫자</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#d0e17592">7.3.1. 천의 자리 점검</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#d0e17785">7.3.2. 백의 자리 점검</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.nm">7.4. {n,m} 구문 사용하기</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#d0e18326">7.4.1. 십의 자리와 일의 자리 점검</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.verbose">7.5. 상세한 정규 표현식</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.phone">7.6. 사례 연구: 전화 번호 해석하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap07.html#re.summary">7.7. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect">8. HTML 처리하기</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.divein">8.1. 뛰어 들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.sgmllib">8.2. sgmllib.py 소개</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.extract">8.3. HTML 문서로부터 데이터 추출하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.basehtml">8.4. BaseHTMLProcessor.py 소개</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.locals">8.5. 지역변수와 전역변수</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.dictsub">8.6. 사전-기반의 문자열 형식화</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.quoting">8.7. 속성 값 인용하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.dialectizer">8.8. dialect.py 소개</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.alltogether">8.9. 모두 하나로 합치기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.summary">8.10. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp">9. XML 처리</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp.divein">9.1. 뛰어들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp.packages">9.2. 꾸러미(Packages)</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp.parse">9.3. XML 해석하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp.unicode">9.4. 유니코드</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp.search">9.5. 요소 탐색</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp.attributes">9.6. 요소 속성에 접근하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp.segue">9.7. 맺는 말</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap10.html#streams">10. 스크립트와 스트림</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap10.html#kgp.openanything">10.1. 입력 소스 추상화하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap10.html#kgp.stdio">10.2. 표준입력과 표준출력 그리고 표준에러</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap10.html#kgp.cache">10.3. 노드 검색 캐시하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap10.html#kgp.child">10.4. 한 노드의 직계 자손 찾기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap10.html#kgp.handler">10.5. 노드 유형에 맞게 따로 처리자 만들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap10.html#kgp.commandline">10.6. 명령어-줄 인자 처리하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap10.html#kgp.alltogether">10.7. 모두 하나로 합치기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap10.html#kgp.summary">10.8. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa">11. HTTP 웹 서비스</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.divein">11.1. 뛰어 들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.review">11.2. HTTP를 통하여 데이터를 가져오지 않아도 되는 방법</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.features">11.3. HTTP의 특징</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#d0e27596">11.3.1. 사용자-중개자</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#d0e27616">11.3.2. 방향전환(Redirects)</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#d0e27689">11.3.3. Last-Modified/If-Modified-Since</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#d0e27724">11.3.4. ETag/If-None-Match</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#d0e27752">11.3.5. 압축</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.debug">11.4. HTTP 웹 서비스 디버깅</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.useragent">11.5. 사용자-중개자 설정</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.etags">11.6. Last-Modified 그리고 ETag 처리하는 법</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.redirect">11.7. 방향전환 처리</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.gzip">11.8. 압축된 데이터 처리</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.alltogether">11.9. 모두 하나로 합치기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap11.html#oa.summary">11.10. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap">12. SOAP 웹 서비스</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap.divein">12.1. 뛰어들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap.install">12.2. SOAP 라이브러리 설치</a></span><ul>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#d0e29967">12.2.1. PyXML 설치</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#d0e30070">12.2.2. fpconst 설치</a></span></li>
+                           <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#d0e30171">12.2.3. SOAPpy 설치</a></span></li>
+                        </ul>
+                     </li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap.firststeps">12.3. SOAP로 내딛는 첫발</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap.debug">12.4. SOAP 웹 서비스 디버깅</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap.wsdl">12.5. WSDL 소개</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap.introspection">12.6. WSDL로 SOAP 웹 서비스 들여다보기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap.google">12.7. 구글 탐색</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap.troubleshooting">12.8. SOAP 웹 서비스 문제 해결</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap12.html#soap.summary">12.9. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman">13. 유닛 테스트</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.intro">13.1. 로마 숫자 소개</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.divein">13.2. 뛰어 들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.romantest">13.3. romantest.py 소개</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.success">13.4. 성공을 위한 테스트</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.failure">13.5. 실패를 위한 테스트</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap13.html#roman.sanity">13.6. 청결을 위한 테스트</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap14.html#roman1.5">14. 테스트-먼저 프로그래밍</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap14.html#roman.stage1">14.1. roman.py, 1 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap14.html#roman.stage2">14.2. roman.py, 2 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap14.html#roman.stage3">14.3. roman.py, 3 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap14.html#roman.stage4">14.4. roman.py, 4 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap14.html#roman.stage5">14.5. roman.py, 5 단계</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap15.html#roman2">15. 요소화(Refactoring)</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap15.html#roman.bugs">15.1. 버그 처리</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap15.html#roman.change">15.2. 변경 요구 처리</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap15.html#roman.refactoring">15.3. 요소화(Refactoring)</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap15.html#roman.postscript">15.4. 맺는 말</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap15.html#roman.summary">15.5. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap16.html#regression">16. 기능적 프로그래밍</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap16.html#regression.divein">16.1. 뛰어들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap16.html#regression.path">16.2. 경로 찾기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap16.html#regression.filter">16.3. 리스트 여과 심화연구</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap16.html#regression.map">16.4. 리스트 짝짓기 심화연구</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap16.html#regression.datacentric">16.5. 데이터-중심 프로그래밍</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap16.html#regression.import">16.6. 동적으로 모듈 반입하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap16.html#regression.alltogether">16.7. 모두 하나로 조립하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap16.html#regression.summary">16.8. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap17.html#plural">17. 동적인 함수</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap17.html#plural.divein">17.1. 뛰어들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap17.html#plural.stage1">17.2. plural.py, 1 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap17.html#plural.stage2">17.3. plural.py, 2 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap17.html#plural.stage3">17.4. plural.py, 3 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap17.html#plural.stage4">17.5. plural.py, 4 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap17.html#plural.stage5">17.6. plural.py, 5 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap17.html#plural.stage6">17.7. plural.py, 6 단계</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap17.html#plural.summary">17.8. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="chapter"><a href="http://coreapython.hosting.paran.com/dive/chap18.html#soundex">18. 수행성능 조율</a></span><ul>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap18.html#soundex.divein">18.1. 뛰어들기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap18.html#soundex.timeit">18.2. timeit 모듈 사용하기</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap18.html#soundex.stage1">18.3. 정규 표현식 최적화</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap18.html#soundex.stage2">18.4. 사전 찾기 최적화</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap18.html#soundex.stage3">18.5. 리스트 연산 최적화</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap18.html#soundex.stage4">18.6. 문자열 조작 최적화</a></span></li>
+                     <li><span class="section"><a href="http://coreapython.hosting.paran.com/dive/chap18.html#soundex.summary">18.7. 요약</a></span></li>
+                  </ul>
+               </li>
+               <li><span class="appendix"><a href="#furtherreading">A. 더 읽어야 할 것</a></span></li>
+               <li><span class="appendix"><a href="#abstracts">B. 5-분 복습</a></span></li>
+               <li><span class="appendix"><a href="#tips">C. 팁과 트릭</a></span></li>
+               <li><span class="appendix"><a href="#examples">D. 예제 목록</a></span></li>
+               <li><span class="appendix"><a href="#revhistory">E. 개정 이력</a></span></li>
+               <li><span class="appendix"><a href="#about">F. 이 책에 관하여</a></span></li>
+               <li><span class="appendix"><a href="#gfdl">G. GNU 자유 문서 라이센스</a></span></li>
+               <li><span class="appendix"><a href="#license">H. 파이썬 라이센스</a></span></li>
+                  </ul>
+               </li>
+            </ul>
+         </div>
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap18.html">☜ 제 18 장 수행성능 조율</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap01.html">제 01장 파이썬 설치 ☞</A></TD>
+</TR>
+</TABLE>
+    </body>
+</html>

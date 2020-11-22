@@ -1,0 +1,1442 @@
+        <!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap11.html">http://coreapython.hosting.paran.com/dive/chap11.html</a><br>
+<b>Title:</b> 11. HTTP 웹 서비스 &nbsp;&bull;&nbsp; <b>Size:</b> 128343<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap10.html">☜ 제 10 장 스크립트와 스트림</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap12.html">제 12 장 SOAP 웹 서비스 ☞</A></TD>
+</TR>
+</TABLE>
+		 <div name="11장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="oa"></a>제&nbsp;11 장&nbsp;HTTP 웹 서비스</h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.divein"></a>11.1.&nbsp;뛰어들기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>
+				  <a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect" title="Chapter&nbsp;8.&nbsp;HTML Processing">HTML 처리</a>와 <a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp" title="Chapter&nbsp;9.&nbsp;XML Processing">XML 처리</a>에 관하여 배웠고, 그러면서 <a href="http://coreapython.hosting.paran.com/dive/chap08.html#dialect.extract.urllib" title="Example&nbsp;8.5.&nbsp;Introducing urllib">웹 페이지를 내려받는 법</a>과 <a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp.openanything.urllib" title="Example&nbsp;10.2.&nbsp;Parsing XML from a URL">URL로부터 XML을 해석하는 법</a>을 배웠습니다. 그러나 HTTP 웹 서비스라는 좀 더 일반적인 주제로 뛰어들어가 보겠습니다.
+                  </p>
+               </div>
+               <p>
+			   간단하게 말해서, HTTP 웹 서비스는 HTTP의 기능을 직접적으로 사용하여 원격 서버로부터 데이터를 주고 받는 프로그래밍 방식입니다. 데이터를 서버로부터 받고 싶다면 직접 HTTP GET을 사용하면 됩니다; 새로운 데이터를 서버에 보내고 싶다면 HTTP POST를 사용합니다 (좀 고급의 HTTP 웹 서비스 API는 HTTP PUT 그리고 HTTP DELETE를 사용하여, 기존의 데이터를 변경하거나 삭제하는 방법을 정의하기도 합니다.). 다른 말로 하면 HTTP 프로토콜 안에 구축된 &#8220;<span class="quote">동사들</span>&#8221;(GET, POST, PUT, 그리고 DELETE)은 직접적으로 어플리케이션-수준의 연산에 짝지워집니다. 데이터를 받고 보내며 변경하고 그리고 삭제합니다.
+               </p>
+               <p>
+			   이런 접근법의 주요 이점은 단순함입니다. 그의 단순함 때문에 수 많은 사이트에서 인기를 얻었습니다. 데이터-- 보통 XML 데이터--는 정적으로 구축되고 저장되거나, 서버-쪽 스크립트에 의해서 동적으로 생성됩니다. 그리고 모든 주요 언어는 데이터를 내려받기 위한 HTTP 라이브러리가 포함되어 있습니다. 디버깅도 쉽습니다. 왜냐하면 어떤 웹 브라우저에도 웹 서비스를 적재할 수 있고 그 미가공 데이터를 볼 수 있기 때문입니다. 현대의 브라우저들은 심지어 깔끔한 포맷과, 예쁜-인쇄로 XML 데이터를 가공해 주기 때문에, 즉시 그 내용을 둘러 볼 수 있습니다.
+               </p>
+               <p>순수한 HTTP위의-XML 웹 서비스의 예:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><a href="http://www.amazon.com/webservices">아마존 API</a>로 Amazon.com 온라인 서점의 제품 정보를 열람해 볼 수 있다.
+                     </li>
+                     <li><a href="http://www.nws.noaa.gov/alerts/">국립 기후 서비스</a> (미국) 그리고 <a href="http://demo.xml.weather.gov.hk/">홍콩 기상 관측소</a> (홍콩)는 웹 서비스로 기후 경보를 제공한다.
+                     </li>
+                     <li><a href="http://atomenabled.org/">아톰 API</a>는 웹-기반의 웹소를 관리한다.
+                     </li>
+                     <li>
+					 웹로그와 뉴스 사이트로부터 온 <a href="http://syndic8.com/">연합출판 감들</a>로 최신 뉴스를 볼 수 있다.
+                     </li>
+                  </ul>
+               </div>
+               <p>
+			   지금부터는 데이터를 주고 받는 전송 수단으로 HTTP를 사용하는 API를 살펴보겠습니다. 그러나 어플리케이션 의미구조를 그 밑의  HTTP 의미구조에 짝짓지 마세요.  (모든 것들은 HTTP POST를 통하여 전송됩니다.)  
+				  그러나 이 장에서는 HTTP GET을 사용하여 원격 서버로부터 데이터를 얻는 법에만 집중하겠습니다. 그리고 순수한 HTTP 웹 서비스로부터 최대의 혜택을 얻는데 사용할 수 있는 여러 HTTP 특징들을 살펴보겠습니다.
+               </p>
+               <p>다음은 <a href="http://coreapython.hosting.paran.com/dive/chap10.html#streams" title="Chapter&nbsp;10.&nbsp;Scripts and Streams">앞 장</a>에서 보았던 것보다 좀 더 고급 버전의 <tt class="filename">openanything</tt> 모듈입니다:
+               </p>
+               <div class="example"><a name="d0e27515"></a><h3 class="title">예제&nbsp;11.1.&nbsp;<tt class="filename">openanything.py</tt></h3>
+                  <p>아직 그렇게 하지 못했다면 이 책에서 사용된 <a href="exdive.zip" title="Download example scripts">다음 예제와 기타 예제들</a>을 내려받으면 됩니다.
+                  </p>
+				  
+				  <pre class="programlisting">
+import urllib2, urlparse, gzip
+from StringIO import StringIO
+
+USER_AGENT = 'OpenAnything/1.0 +http://diveintopython.org/http_web_services/'
+
+class SmartRedirectHandler(urllib2.HTTPRedirectHandler):    
+    def http_error_301(self, req, fp, code, msg, headers):  
+        result = urllib2.HTTPRedirectHandler.http_error_301(
+            self, req, fp, code, msg, headers)              
+        result.status = code                                
+        return result                                       
+
+    def http_error_302(self, req, fp, code, msg, headers):  
+        result = urllib2.HTTPRedirectHandler.http_error_302(
+            self, req, fp, code, msg, headers)              
+        result.status = code                                
+        return result                                       
+
+class DefaultErrorHandler(urllib2.HTTPDefaultErrorHandler):   
+    def http_error_default(self, req, fp, code, msg, headers):
+        result = urllib2.HTTPError(                           
+            req.get_full_url(), code, msg, headers, fp)       
+        result.status = code                                  
+        return result                                         
+
+def openAnything(source, etag=None, lastmodified=None, agent=USER_AGENT):
+    '''URL, filename, or string --&gt; stream
+
+    이 함수로 해석기를 정의하면 어떤 입력 소스도 받을 수 있다.
+    (URL, 지역 파일이나 네트워크 파일을 가리키는 경로이름, 또는 문자열로 된 실제 데이터)
+    그리고 일관된 형태로 입력 소스를 다룰 수 있다. 
+    반환된 객체는 확실하게 기본적인 표준 읽기 메쏘드를 모두 보유한다 (read, readline, readlines).
+    일이 끝나면 그냥 .close()로 그 객체를 닫기만 하면 된다.
+
+    etag 인자가 공급되면 If-None-Match 요청 헤더의 값으로 사용된다.
+
+    lastmodified 인자가 공급되면 (앞 요청의 Last-Modified 헤더에 반환된 것과 마찬가지로)
+	반드시 형태가 GMT 날짜/시간 문자열이어야 한다. 
+	그렇게 포맷된 날짜/시간이 If-Modified-Since 요청 헤더의 값으로 사용된다.
+
+    agent 인자가 공급되면 User-Agent 요청 헤더의 값으로 사용된다.
+    '''
+
+    if hasattr(source, 'read'):
+        return source
+
+    if source == '-':
+        return sys.stdin
+
+    if urlparse.urlparse(source)[0] == 'http':                                      
+        # urllib2를 가지고 URL을 연다.                                              
+        request = urllib2.Request(source)                                           
+        request.add_header('User-Agent', agent)                                     
+        if etag:                                                                    
+            request.add_header('If-None-Match', etag)                               
+        if lastmodified:                                                            
+            request.add_header('If-Modified-Since', lastmodified)                   
+        request.add_header('Accept-encoding', 'gzip')                               
+        opener = urllib2.build_opener(SmartRedirectHandler(), DefaultErrorHandler())
+        return opener.open(request)                                                 
+    
+    # (소스가 파일이름이라면) 고유의 open 함수로 열기를 시도한다.
+    try:
+        return open(source)
+    except (IOError, OSError):
+        pass
+
+    # 소스를 문자열로 취급한다.
+    return StringIO(str(source))
+
+def fetch(source, etag=None, last_modified=None, agent=USER_AGENT):  
+    '''데이터와 메타데이터를 URL, 파일, 스트림, 또는 문자열로부터 가져온다'''
+    result = {}                                                      
+    f = openAnything(source, etag, last_modified, agent)             
+    result['data'] = f.read()                                        
+    if hasattr(f, 'headers'):                                        
+        # 서버가 보낸게 있다면 ETag를 저장한다.                      
+        result['etag'] = f.headers.get('ETag')                       
+        # 서버가 보낸게 있다면 Last-Modified 헤더를 저장한다.        
+        result['lastmodified'] = f.headers.get('Last-Modified')      
+        if f.headers.get('content-encoding', '') == 'gzip':          
+            # 데이터가 gzip-압축되어 돌아 오면 그 압축을 푼다.      
+            result['data'] = gzip.GzipFile(fileobj=StringIO(result['data']])).read()
+    if hasattr(f, 'url'):                                            
+        result['url'] = f.url                                        
+        result['status'] = 200                                       
+    if hasattr(f, 'status'):                                         
+        result['status'] = f.status                                  
+    f.close()                                                        
+    return result                                                    
+</pre></div>
+               <div class="itemizedlist">
+                  <h3 class="title">더 읽어야 할 것</h3>
+                  <ul>
+                     <li>폴 프레스코드(Paul Prescod)는 <a href="http://webservices.xml.com/pub/a/ws/2002/02/06/rest.html">순수한 HTTP 웹 서비스가 인터넷의 미래</a>라고 믿는다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.review"></a>11.2.&nbsp; HTTP로 데이터를 안 가져와도 되는 방법
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>HTTP를 통하여 자원을 내려받고 싶습니다. 예를 들어, 연합출판되는 아톰(Atom) 같은 자원을 말입니다. 그러나 단 한번만 내려받고 싶지는 않습니다; 계속해서 내려받고 싶습니다. 매시간마다 내려받아 뉴스감 제공 사이트로부터 최신 뉴스를 얻고 싶습니다. 먼저 얼렁뚱땅 처리해 보겠습니다. 그 다음에 어떻게 하면 좀 더 잘할 수 있는지 알아보겠습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e27543"></a><h3 class="title">예제&nbsp;11.2.&nbsp;얼렁뚱땅 감 하나 내려받기</h3>
+			   
+			   <pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import urllib</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">data = urllib.urlopen('http://diveintomark.org/xml/atom.xml').read()</span>    <a name="oa.review.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print data</span>
+<span class="computeroutput">&lt;?xml version="1.0" encoding="iso-8859-1"?&gt;
+&lt;feed version="0.3"
+  xmlns="http://purl.org/atom/ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xml:lang="en"&gt;
+  &lt;title mode="escaped"&gt;dive into mark&lt;/title&gt;
+  &lt;link rel="alternate" type="text/html" href="http://diveintomark.org/"/&gt;
+  &lt;-- rest of feed omitted for brevity --&gt;</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.review.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">HTTP를 통하여 내려받는 일은 <span class="application">파이썬</span>에서 놀랍도록 쉽습니다; 실제로 한 줄이면 됩니다.  <tt class="filename">urllib</tt> 모듈은 간편한 <tt class="function">urlopen</tt> 함수가 있어서 원하는 페이지의 주소를 받아, 파일-류의 객체를 돌려줍니다. 그냥 이 객체를 읽기(<tt class="function">read()</tt>)만 하면 페이지 내용을 모두 얻을 수 있습니다. 이보다 더 쉬울 수는 없습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>그래서 이 코드는 무엇이 잘못되었는가? 자, 테스트나 개발중에 잠깐 한번 쓰고 버릴 코드라면 잘못이 전혀 없습니다. 본인도 항상 그렇게 합니다. 감의 내용을 원하고, 그 감의 내용을 얻었습니다. 같은 테크닉이 어떤 웹 페이지에도 적용됩니다. 그러나 주기적으로 접근하고 싶은 웹 서비스라는 관점에서 생각해 보면 비효율적이고 거칩니다 -- 기억하세요. 저는 이 연합출판 감을 한 달에 한 번 열람할 생각이었습니다.
+               </p>
+               <p>이제 HTTP의 기본 특징들에 관하여 말해 보겠습니다.</p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.features"></a>11.3.&nbsp;HTTP의 특징
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>HTTP라면 반드시 지원하는 다섯가지 중요한 특징이 있습니다.</p>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e27596"></a>11.3.1.&nbsp;<tt class="literal">사용자-중개</tt></h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>
+				  사용자-중개자(<tt class="literal">User-Agent</tt>)는 그냥 클라이언트가 서버에게 HTTP를 통하여 웹 페이지나 연합출판 감 또는 웹 서비스를 요청할 때 자신이 누구인지 알려주는 방법입니다. 클라이언트가 자원을 요청하면 언제나 자신이 누구인지 선언해야 합니다. 가능하면 구체적으로 말입니다. 이 덕분에 서버-쪽 관리자는 무언가 잘못되면 클라이언트-쪽 개발자와 연락할 수 있습니다.</p>
+                  <p>
+				  <span class="application">파이썬</span>은 보통 기본값으로 <tt class="literal">User-Agent</tt>: <tt class="literal">Python-urllib/1.15</tt>를 전송합니다. 다음 섹션에서는 이를 좀 더 구체적으로 바꾸는 법을 보여드립니다.
+                  </p>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e27616"></a>11.3.2.&nbsp;방향전환(Redirects)
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>
+				  어떤 경우 자원은 돌아다닙니다. 웹 사이트는 재조직되고, 페이지들은 새로운 주소로 이동합니다. 웹 서비스도 재조직될 수 있습니다. <tt class="literal">http://example.com/index.xml</tt>에 있는 연합출판 감이 <tt class="literal">http://example.com/xml/atom.xml</tt>으로 이동할 수도 있습니다. 또는 도메인 전체가 이동할 수도 있습니다. 회사가 확장되거나 재조직됨에 따라 말입니다; 예를 들면 <tt class="literal">http://www.example.com/index.xml</tt>는 <tt class="literal">http://server-farm-1.example.com/index.xml</tt>로 방향전환될 수 있습니다.
+                  </p>
+                  <p>
+				  HTTP 서버로부터 자원을 요청할 때마다, 그 서버에는 응답에 상태 코드를 포함시킵니다. 상태 코드 <tt class="literal">200</tt>의 의미는 &#8220;<span class="quote">모든 게 정상임, 다음은 당신이 요청한 페이지임</span>&#8221;이란 뜻입니다. 상태 코드 <tt class="literal">404</tt>는 &#8220;<span class="quote">페이지 발견되지 않음</span>&#8221;이란 뜻입니다.  (웹을 돌아다니다 보면 404 에러를 본 적이 있을 것입니다.)
+                  </p>
+                  <p>
+				  HTTP는 자원이 이동했다는 것을 알리는 두 가지 방식이 있습니다. 상태 코드 <tt class="literal">302</tt>는 <span class="emphasis"><em>임시 방향전환</em></span>입니다; 그 의미는 &#8220;<span class="quote">이런, 그거 여기에서 잠시 이동했음</span>&#8221;이란 뜻입니다 (그리고 임시 주소를 <tt class="literal">Location:</tt> 헤더에 넘겨줍니다). 상태 코드 <tt class="literal">301</tt>은 <span class="emphasis"><em>영구 방향전환</em></span>입니다; 그 의미는 &#8220;<span class="quote">이런, 그거 영원히 이동했음</span>&#8221;이란 뜻입니다 (그리고 새로운 주소를 <tt class="literal">Location:</tt> 헤더에 건네줍니다).  <tt class="literal">302</tt> 상태 코드와 새로운 주소를 얻었다면 HTTP 규격에 의해 새로운 주소를 사용하여 요청한 것을 얻어야 하지만, 다음에 같은 자원에 접근하고 싶으면 예전 주소를 시도해야 합니다. 그러나 <tt class="literal">301</tt> 상태 코드와 새 주소를 얻는다면 그 때부터 새로운 주소를 사용해야 합니다.
+                  </p>
+                  <p><tt class="function">urllib.urlopen</tt>은 HTTP 서버로부터 적절한 상태 코드를 받아 자동으로 방향전환된 곳을 &#8220;<span class="quote">따라갑니다</span>&#8221; 그러나 불행하게도 언제 그렇게 하는지 말해 주지 않습니다. 결국 요청한 데이터를 얻을 수 있겠지만, 아래에 깔린 라이브러리가 &#8220;<span class="quote">여러분을 도와</span>&#8221; 방향전환을 따라간다는 사실을 절대로 알지 못합니다. 그래서 예전 주소를 더듬게 될 것이고, 그 때마다 새로운 주소로 방향전환 됩니다. 그것은 한 번의 여행이 아니라 두 번에 걸친 여행입니다: 아주 비효율적입니다! 지금부터는 적절하게 효율적으로 영구 방향전환을 다룰 수 있도록 이를 처리하는 법을 살펴보겠습니다.
+                  </p>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e27689"></a>11.3.3.&nbsp;<tt class="literal">Last-Modified</tt>/<tt class="literal">If-Modified-Since</tt></h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>
+				  어떤 데이터는 끊임없이 바뀝니다. CNN.com 홈페이지는 매 분마다 항상 갱신됩니다. 반면에 Google.com 홈 페이지는 몇 주마다 한 번정도만 바뀝니다 (그 때 기념일 로고를 올려 놓거나, 새로운 서비스를 광고합니다). 웹 서비스도 다르지 않습니다; 보통 서버는 요청한 데이터가 마지막으로 바뀐 때를 알며, HTTP는 서버가 요청한 데이터에 함께 이 마지막-변경 날짜를 포함시키는 방법을 제공합니다.
+                  </p>
+                  <p>
+				  같은 데이터를 두 번째로 (또는 세 번, 네 번) 요청할 때, 지난 번 얻은 최종-변경 날짜를 서버에게 알려 줄 수 있습니다: 요청에 <tt class="literal">If-Modified-Since</tt> 헤더를 전송합니다. 서버로부터 지난 번 얻은 날짜와 함께 말입니다.  데이터가 그 때 이후로 바뀌지 않았다면 서버는 특수 HTTP 상태 코드 <tt class="literal">304</tt>를 돌려 줍니다. 이 의미는 &#8220;<span class="quote">이 데이터가 지난 번 요청한 이후로 바뀌지 않았음</span>&#8221;을 뜻합니다. 이것이 왜 개선인가? 서버가 <tt class="literal">304</tt> 코드를 전송하면 <span class="emphasis"><em>그 데이터는 재-전송되지 않습니다</em></span>. 오직 상태 코드만 받습니다. 그래서 바뀌지 않았다면 같은 데이터를 계속 반복해서 받을 필요가 없습니다; 서버는 클라이언트에 데이터가 지역적으로 캐쉬되어 있다고 간주합니다.
+                  </p>
+                  <p>
+				  모든 웹 브라우저는 최종-변경 날짜 점검을 지원합니다. 한 페이지를 방문한 적이 있고, 하루가 지나서 같은 페이지를 재-방문해서 변경되지 않았음을 알았고, 두 번째 방문할 때는 왜 그렇게 빨리 적재되는지 의아했다면 -- 바로 이런 이유 때문입니다. 웹 브라우저는 처음 페이지의 내용을 지역적으로 캐쉬해 두며, 두 번째로 방문할 때, 브라우저는 서버로부터 처음에 받은 최종-갱신 날짜를 자동으로 보내면 서버는 그냥 <tt class="literal">304: Not Modified</tt>로 응답합니다. 그래서 브라우저는 캐쉬에서 그 페이지를 적재할지 말지를 알게됩니다. 웹 서비스는 이렇게 똑똑할 수 있습니다.
+                  </p>
+                  <p>
+				  <span class="application">파이썬</span>의 URL 라이브러리에는 최종-갱신 날짜 점검이 내장되어 있지 않지만, 마음대로 각 요청에 헤더를 추가할 수 있고 각 응답에서 헤더를 읽을 수 있기 때문에, 직접 그것을 지원할 수 있습니다.
+                  </p>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e27724"></a>11.3.4.&nbsp;<tt class="literal">ETag</tt>/<tt class="literal">If-None-Match</tt></h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>
+				  ETag는 최종-갱신 날짜 점검과 똑 같은 일을 완수하는 또다른 방법입니다: 바뀌지 않은 데이터를 다시 내려받지 마세요. 서버는 요청한 데이터와 함께 특정한 종류의 해쉬를 (<tt class="literal">ETag</tt> 헤더 안에) 전송합니다. 정확하게 이 해쉬가 어떻게 결정될지는 전적으로 서버에게 달려 있습니다. 같은 데이터를 다시 요청할 때, ETag 해쉬를 <tt class="literal">If-None-Match:</tt> 헤더에 집어 넣습니다. 데이터가 바뀌지 않았다면 서버는 <tt class="literal">304</tt> 상태 코드를 되돌려 줍니다. 최종-변경 날짜 점검처럼, 서버는 <span class="emphasis"><em>그냥</em></span> <tt class="literal">304</tt> 코드를 전송할 뿐입니다; 두 번째 요청할 때는 같은 데이터를 전송해 주지 않습니다. 두 번째 요청에 ETag 해쉬를 집어 넣어, 서버에게 여전히 해쉬가 일치하면 같은 데이터를 재-전송할 필요가 없다고 알려줍니다. 왜냐하면 지난 번 접근 이후로 데이터를 그대로 보유하고 있기 때문입니다.
+                  </p>
+                  <p><span class="application">파이썬</span>의 URL 라이브러리는 ETag를 내장 지원하지 않지만, 앞으로 추가하는 법을 가르쳐 드리겠습니다.
+                  </p>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e27752"></a>11.3.5.&nbsp;압축
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>
+				  마지막으로 중요한 HTTP 특징은 gzip 압축입니다. HTTP 웹 서비스에 관하여 말할 때, 거의 언제나 전선을 타고 XML을 이리저리 이동시키는 것을 언급합니다. XML은 텍스트이며 상당히 상세한 텍스트이고 일반적으로 압축이 잘 된 텍스트입니다.  HTTP를 통하여 자원을 요청할 때, 서버에게 이렇게 요청할 수 있습니다. 만약 새로운 데이터를 보내야 한다면 압축된 포맷으로 보내달라고 요청할 수 있습니다. 요청에 <tt class="literal">Accept-encoding: gzip</tt> 헤더를 삽입하고, 서버가 압축을 지원한다면 gzip으로-압축된 데이터를 되돌려주고 그것을 <tt class="literal">Content-encoding: gzip</tt> 헤더로 표시해 줍니다.
+                  </p>
+                  <p><span class="application">파이썬</span>의 URL 라이브러리는 사실 gzip 압축을 내장 지원하지 않지만, 요청에 마음대로 헤더를 추가할 수 있습니다. 그리고 <span class="application">파이썬</span>에는 따로 <tt class="filename">gzip</tt> 모듈이 따라오는데, 이 모듈에 있는 함수들을 사용하면 데이터를 손수 풀 수 있습니다.
+                  </p>
+                  <p>
+				  연합출판 감을 하나 내려받는 우리의 <a href="#oa.review" title="11.2.&nbsp;How not to fetch data over HTTP">한-줄짜리 작은 스크립트</a>는 이런 HTTP 특징들을 하나도 지원하지 않는다는 사실에 주목하세요. 이제 어떻게 개선할 수 있는지 알아보겠습니다.
+                  </p>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.debug"></a>11.4.&nbsp; HTTP 웹 서비스 디버깅
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>먼저, <span class="application">파이썬</span>의 HTTP 라이브리가 가진 디버깅 특징을 켜고 전선을 따라 무엇이 전송되는지 살펴보겠습니다. 이 장 전체에 걸쳐 특징을 하나하나 추가해 감에 따라 디버깅이 도움이 될 것입니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e27789"></a><h3 class="title">예제&nbsp;11.3.&nbsp;HTTP 디버깅</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import httplib</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">httplib.HTTPConnection.debuglevel = 1</span>             <a name="oa.debug.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import urllib</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">feeddata = urllib.urlopen('http://diveintomark.org/xml/atom.xml').read()</span>
+<span class="computeroutput">connect: (diveintomark.org, 80)</span>                       <a name="oa.debug.1.2"></a><span class="round">②</span>
+<span class="computeroutput">send: '</span>
+<span class="computeroutput">GET /xml/atom.xml HTTP/1.0</span>                            <a name="oa.debug.1.3"></a><span class="round">③</span>
+<span class="computeroutput">Host: diveintomark.org</span>                                <a name="oa.debug.1.4"></a><span class="round">④</span>
+<span class="computeroutput">User-agent: Python-urllib/1.15</span>                        <a name="oa.debug.1.5"></a><span class="round">⑤</span>
+<span class="computeroutput">'</span>
+<span class="computeroutput">reply: 'HTTP/1.1 200 OK\r\n'</span>                          <a name="oa.debug.1.6"></a><span class="round">⑥</span>
+<span class="computeroutput">header: Date: Wed, 14 Apr 2004 22:27:30 GMT</span>
+<span class="computeroutput">header: Server: Apache/2.0.49 (Debian GNU/Linux)</span>
+<span class="computeroutput">header: Content-Type: application/atom+xml</span>
+<span class="computeroutput">header: Last-Modified: Wed, 14 Apr 2004 22:14:38 GMT</span>  <a name="oa.debug.1.7"></a><span class="round">⑦</span>
+<span class="computeroutput">header: ETag: "e8284-68e0-4de30f80"</span>                   <a name="oa.debug.1.8"></a><span class="round">⑧</span>
+<span class="computeroutput">header: Accept-Ranges: bytes</span>
+<span class="computeroutput">header: Content-Length: 26848</span>
+<span class="computeroutput">header: Connection: close</span>
+</pre></div>
+               <div class="calloutlist">
+                  <table border="0" summary="Callout list">
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#oa.debug.1.1"><span class="round">①</span></a> 
+                        </td>
+                        <td valign="top" align="left"><tt class="filename">urllib</tt> 모듈은 또다른 표준 <span class="application">파이썬</span> 라이브러리인 <tt class="filename">httplib</tt>에 의존합니다.  보통 직접적으로 <tt class="literal">httplib</tt>를 반입할 필요는 없지만 (<tt class="filename">urllib</tt>가 자동으로 그 일을 해줍니다). 그러나 여기에서는 그렇게 <tt class="classname">HTTPConnection</tt> 클래스에 디버깅 플래그를 활성화시킬 수 있습니다. <tt class="filename">urllib</tt>는 내부적으로 이 클래스를 사용하여 HTTP 서버에 접속합니다. 이는 놀라울 정도로 유용한 테크닉입니다. 다른 <span class="application">파이썬</span> 라이브러리에도 비슷한 디버그 플래그가 있지만, 이름을 짓거나 켜는데 특정한 표준이 없습니다; 그런 특징을 사용하려면 각 라이브러리의 문서를 읽을 필요가 있습니다.
+                        </td>
+                     </tr>
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#oa.debug.1.2"><span class="round">②</span></a> 
+                        </td>
+                        <td valign="top" align="left">이제 디버깅 플래그가 설정되었으므로, HTTP 요청과 응답에 관한 정보가 실시간으로 인쇄됩니다. 제일 먼저 보여주는 것은 <tt class="literal">diveintomark.org</tt> 서버 80 번 포트에 접속되어 있다는 것입니다. 이 포트는 HTTP를 위한 표준 포트입니다.</td>
+                     </tr>
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#oa.debug.1.3"><span class="round">③</span></a> 
+                        </td>
+                        <td valign="top" align="left">아톰(Atom) 감을 요청하면 <tt class="filename">urllib</tt>는 서버에게 세 줄을 전송합니다. 첫 줄에는 사용중인 HTTP 동사와 자원의 경로가 지정됩니다 (도메인 이름은 빠져있음).  이 장에서 모든 요청은 <tt class="literal">GET</tt>을 사용하겠지만, <span class="acronym">SOAP</span>에 관한 다음 장에서는 모두 <tt class="literal">POST</tt>를 사용하겠습니다. 동사에 상관없이 기본 문법은 같습니다.
+                        </td>
+                     </tr>
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#oa.debug.1.4"><span class="round">④</span></a> 
+                        </td>
+                        <td valign="top" align="left">두 번째 줄은 <tt class="literal">Host</tt> 헤더입니다. 이 헤더는 접근중인 서비스의 도메인 이름을 지정합니다.  이는 한 개의 HTTP 서버가 여러 개의 도메인을 호스트할 수 있기 때문에 중요합니다. 본인의 컴퓨터는 현재 12개의 도메인을 호스트합니다; 다른 서버들은 수백 수천개를 호스트할 수 있습니다.
+                        </td>
+                     </tr>
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#oa.debug.1.5"><span class="round">⑤</span></a> 
+                        </td>
+                        <td valign="top" align="left">세 번째 줄은 <tt class="literal">User-Agent</tt> 헤더입니다. 여기에서는 <tt class="filename">urllib</tt> 라이브러리가 기본으로 추가해 주는 총괄 <tt class="literal">User-Agent</tt>입니다. 다음 섹션에서는 이것을 좀 더 구체적으로 맞춤재단하는 법을 살펴보겠습니다.
+                        </td>
+                     </tr>
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#oa.debug.1.6"><span class="round">⑥</span></a> 
+                        </td>
+                        <td valign="top" align="left">서버는 하나의 상태코드와 수 많은 헤더로 응답합니다 (그리고 데이터도 있을 수 있는데, 이는 <tt class="varname">feeddata</tt> 변수에 저장됩니다).  
+						여기에서 상태 코드는 <tt class="literal">200</tt>인데, 그 의미는 &#8220;<span class="quote">모든 것이 정상이며, 다음은 요청한 데이터이다</span>&#8221;라는 뜻입니다.  서버는 또한 요청에 응답한 날짜와 서버 자체에 관한 정보 그리고 돌려주는 데이터의 웹소 유형도 알려줍니다. 어플리케이션에 따라 이는 유용할 수도 있고 아닐 수도 있습니다. 분명한 것은 여러분이 아톰 감을 요청하고 있는 사실을 재확인 시켜 주는 것입니다. 그리고 보세요. 아톰 감을 하나 얻었습니다 (<tt class="literal">application/atom+xml</tt>. 이것은 아톰 감에 대하여 등록된 웹소 유형입니다).
+                        </td>
+                     </tr>
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#oa.debug.1.7"><span class="round">⑦</span></a> 
+                        </td>
+                        <td valign="top" align="left">서버는 이 아톰 감이 언제 최종적으로 수정되었는지 알려줍니다 (이 경우, 약 13분 전이군요). 다음에 같은 감을 요청할 때 이 데이터를 다시 서버에 보내면 서버는 최종-갱신을 점검할 수 있습니다.
+                        </td>
+                     </tr>
+                     <tr>
+                        <td width="12" valign="top" align="left"><a href="#oa.debug.1.8"><span class="round">⑧</span></a> 
+                        </td>
+                        <td valign="top" align="left">서버는 또한 이 아톰 감이 <tt class="literal">"e8284-68e0-4de30f80"</tt>라는 ETag 해시를 가지고 있는 것을 알려줍니다. 이 해시는 그 자체로는 아무 의미도 없습니다; 그것으로 할 수 있는 일은 아무것도 없습니다. 단, 다음에 같은 감을 서버에 요청할 때 다시 보낼 수 있습니다. 그러면 서버는 그를 사용하여 데이터가 수정되었는지 아닌지 알려줄 수 있습니다.
+                        </td>
+                     </tr>
+                  </table>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.useragent"></a>11.5.&nbsp;사용자-중개자(<tt class="literal">User-Agent</tt>) 설정하기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>HTTP 웹 서비스 클라이언트를 개선하는 첫 단계는 <tt class="literal">User-Agent</tt>로 여러분 자신의 신분을 적절하게 확인하는 것입니다. 그렇게 하려면 기본적인 <tt class="filename">urllib</tt>를 뛰어 넘어 바로 <tt class="filename">urllib2</tt>로 갈 필요가 있습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e27984"></a><h3 class="title">예제&nbsp;11.4.&nbsp;<tt class="filename">urllib2</tt> 소개</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import httplib</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">httplib.HTTPConnection.debuglevel = 1</span>                             <a name="oa.useragent.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import urllib2</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request = urllib2.Request('http://diveintomark.org/xml/atom.xml')</span> <a name="oa.useragent.1.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">opener = urllib2.build_opener()</span>                                   <a name="oa.useragent.1.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">feeddata = opener.open(request).read()</span>                            <a name="oa.useragent.1.4"></a><span class="round">④</span>
+<span class="computeroutput">connect: (diveintomark.org, 80)</span>
+<span class="computeroutput">send: '</span>
+<span class="computeroutput">GET /xml/atom.xml HTTP/1.0</span>
+<span class="computeroutput">Host: diveintomark.org</span>
+<span class="computeroutput">User-agent: Python-urllib/2.1</span>
+<span class="computeroutput">'</span>
+<span class="computeroutput">reply: 'HTTP/1.1 200 OK\r\n'</span>
+<span class="computeroutput">header: Date: Wed, 14 Apr 2004 23:23:12 GMT</span>
+<span class="computeroutput">header: Server: Apache/2.0.49 (Debian GNU/Linux)</span>
+<span class="computeroutput">header: Content-Type: application/atom+xml</span>
+<span class="computeroutput">header: Last-Modified: Wed, 14 Apr 2004 22:14:38 GMT</span>
+<span class="computeroutput">header: ETag: "e8284-68e0-4de30f80"</span>
+<span class="computeroutput">header: Accept-Ranges: bytes</span>
+<span class="computeroutput">header: Content-Length: 26848</span>
+<span class="computeroutput">header: Connection: close</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.useragent.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞 센션의 예제에서부터 지금까지 <span class="application">파이썬</span> <span class="acronym">IDE</span>를 열어두고 있다면 이를 건너 뛰어도 되지만, 이렇게 해야 <a href="#oa.debug" title="11.4.&nbsp;Debugging HTTP web services">HTTP 디버깅</a>이 활성화되어 실제로 전선을 건너서 무엇이 전송되고 무엇을 돌려받는지 볼 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.useragent.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">HTTP 자원을 <tt class="filename">urllib2</tt>로 가져오는 것은 과정이 세 단계입니다. 잠시후면 이해가 되시겠지만 충분한 이유가 있습니다. 첫 단계는 <tt class="classname">Request</tt> 객체를 만드는 것입니다. 이 객체는 결국 열람할 자원의 URL을 취합니다. 이 단계에서 실제로는 아무 것도 아직 열람하지 않는다는 것을 주의하세요.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.useragent.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">두 번째 단계는 URL 개방자를 구축하는 것입니다. 이 개방자는 얼마든지 처리자를 취할 수 있습니다. 처리자는 어떻게 응답이 처리될지 제어합니다. 그러나 개방자를 맞춤 처리자 없이 구축할 수도 있습니다. 여기에서 이렇게 하고 있습니다.  이장의 후반부에서 방향전환에 관하여 알아보는 시간에, 맞춤 처리자를 정의하고 사용하는 법을 살펴보겠습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.useragent.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">마지막 단계는 개방자에게 URL을 열어달라고 요구하고, 만들어 둔 <tt class="classname">Request</tt> 객체를 사용하는 것입니다. 인쇄되는 디버깅 정보를 보고 아실 수 있듯이, 이 단계는 실제로 자원을 열람하여 반환된 데이터를 <tt class="varname">feeddata</tt>에 저장합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e28108"></a><h3 class="title">예제&nbsp;11.5.&nbsp;<tt class="classname">Request</tt>로 헤더 추가하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request</span>                                                <a name="oa.useragent.2.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;urllib2.Request instance at 0x00250AA8&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request.get_full_url()</span>
+<span class="computeroutput">http://diveintomark.org/xml/atom.xml</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request.add_header('User-Agent',
+<tt class="prompt">...     </tt>'OpenAnything/1.0 +http://diveintopython.org/')</span>    <a name="oa.useragent.2.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">feeddata = opener.open(request).read()</span>                 <a name="oa.useragent.2.3"></a><span class="round">③</span>
+<span class="computeroutput">connect: (diveintomark.org, 80)</span>
+<span class="computeroutput">send: '</span>
+<span class="computeroutput">GET /xml/atom.xml HTTP/1.0</span>
+<span class="computeroutput">Host: diveintomark.org</span>
+<span class="computeroutput">User-agent: OpenAnything/1.0 +http://diveintopython.org/</span>   <a name="oa.useragent.2.4"></a><span class="round">④</span>
+<span class="computeroutput">'</span>
+<span class="computeroutput">reply: 'HTTP/1.1 200 OK\r\n'</span>
+<span class="computeroutput">header: Date: Wed, 14 Apr 2004 23:45:17 GMT</span>
+<span class="computeroutput">header: Server: Apache/2.0.49 (Debian GNU/Linux)</span>
+<span class="computeroutput">header: Content-Type: application/atom+xml</span>
+<span class="computeroutput">header: Last-Modified: Wed, 14 Apr 2004 22:14:38 GMT</span>
+<span class="computeroutput">header: ETag: "e8284-68e0-4de30f80"</span>
+<span class="computeroutput">header: Accept-Ranges: bytes</span>
+<span class="computeroutput">header: Content-Length: 26848</span>
+<span class="computeroutput">header: Connection: close</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.useragent.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞 예제에서 계속됩니다; 이미 접근하고 싶은 URL로 <tt class="classname">Request</tt>  객체를 만들어 두었습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.useragent.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">add_header</tt> 메쏘드를 <tt class="classname">Request</tt> 객체에 사용하면 임의의 HTTP 헤더를 요청에 추가할 수 있습니다. 첫 인자는 헤더이고, 둘째 인자는 그 헤더에 제공하는 값입니다. 관례적으로 <tt class="literal">User-Agent</tt>는 다음과 같이 특정한 형태여야 합니다: 어플리케이션 이름, 다음에 사선, 그 다음 버전 번호가 따라야 합니다. 나머지는 형태가 자유롭습니다. 실전에서는 다양한 변형들을 많이 보시겠지만, 반드시 어디엔가는 어플리케이션의 URL이 포함되어 있어야 합니다. <tt class="literal">User-Agent</tt>는 보통 요청의 세부상세와 함께 서버에 접속됩니다. 그리고 어플리케이션의 URL을 포함시키면 무언가 잘못되었을 경우 서버 관리자가 접근 기록을 보고서 여러분에게 연락을 취할 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.useragent.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞서 만든 <tt class="varname">opener</tt> 객체도 역시 재사용이 가능합니다. 같은 감을 열람하지만, 맞춤 <tt class="literal">User-Agent</tt> 헤더를 가지고 열람합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.useragent.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에서 맞춤 <tt class="literal">User-Agent</tt>를 전송하고 있습니다. <span class="application">파이썬</span>이 기본으로 전송하는 총괄적인 사용자-중개자 대신에 말입니다. 자세하게 보면 <tt class="literal">User-Agent</tt> 헤더를 정의했지만, 실제로는 <tt class="literal">User-agent</tt> 헤더를 전송하고 있습니다. 차이점을 아시겠습니까?  <tt class="filename">urllib2</tt>에 의해 오직 첫 글자만 대문자가 되도록 변경되었습니다. 실제로는 문제가 되지 않습니다; HTTP의 규격에 의하면 헤더 필드 이름은 전혀 대소문자에 민감하지 않습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.etags"></a>11.6.&nbsp;<tt class="literal">Last-Modified</tt> 그리고 <tt class="literal">ETag</tt> 처리</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이제 맞춤 HTTP 헤더를 웹 서비스 요청에 추가하는 법을 배웠으므로, <tt class="literal">Last-Modified</tt> 그리고 <tt class="literal">ETag</tt> 헤더를 지원하는 법을 살펴보겠습니다.
+                  </p>
+               </div>
+               <p>다음 예제들은 디버깅을 끄고 출력한 것입니다. 앞 섹션에서부터 여전히 디버깅을 켜 두었다면 <tt class="literal">httplib.HTTPConnection.debuglevel = 0</tt>로 설정하면 디버깅을 끌 수 있습니다. 도움이 된다면 그냥 켠채로 두어도 좋습니다.
+               </p>
+               <div class="example"><a name="oa.etags.example.1"></a><h3 class="title">예제&nbsp;11.6.&nbsp;<tt class="literal">Last-Modified</tt> 테스트하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import urllib2</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request = urllib2.Request('http://diveintomark.org/xml/atom.xml')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">opener = urllib2.build_opener()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">firstdatastream = opener.open(request)</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">firstdatastream.headers.dict</span>                       <a name="oa.etags.1.1"></a><span class="round">①</span>
+<span class="computeroutput">{'date': 'Thu, 15 Apr 2004 20:42:41 GMT', 
+ 'server': 'Apache/2.0.49 (Debian GNU/Linux)', 
+ 'content-type': 'application/atom+xml',
+ 'last-modified': 'Thu, 15 Apr 2004 19:45:21 GMT', 
+ 'etag': '"e842a-3e53-55d97640"',
+ 'content-length': '15955', 
+ 'accept-ranges': 'bytes', 
+ 'connection': 'close'}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request.add_header('If-Modified-Since',</span>
+<tt class="prompt">...     </tt><span class="userinput">firstdatastream.headers.get('Last-Modified'))</span>  <a name="oa.etags.1.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">seconddatastream = opener.open(request)</span>            <a name="oa.etags.1.3"></a><span class="round">③</span>
+<span class="traceback">Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in ?
+  File "c:\python23\lib\urllib2.py", line 326, in open
+    '_open', req)
+  File "c:\python23\lib\urllib2.py", line 306, in _call_chain
+    result = func(*args)
+  File "c:\python23\lib\urllib2.py", line 901, in http_open
+    return self.do_open(httplib.HTTP, req)
+  File "c:\python23\lib\urllib2.py", line 895, in do_open
+    return self.parent.error('http', req, fp, code, msg, hdrs)
+  File "c:\python23\lib\urllib2.py", line 352, in error
+    return self._call_chain(*args)
+  File "c:\python23\lib\urllib2.py", line 306, in _call_chain
+    result = func(*args)
+  File "c:\python23\lib\urllib2.py", line 412, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+urllib2.HTTPError: HTTP Error 304: Not Modified</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">디버깅을 켜두면 모든 HTTP 헤더가 인쇄된다는 사실을 기억하십니까?  다음과 같이 프로그램적으로 헤더에 접근할 수 있습니다: <tt class="varname">firstdatastream.headers</tt>는 <a href="http://coreapython.hosting.paran.com/dive/chap05.html#fileinfo.userdict" title="5.5.&nbsp;Exploring UserDict: A Wrapper Class">사전처럼 행위하는 객체</a>로서 HTTP 서버에서 돌려주는 헤더를 따로따로 얻을 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">두 번째 요청에서 <tt class="literal">If-Modified-Since</tt> 헤더를 추가합니다. 첫 요청에서 받은 최종-갱신 날짜와 함께 말입니다. 데이터가 변경되지 않았다면 서버는 <tt class="literal">304</tt> 상태 코드를 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">물론, 데이터는 변경되지 않았습니다. 역추적을 보면 <tt class="filename">urllib2</tt>가 <tt class="literal">304</tt> 상태 코드에 응답하여 특수 예외 <tt class="classname">HTTPError</tt>를 던지고 있습니다. 
+						   이는 약간 비정상적이며, 별로 도움이 되지 않습니다. 어쨌든, 에러가 아닙니다; 변경되지 않았으면 데이터를 보내지 말아 달라고 특별히 서버에게 요청했고, 데이터는 변경되지 않았습니다. 그래서 서버는 아무 데이터도 보내지 않겠다고 알려줍니다. 그것은 에러가 아닙니다; 바로 정확하게 원하던 것입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p><tt class="filename">urllib2</tt>는 또한 예를 들어 <tt class="literal">404</tt> (페이지 없음) 같이 에러로 간주하는 상황에도 <tt class="classname">HTTPError</tt> 예외도 일으킵니다.  사실 <tt class="literal">200</tt> (OK)이나 <tt class="literal">301</tt> (영구 방향전환) 또는 <tt class="literal">302</tt> (임시 방향전환) 코드 말고 <span class="emphasis"><em>다른 어떤 상태 코드에도</em></span> <tt class="classname">HTTPError</tt>을 일으킵니다. 예외를 일으키지 말고, 그냥 상태 코드를 잡아 돌려주는 목적이라면 더 도움이 됩니다. 그렇게 하기 위하여 맞춤 URL 처리자를 정의할 필요가 있습니다.
+               </p>
+               <div class="example"><a name="d0e28385"></a><h3 class="title">예제&nbsp;11.7.&nbsp;URL 처리자 정의하기</h3>
+                  <p>이 맞춤 URL 처리자는 <tt class="filename">openanything.py</tt>에 포함되어 있습니다.
+                  </p><pre class="programlisting">
+class DefaultErrorHandler(urllib2.HTTPDefaultErrorHandler):    <a name="oa.etags.2.1"></a><span class="round">①</span>
+    def http_error_default(self, req, fp, code, msg, headers): <a name="oa.etags.2.2"></a><span class="round">②</span>
+        result = urllib2.HTTPError(                           
+            req.get_full_url(), code, msg, headers, fp)       
+        result.status = code                                   <a name="oa.etags.2.3"></a><span class="round">③</span>
+        return result                                         
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">urllib2</tt>는 URL 처리자를 위하여 설계되었습니다. 각 처리자는 그저 얼마든지 메쏘드를 정의할 수 있는 클래스일 뿐입니다. 무슨 일이 일어나면 -- HTTP 에러나, 또는 <tt class="literal">304</tt> 코드 같은 -- <tt class="filename">urllib2</tt>는 정의된 처리자 목록을 들여다 보고 그를 처리할 메쏘드를 찾습니다. <a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp" title="Chapter&nbsp;9.&nbsp;XML Processing">제&nbsp;9 장, <i>XML 처리</i></a>에서 다양한 노드 유형을 처리할 처리자를 정의하기 위하여 비슷한 내부검사를 사용했었습니다. 그러나 <tt class="filename">urllib2</tt>가 더 유연하며, 현재 요청에 대하여 정의된 갯수만큼 얼마든지 처리자를 검사합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">urllib2</tt>는 정의된 처리자들을 검색하여 서버가 돌려준 <tt class="literal">304</tt> 상태 코드를 마주하면 <tt class="methodname">http_error_default</tt> 메쏘드를 호출합니다. 맞춤 에러 처리자를 정의하면 <tt class="filename">urllib2</tt>가 에러를 일으키지 않도록 막을 수 있습니다. 대신, <tt class="classname">HTTPError</tt> 객체를 만들지만, 에러를 일으키는 대신에 그것을 돌려줍니다. 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">다음이 핵심 부분입니다: 돌려주기 전에, HTTP 서버가 돌려준 상태 코드를 저장합니다. 이렇게 하면 호출 프로그램에서 쉽게 접근할 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e28438"></a><h3 class="title">예제&nbsp;11.8.&nbsp;맞춤 URL 처리자 사용하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request.headers</span>                           <a name="oa.etags.3.1"></a><span class="round">①</span>
+<span class="computeroutput">{'If-modified-since': 'Thu, 15 Apr 2004 19:45:21 GMT'}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import openanything</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">opener = urllib2.build_opener(</span>
+<tt class="prompt">...     </tt><span class="userinput">openanything.DefaultErrorHandler())</span>   <a name="oa.etags.3.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">seconddatastream = opener.open(request)</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">seconddatastream.status</span>                   <a name="oa.etags.3.3"></a><span class="round">③</span>
+<span class="computeroutput">304</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">seconddatastream.read()</span>                   <a name="oa.etags.3.4"></a><span class="round">④</span>
+<span class="computeroutput">''</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞 예제를 계속하고 있습니다. 그래서 이미 <tt class="classname">Request</tt> 객체가 설정되어 있으며, 이미 <tt class="literal">If-Modified-Since</tt> 헤더를 추가하였습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">다음이 핵심입니다: 이제 맞춤 URL 처리자를 정의하였으므로, <tt class="filename">urllib2</tt>에게 사용하라고 알려주면 됩니다. 기억나십니까? <tt class="filename">urllib2</tt>는 HTTP 자원에 접근하는 과정을 세 단계로 나누었고 충분한 이유가 있다고 강조한 바 있습니다. 이 때문에 URL 개방자 구축단계가 따로 있는 것인데, 그래야 <tt class="filename">urllib2</tt>의 기본 행위를 오버라이드하는 맞춤 URL 처리자를 가지고 개방자를 구축할 수 있기 때문입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 조용하게 자원을 열 수 있고, 예의 헤더와 더불어 (<tt class="varname">seconddatastream.headers.dict</tt>를 사용하여 접근) HTTP 상태코드가 담긴 객체를 돌려받습니다. 이 경우, 예상하다시피 상태 코드는 <tt class="literal">304</tt>이며, 이 데이터가 지난 번 요청 이후로 변하지 않았다는 뜻입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.3.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버가 <tt class="literal">304</tt> 상태 코드를 되돌려 줄 때, 데이터는 재전송하지 않음을 주목하세요. 그것이 바로 요점입니다: 변하지 않은 데이터는 다시 내려받지 않음으로써 대역폭을 절약합니다. 그래서 정말로 그 데이터를 원하면 처음 얻었을 때 바로 지역적으로 캐시해 둘 필요가 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p><tt class="literal">ETag</tt> 처리 과정도 거의 비슷하지만, <tt class="literal">Last-Modified</tt>를 점검하고 <tt class="literal">If-Modified-Since</tt>를 전송하는 대신에, <tt class="literal">ETag</tt>를 점검하고 <tt class="literal">If-None-Match</tt>를 전송합니다. 새로 <span class="acronym">IDE</span> 세션을 시작해 봅시다.
+               </p>
+               <div class="example"><a name="oa.etags.example"></a><h3 class="title">예제&nbsp;11.9.&nbsp; <tt class="literal">ETag</tt> / <tt class="literal">If-None-Match</tt> 지원하는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import urllib2, openanything</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request = urllib2.Request('http://diveintomark.org/xml/atom.xml')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">opener = urllib2.build_opener(</span>
+<tt class="prompt">...     </tt><span class="userinput">openanything.DefaultErrorHandler())</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">firstdatastream = opener.open(request)</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">firstdatastream.headers.get('ETag')</span>        <a name="oa.etags.4.1"></a><span class="round">①</span>
+<span class="computeroutput">'"e842a-3e53-55d97640"'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">firstdata = firstdatastream.read()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print firstdata</span>                            <a name="oa.etags.4.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;?xml version="1.0" encoding="iso-8859-1"?&gt;
+&lt;feed version="0.3"
+  xmlns="http://purl.org/atom/ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xml:lang="en"&gt;
+  &lt;title mode="escaped"&gt;dive into mark&lt;/title&gt;
+  &lt;link rel="alternate" type="text/html" href="http://diveintomark.org/"/&gt;
+  &lt;-- rest of feed omitted for brevity --&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request.add_header('If-None-Match',</span>
+<tt class="prompt">...     </tt><span class="userinput">firstdatastream.headers.get('ETag'))</span>   <a name="oa.etags.4.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">seconddatastream = opener.open(request)</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">seconddatastream.status</span>                    <a name="oa.etags.4.4"></a><span class="round">④</span>
+<span class="computeroutput">304</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">seconddatastream.read()</span>                    <a name="oa.etags.4.5"></a><span class="round">⑤</span>
+<span class="computeroutput">''</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">firstdatastream.headers</tt> 의사-사전을 사용하면  서버가 돌려주는 <tt class="literal">ETag</tt>를 얻을 수 있습니다. (서버가 <tt class="literal">ETag</tt>를 되돌려주지 않으면 무슨 일이 일어날까?  그러면 이 줄은 <tt class="literal">None</tt>을 돌려줍니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">좋습니다. 데이터를 얻었습니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.4.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 첫 호출에서 얻은 <tt class="literal">ETag</tt>에 <tt class="literal">If-None-Match</tt> 헤더를 설정하여 두 번째 호출을 설정해 보겠습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.4.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">두 번째 호출은 (예외를 일으키지 않고) 조용히 성공합니다. 그리고 다시 한 번, 서버가 <tt class="literal">304</tt> 상태 코드를 돌려주었습니다. 두 번째 전송한 <tt class="literal">ETag</tt>에 근거하여, 그 데이터가 바뀌지 않았음을 압니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.etags.4.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">304</tt> 상태 코드가 <tt class="literal">Last-Modified</tt> 날짜 점검에 의해 촉발되었든 <tt class="literal">ETag</tt> 해시 일치에 의하여 촉발되었든 상관없이, <tt class="literal">304</tt> 코드와 함께 데이터를 얻지 못합니다. 그것이 바로 요점입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="tip.etag.vs.lastmodified"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">다음 예제에서, HTTP 서버는 <tt class="literal">Last-Modified</tt>와 <tt class="literal">ETag</tt> 헤더를 모두 지원했습니다. . 그러나 모든 서버가 그렇지는 않습니다. 웹 서비스 클라이언트로서, 둘 모두를 지원할 준비가 되어 있어야 하지만, 서버가 둘 중에 하나만 지원하거나 또는 전혀 지원하지 않은 경우를 대비해서 방어적으로 코딩해야 합니다.
+                     </td>
+                  </tr>
+               </table>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.redirect"></a>11.7.&nbsp;방향전환 처리하는 법</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>다양한 종류의 맞춤 URL 처리자를 사용하여 임시 방향전환과 영구 방향전환을 지원할 수 있습니다.</p>
+               </div>
+               <p>먼저, 왜 방향전환 처리자가 필요한지 알아 보겠습니다.</p>
+               <div class="example"><a name="d0e28730"></a><h3 class="title">예제&nbsp;11.10.&nbsp;방향전환 처리자 없이 웹 서비스에 접근하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import urllib2, httplib</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">httplib.HTTPConnection.debuglevel = 1</span>               <a name="oa.redirect.1.0"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request = urllib2.Request(</span>
+<tt class="prompt">...     </tt><span class="userinput">'http://diveintomark.org/redir/example301.xml')</span> <a name="oa.redirect.1.1"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">opener = urllib2.build_opener()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f = opener.open(request)</span>
+<span class="computeroutput">connect: (diveintomark.org, 80)
+send: '
+GET /redir/example301.xml HTTP/1.0
+Host: diveintomark.org
+User-agent: Python-urllib/2.1
+'
+reply: 'HTTP/1.1 301 Moved Permanently\r\n'</span>             <a name="oa.redirect.1.2"></a><span class="round">③</span>
+<span class="computeroutput">header: Date: Thu, 15 Apr 2004 22:06:25 GMT
+header: Server: Apache/2.0.49 (Debian GNU/Linux)
+header: Location: http://diveintomark.org/xml/atom.xml</span>  <a name="oa.redirect.1.3"></a><span class="round">④</span>
+<span class="computeroutput">header: Content-Length: 338
+header: Connection: close
+header: Content-Type: text/html; charset=iso-8859-1
+connect: (diveintomark.org, 80)
+send: '
+GET /xml/atom.xml HTTP/1.0</span>                              <a name="oa.redirect.1.4"></a><span class="round">⑤</span>
+<span class="computeroutput">Host: diveintomark.org
+User-agent: Python-urllib/2.1
+'
+reply: 'HTTP/1.1 200 OK\r\n'
+header: Date: Thu, 15 Apr 2004 22:06:25 GMT
+header: Server: Apache/2.0.49 (Debian GNU/Linux)
+header: Last-Modified: Thu, 15 Apr 2004 19:45:21 GMT
+header: ETag: "e842a-3e53-55d97640"
+header: Accept-Ranges: bytes
+header: Content-Length: 15955
+header: Connection: close
+header: Content-Type: application/atom+xml</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.url</span>                                               <a name="oa.redirect.1.5"></a><span class="round">⑥</span>
+<span class="computeroutput">'http://diveintomark.org/xml/atom.xml'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.headers.dict</span>
+<span class="computeroutput">{'content-length': '15955', 
+'accept-ranges': 'bytes', 
+'server': 'Apache/2.0.49 (Debian GNU/Linux)', 
+'last-modified': 'Thu, 15 Apr 2004 19:45:21 GMT', 
+'connection': 'close', 
+'etag': '"e842a-3e53-55d97640"', 
+'date': 'Thu, 15 Apr 2004 22:06:25 GMT', 
+'content-type': 'application/atom+xml'}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.status</span>
+<span class="traceback">Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in ?
+AttributeError: addinfourl instance has no attribute 'status'</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.1.0"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">디버깅이 활성화되어 있으면 무슨 일이 일어나는지 더 잘 볼 수 있습니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.1.1"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 <tt class="literal">http://diveintomark.org/xml/atom.xml</tt>에 있는 나의 아톰 감에 영구적으로 방향전환되도록 설정해 둔 URL입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.1.2"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">물론, 위의 주소에 있는 데이터를 내려받으려고 하면 서버는 <tt class="literal">301</tt> 상태 코드를 돌려주어서, 그 자원이 영구히 이동되었다고 알려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.1.3"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버는 또한 이 데이터의 새로운 주소를 알려주는 <tt class="literal">Location:</tt> 헤더를 되돌려 줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.1.4"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">urllib2</tt>는 방향전환 상태 코드를 인식하고 자동으로 <tt class="literal">Location:</tt> 헤더에 지정된 새 주소에서 그 데이터를 열람하려고 시도합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.1.5"><span class="round">⑥</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="varname">opener</tt>에서 돌려받은 객체에는 ㅐ로운 영구 주소와 두 번째 요청에서 돌려준 (새로운 영구 주소로부터 열람한) 모든 헤더가 들어 있습니다. 그러나 상태 코드는 없습니다. 그래서 이 방향전환이 임시적인지 영구적인지 프로그램적으로 알 방법이 없습니다. 이 문제는 아주 중요합니다: 임시 방향전환이라면 계속해서 예전 위치에 데이터를 요청해야 합니다. 그러나 (이와 같이) 영구 방향전환이라면 지금부터는 새 위치에 데이터를 요청해야 합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>이는 최적화가 덜 되어 있지만, 쉽게 고칠 수 있습니다.  <tt class="filename">urllib2</tt>는 <tt class="literal">301</tt> 이나 <tt class="literal">302</tt> 상태코드를 만나면 여러분이 원하는대로 정확하게 행위하지 않습니다. 그래서 그의 행위를 오버라이드해 보겠습니다. 어떻게 할까요? 맞춤 URL 처리자로, <a href="#oa.etags" title="11.6.&nbsp;Handling Last-Modified and ETag"><tt class="literal">304</tt> 상태코드를 처리하기 위하여 했던 방식과 똑 같이 처리하면 됩니다</a>.
+               </p>
+               <div class="example"><a name="d0e28866"></a><h3 class="title">예제&nbsp;11.11.&nbsp;방향전환 처리자 정의하기</h3>
+                  <p>이 클래스는 <tt class="filename">openanything.py</tt>에 정의되어 있습니다.
+                  </p><pre class="programlisting">
+class SmartRedirectHandler(urllib2.HTTPRedirectHandler):     <a name="oa.redirect.2.1"></a><span class="round">①</span>
+    def http_error_301(self, req, fp, code, msg, headers):  
+        result = urllib2.HTTPRedirectHandler.http_error_301( <a name="oa.redirect.2.2"></a><span class="round">②</span>
+            self, req, fp, code, msg, headers)              
+        result.status = code                                 <a name="oa.redirect.2.3"></a><span class="round">③</span>
+        return result                                       
+
+    def http_error_302(self, req, fp, code, msg, headers):   <a name="oa.redirect.2.4"></a><span class="round">④</span>
+        result = urllib2.HTTPRedirectHandler.http_error_302(
+            self, req, fp, code, msg, headers)              
+        result.status = code                                
+        return result                                       
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">방향전환 행위는 <tt class="filename">urllib2</tt>에 있는 <tt class="classname">HTTPRedirectHandler</tt>라는 클래스에 정의되어 있습니다. 행위를 완전히 오버라이드할 생각이 아니라, 단지 약간 확장하고 싶을 뿐이므로, <tt class="classname">HTTPRedirectHandler</tt>를 상속받으면 힘든 일은 모두 조상 클래스에게 요청할 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버로부터 <tt class="literal">301</tt> 상태 코드를 받으면 <tt class="filename">urllib2</tt>는 자신의 처리자를 검색해서 <tt class="methodname">http_error_301</tt> 메쏘드를 호출합니다.  제일 먼저 할 일은 그냥 조상에있는 <tt class="methodname">http_error_301</tt> 메쏘드를 호출하는 것입니다. 이 메쏘드는 <tt class="literal">Location:</tt> 헤더를 검색하고 그 방향전환을 따라 새 주소로 찾아가는 고된 작업을 해 줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">다음이 핵심입니다: 돌아오기 전게, 상태 코드(<tt class="literal">301</tt>)를 저장해 두어야, 호출 프로그램이 나중에 그에 접근할 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">임시 방향전환도 (상태 코드 <tt class="literal">302</tt>) 같은 방식으로 작동합니다: <tt class="literal">http_error_302</tt> 메쏘드를 오버라이드하고 조상을 호출하며 그리고 돌아오기 전에 상태 코드를 저장해 둡니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>그래서 무엇이 매력적인가?  이제 맞춤 방향전환 처리자를 갖춘 URL 개방자를 구축할 수 있습니다. 그리고 여전히 자동으로 방향전환을 따라가지만, 방향전환 상태 코드를 노출시켜 보여줍니다.
+               </p>
+               <div class="example"><a name="d0e28932"></a><h3 class="title">예제&nbsp;11.12.&nbsp;방향전환 처리자를 사용하여 영구 방향전환 탐지하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request = urllib2.Request('http://diveintomark.org/redir/example301.xml')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import openanything, httplib</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">httplib.HTTPConnection.debuglevel = 1</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">opener = urllib2.build_opener(</span>
+<tt class="prompt">...     </tt><span class="userinput">openanything.SmartRedirectHandler())</span>           <a name="oa.redirect.3.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f = opener.open(request)</span>
+<span class="computeroutput">connect: (diveintomark.org, 80)
+send: 'GET /redir/example301.xml HTTP/1.0
+Host: diveintomark.org
+User-agent: Python-urllib/2.1
+'
+reply: 'HTTP/1.1 301 Moved Permanently\r\n'</span>            <a name="oa.redirect.3.2"></a><span class="round">②</span>
+<span class="computeroutput">header: Date: Thu, 15 Apr 2004 22:13:21 GMT
+header: Server: Apache/2.0.49 (Debian GNU/Linux)
+header: Location: http://diveintomark.org/xml/atom.xml
+header: Content-Length: 338
+header: Connection: close
+header: Content-Type: text/html; charset=iso-8859-1
+connect: (diveintomark.org, 80)
+send: '
+GET /xml/atom.xml HTTP/1.0
+Host: diveintomark.org
+User-agent: Python-urllib/2.1
+'
+reply: 'HTTP/1.1 200 OK\r\n'
+header: Date: Thu, 15 Apr 2004 22:13:21 GMT
+header: Server: Apache/2.0.49 (Debian GNU/Linux)
+header: Last-Modified: Thu, 15 Apr 2004 19:45:21 GMT
+header: ETag: "e842a-3e53-55d97640"
+header: Accept-Ranges: bytes
+header: Content-Length: 15955
+header: Connection: close
+header: Content-Type: application/atom+xml
+</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.status</span>                                           <a name="oa.redirect.3.3"></a><span class="round">③</span>
+<span class="computeroutput">301</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.url</span>
+<span class="computeroutput">'http://diveintomark.org/xml/atom.xml'</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">먼저, 방금 정의한 방향전환 처리자를 가지고 URL 개방자를 구축합니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">요청을 전송하고, 응답으로 <tt class="literal">301</tt> 상태 코드를 받습니다. 이 시점에서, <tt class="methodname">http_error_301</tt> 메쏘드가 호출됩니다. 조상 메쏘드를 호출하면 방향전환을 따라가서 새로운 위치에 요청을 전송합니다 (<tt class="literal">http://diveintomark.org/xml/atom.xml</tt>).
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">결론은 이렇습니다: 이제, 새로운 URL에 접근했을 뿐만 아니라 방향전환 상태 코드에도 접근했으므로, 이것이 영구 방향전환이었다는 사실을 알 수 있습니다.  다음 번에 이 데이터를 요청할 때는 (<tt class="varname">f.url</tt>에 지정된 대로, <tt class="literal">http://diveintomark.org/xml/atom.xml</tt>에) 새로운 위치에 요청해야 합니다.  그 위치를 환경구성 파일이나 데이터베이스에 저장해 두었다면 그를 갱신할 필요가 있습니다. 예전 주소에 요청을 해서 서버를 괴롭히지 않도록 말입니다. 이제 주소록을 갱신할 시간입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>똑 같은 방향전환 처리자가 여러분에게 주소록을 <span class="emphasis"><em>갱신하지 않아도</em></span> 좋다고 알려줄 수 있습니다.
+               </p>
+               <div class="example"><a name="d0e29025"></a><h3 class="title">예제&nbsp;11.13.&nbsp;방향전환 처리자를 사용하여 임시 방향전환 탐지하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request = urllib2.Request(</span>
+<tt class="prompt">...     </tt><span class="userinput">'http://diveintomark.org/redir/example302.xml')</span>   <a name="oa.redirect.4.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f = opener.open(request)</span>
+<span class="computeroutput">connect: (diveintomark.org, 80)
+send: '
+GET /redir/example302.xml HTTP/1.0
+Host: diveintomark.org
+User-agent: Python-urllib/2.1
+'
+reply: 'HTTP/1.1 302 Found\r\n'</span>                           <a name="oa.redirect.4.2"></a><span class="round">②</span>
+<span class="computeroutput">header: Date: Thu, 15 Apr 2004 22:18:21 GMT
+header: Server: Apache/2.0.49 (Debian GNU/Linux)
+header: Location: http://diveintomark.org/xml/atom.xml
+header: Content-Length: 314
+header: Connection: close
+header: Content-Type: text/html; charset=iso-8859-1
+connect: (diveintomark.org, 80)
+send: '
+GET /xml/atom.xml HTTP/1.0</span>                                <a name="oa.redirect.4.3"></a><span class="round">③</span>
+<span class="computeroutput">Host: diveintomark.org
+User-agent: Python-urllib/2.1
+'
+reply: 'HTTP/1.1 200 OK\r\n'
+header: Date: Thu, 15 Apr 2004 22:18:21 GMT
+header: Server: Apache/2.0.49 (Debian GNU/Linux)
+header: Last-Modified: Thu, 15 Apr 2004 19:45:21 GMT
+header: ETag: "e842a-3e53-55d97640"
+header: Accept-Ranges: bytes
+header: Content-Length: 15955
+header: Connection: close
+header: Content-Type: application/atom+xml</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.status</span>                                              <a name="oa.redirect.4.4"></a><span class="round">④</span>
+<span class="computeroutput">302</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.url</span>
+<span class="computeroutput">http://diveintomark.org/xml/atom.xml</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 샘플 URL로서 클라이언트가 <span class="emphasis"><em>임시로</em></span> <tt class="literal">http://diveintomark.org/xml/atom.xml</tt>로 방향전환하도록 구성해 두었습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버는 <tt class="literal">302</tt> 상태 코드를 돌려주어서, 임시 방향전환임을 나타냅니다. 데이터의 새로운 임시 위치는 <tt class="literal">Location:</tt> 헤더에 주어집니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.4.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">urllib2</tt>는 <tt class="methodname">http_error_302</tt> 메쏘드를 호출하고, 이 메쏘드는 <tt class="classname">urllib2.HTTPRedirectHandler</tt>에서 이름이 같은 조상 메쏘드를 호출합니다. 그러면 방향전환을 따라 새로운 위치로 갑니다. 다음 <tt class="methodname">http_error_302</tt> 메쏘드는 상태 코드 (<tt class="literal">302</tt>)를 저장해서 호출 어플리케이션이 나중에 얻을 수 있도록 해 줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.redirect.4.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">바로 여기에서 성공적으로 방향전환을 따라 <tt class="literal">http://diveintomark.org/xml/atom.xml</tt>에 갔습니다.  <tt class="varname">f.status</tt>를 보면 이것이 임시 방향전이며, 원래 주소에 데이터를 요청해야 한다는 뜻입니다 (<tt class="literal">http://diveintomark.org/redir/example302.xml</tt>).  다음 번에도 방향전환이 될 수도 있고 아닐 수도 있습니다. 어쩌면 다른 주로소 방향전환될 수도 있습니다. 아무것도 확신할 수 없습니다. 서버에 의하면 이 방향전환은 오직 임시적일 뿐입니다. 그래서 그 사실을 주의해야 합니다. 이제 호출 어플리케이션이 참고할 수 있도록 충분히 정보가 노출되었습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.gzip"></a>11.8.&nbsp;압축 데이터 처리하는 법</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>마지막으로 추가하고 싶은 중요한 HTTP 특징은 압축입니다. 많은 웹 서비스는 압축해서 데이터를 전송할 수 있는데, 이렇게 하면 전선을 타고 전송되는 데이터의 양을 60% 이상 줄일 수 있습니다. 이는 특히 XML 웹 서비스에 잘 적용되는데, XML 데이터는 압축이 아주 잘 되기 때문입니다.
+                  </p>
+               </div>
+               <p>서버는 여러분이 처리할 수 있다고 말해주지 않는 한 압축된 데이터를 보내지 않습니다.</p>
+               <div class="example"><a name="d0e29136"></a><h3 class="title">예제&nbsp;11.14.&nbsp;압축된 데이터가 좋다고 서버에게 알려주는 방법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import urllib2, httplib</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">httplib.HTTPConnection.debuglevel = 1</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request = urllib2.Request('http://diveintomark.org/xml/atom.xml')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">request.add_header('Accept-encoding', 'gzip')</span>        <a name="oa.gzip.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">opener = urllib2.build_opener()</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f = opener.open(request)</span>
+<span class="computeroutput">connect: (diveintomark.org, 80)
+send: '
+GET /xml/atom.xml HTTP/1.0
+Host: diveintomark.org
+User-agent: Python-urllib/2.1
+Accept-encoding: gzip</span>                                    <a name="oa.gzip.1.2"></a><span class="round">②</span>
+<span class="computeroutput">'
+reply: 'HTTP/1.1 200 OK\r\n'
+header: Date: Thu, 15 Apr 2004 22:24:39 GMT
+header: Server: Apache/2.0.49 (Debian GNU/Linux)
+header: Last-Modified: Thu, 15 Apr 2004 19:45:21 GMT
+header: ETag: "e842a-3e53-55d97640"
+header: Accept-Ranges: bytes
+header: Vary: Accept-Encoding
+header: Content-Encoding: gzip</span>                           <a name="oa.gzip.1.3"></a><span class="round">③</span>
+<span class="computeroutput">header: Content-Length: 6289</span>                             <a name="oa.gzip.1.4"></a><span class="round">④</span>
+<span class="computeroutput">header: Connection: close
+header: Content-Type: application/atom+xml</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">다음이 핵심입니다: <tt class="classname">Request</tt> 객체를 만들었다면 <tt class="literal">Accept-encoding</tt> 헤더를 추가하여 서버에게 gzip-인코드된 데이터를 받을 수 있다고 알려줍니다. <tt class="literal">gzip</tt>은 사용할 압축 알고리즘의 이름입니다. 이론적으로 다른 압축 알고리즘도 있지만, <tt class="literal">gzip</tt>이 웹 서버의 99%가 사용하는 압축 알고리즘입니다. 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">헤더가 전선을 가로질러 가고 있습니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">여기에 서버가 돌려준 것이 있습니다: <tt class="literal">Content-Encoding: gzip</tt> 헤더는 받을 데이터가 gzip-압축되어 있다는 뜻입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">Content-Length</tt> 헤더는 압축된 데이터의 길이이며, 압축되지 않은 데이터의 길이가 아닙니다.  잠시 후에 보시겠지만, 압축되지 않은 데이터의 15955 바이트였습니다. 그래서 gzip 압축하면 대역폭이 60%이상 절약됩니다!
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e29222"></a><h3 class="title">예제&nbsp;11.15.&nbsp;데이터 압축 풀기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">compresseddata = f.read()</span>                              <a name="oa.gzip.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">len(compresseddata)</span>
+<span class="computeroutput">6289</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import StringIO</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">compressedstream = StringIO.StringIO(compresseddata)</span>   <a name="oa.gzip.2.2"></a><span class="round">②</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import gzip</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">gzipper = gzip.GzipFile(fileobj=compressedstream)</span>      <a name="oa.gzip.2.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">data = gzipper.read()</span>                                  <a name="oa.gzip.2.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">print data</span>                                             <a name="oa.gzip.2.5"></a><span class="round">⑤</span>
+<span class="computeroutput">&lt;?xml version="1.0" encoding="iso-8859-1"?&gt;
+&lt;feed version="0.3"
+  xmlns="http://purl.org/atom/ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xml:lang="en"&gt;
+  &lt;title mode="escaped"&gt;dive into mark&lt;/title&gt;
+  &lt;link rel="alternate" type="text/html" href="http://diveintomark.org/"/&gt;
+  &lt;-- rest of feed omitted for brevity --&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">len(data)</span>
+<span class="computeroutput">15955</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞 예제를 계속 진행해 보면 <tt class="varname">f</tt>는 URL 개방자가 돌려주는 파일-류의 객체입니다. <tt class="methodname">read()</tt> 메쏘드를 사용하면 보통 압축되지 않은 데이터를 얻지만, 이 데이터는 gzip-압축되어 있기 대문에, 이것이 바로 정말로 원하는 데이터를 얻기 위한 첫 단계입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">좋습니다. 이 단계는 약간 난삽한 임시변통입니다.  <span class="application">파이썬</span>에는 <tt class="filename">gzip</tt> 모듈이 있는데, 이 모듈은 디스크에서 gzip-압축된 파일을 (실제로 쓰고) 읽습니다. 그러나 디스크에 파일이 없고, 메모리에 gzip-압축된 버퍼가 있으며, 단지 압축을 풀 요량으로 임시 파일을 쓰고 싶지는 않습니다. 그래서 <tt class="filename">StringIO</tt> 모듈을 사용하여, 메모리 데이터로부터 파일-류의 객체를 만들고자 합니다 (<tt class="varname">compresseddata</tt>). <tt class="filename">StringIO</tt> 모듈은 <a href="http://coreapython.hosting.paran.com/dive/chap09.html#kgp.openanything.stringio.example" title="Example&nbsp;10.4.&nbsp;Introducing StringIO">앞 장</a>에서 처음 보셨지만, 이제 또 다른 사용법을 보셨습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 <tt class="classname">GzipFile</tt>의 실체를 만들 수 있고, 거기에다 &#8220;<span class="quote">file</span>&#8221;이 파일-류의 객체 <tt class="varname">compressedstream</tt>이라고 알려줄 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 줄에서 실제 모든 작업을 합니다: <tt class="classname">GzipFile</tt>에서 &#8220;<span class="quote">읽으면</span>&#8221; 데이터를 풀어줍니다. 이상합니까? 그렇습니다. 그러나 기묘하게도 말이 됩니다.  <tt class="varname">gzipper</tt>는 gzip-압축된 파일을 나타내는 파일-류의 객체입니다. 그렇지만, &#8220;<span class="quote">file</span>&#8221;은 디스크에 있는 실제 파일이 아닙니다; <tt class="varname">gzipper</tt>는 정말로 파일-류의 객체로부터 &#8220;<span class="quote">읽고 있을 뿐입니다</span>&#8221;. 이 객체는 압축된 데이터를 싸넣기 위하여 <tt class="filename">StringIO</tt>로 만들었는데, 이는 오직 메모리에 <tt class="varname">compresseddata</tt> 변수에 있을 뿐입니다. 압축된 그 데이터는 어디에서 왔는가? 원래 원격 HTTP 서버에서 내려받았습니다. <tt class="function">urllib2.build_opener</tt>로 구축한 파일-류의 객체를 &#8220;<span class="quote">읽어서</span>&#8221; 말입니다. 놀랍게도 이 모든 것이 제대로 작동합니다. 사슬 어느 단계에서도 앞 단계가 감추고 있는 것을 모릅니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.2.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">보십시오. 진짜 데이터입니다. (실제로 그 중에 15955 바이트입니다.)</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>&#8220;<span class="quote">그러나 기다리세요!</span>&#8221; 울고 계시군요.  &#8220;<span class="quote">훨씬 더 쉽게 처리할 수 있습니다!</span>&#8221;  여러분의 생각을 압니다. <tt class="varname">opener.open</tt>는 파일-류의 객체를 돌려주는데, 그러면 중간에 <tt class="filename">StringIO</tt>를 없애 버리고 그냥 <tt class="varname">f</tt>를 바로 <tt class="methodname">GzipFile</tt>에 건네면 안될까? 좋습니다. 그렇게 생각하고 계시지 않을 수도 있겠지만, 걱정하지 마세요. 작동하지 않으니까요.
+               </p>
+               <div class="example"><a name="d0e29389"></a><h3 class="title">예제&nbsp;11.16.&nbsp;서버에서 바로 데이터 압축 풀기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f = opener.open(request)</span>                  <a name="oa.gzip.3.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">f.headers.get('Content-Encoding')</span>         <a name="oa.gzip.3.2"></a><span class="round">②</span>
+<span class="computeroutput">'gzip'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">data = gzip.GzipFile(fileobj=f).read()</span>    <a name="oa.gzip.3.3"></a><span class="round">③</span>
+<span class="traceback">Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in ?
+  File "c:\python23\lib\gzip.py", line 217, in read
+    self._read(readsize)
+  File "c:\python23\lib\gzip.py", line 252, in _read
+    pos = self.fileobj.tell()   # Save current position
+AttributeError: addinfourl instance has no attribute 'tell'</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">앞 예제를 계속해 보겠습니다. 이미 <tt class="literal">Accept-encoding: gzip</tt> 헤더를 가진 <tt class="classname">Request</tt> 객체가 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">단순히 요청을 열면 헤더를 얻습니다 (그렇지만 아직 데이터는 내려받지 못했습니다).  <tt class="literal">Content-Encoding</tt> 헤더를 보면 이 데이터는  gzip-압축되어 전송되었습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.gzip.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="methodname">opener.open</tt>는 파일-류의 객체를 돌려주고, 헤더를 보면 언제 그것을 읽었는지 알기 때문에, gzip-압축된 데이터를 얻게됩니다. 왜 그냥 단순히 그 파일-류의 객체를 직접 <tt class="classname">GzipFile</tt>에 건네면 안될까?  <tt class="classname">GzipFile</tt> 실체를 읽으면(&#8220;<span class="quote">read</span>&#8221;), 이 실체는 압축된 데이터를 원격 HTTP 서버에서 읽어서(&#8220;<span class="quote">read</span>&#8221;) 바로바로 압축을 풉니다. 좋은 생각이지만, 불행하게도 작동하지 않습니다. gzip 압축의 작동 방식 때문에, <tt class="classname">GzipFile</tt>은 그의 위치를 저장하고 압축 파일을 앞뒤로 움직여야 합니다. 이 방식은 &#8220;<span class="quote">file</span>&#8221;이 원격 서버로부터 온 바이트 스트림일 경우 작동하지 않습니다; 오로지 할 수 있는 일은 한 번에 한 번씩 데이터를 얻을 수 있을 뿐, 데이터 스트림을 앞 뒤로 이동할 수는 없습니다. 그래서 우아하지는 않지만 <tt class="filename">StringIO</tt>를 사용하는 것이 가장 좋은 해결책입니다: 압축된 데이터를 내려받아, <tt class="filename">StringIO</tt>로 파일-류의 객체를 만들고 그로부터 데이터를 풉니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.alltogether"></a>11.9.&nbsp;모두 하나로 합치기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>지능적인 HTTP 웹 서비스 클라이언트를 구축하기 위한 조각을 모두 보았습니다. 이제 그 모든 것이 어떻게 조립되는지 살펴보겠습니다.</p>
+               </div>
+               <div class="example"><a name="d0e29475"></a><h3 class="title">예제&nbsp;11.17.&nbsp;<tt class="function">openanything</tt> 함수
+                  </h3>
+                  <p>다음 함수는 <tt class="filename">openanything.py</tt>에 정의되어 있습니다.
+                  </p><pre class="programlisting">
+def openAnything(source, etag=None, lastmodified=None, agent=USER_AGENT):
+    # 깨끗하게 비-HTTP 코드는 생략함.
+    if urlparse.urlparse(source)[0] == 'http':                                       <a name="oa.alltogether.1.1"></a><span class="round">①</span>
+        # urllib2로 URL을 연다.                                                     
+        request = urllib2.Request(source)                                           
+        request.add_header('User-Agent', agent)                                      <a name="oa.alltogether.1.2"></a><span class="round">②</span>
+        if etag:                                                                    
+            request.add_header('If-None-Match', etag)                                <a name="oa.alltogether.1.3"></a><span class="round">③</span>
+        if lastmodified:                                                            
+            request.add_header('If-Modified-Since', lastmodified)                    <a name="oa.alltogether.1.4"></a><span class="round">④</span>
+        request.add_header('Accept-encoding', 'gzip')                                <a name="oa.alltogether.1.5"></a><span class="round">⑤</span>
+        opener = urllib2.build_opener(SmartRedirectHandler(), DefaultErrorHandler()) <a name="oa.alltogether.1.6"></a><span class="round">⑥</span>
+        return opener.open(request)                                                  <a name="oa.alltogether.1.7"></a><span class="round">⑦</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="filename">urlparse</tt>는 URL을 위한 간편한 유틸리티 모듈입니다. <tt class="function">urlparse</tt>라고도 부르는 핵심 함수가 URL을 받아 이런 행태(체계, 도메인, 경로, 매개변수, 질의 문자열 매개변수, 그리고 조각 식별자)로 분해합니다. 이 중에서, 관심의 대상은 오직 체계(scheme)입니다. (<tt class="filename">urllib2</tt>가 다룰 수 있는) HTTP URL을 다루고 있는지 확인합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">호출 함수가 건네준 <tt class="literal">User-Agent</tt>로 HTTP 서버에 여러분을 식별시킵니다. <tt class="literal">User-Agent</tt>가 지정되어 있지 않으면 앞서 <tt class="filename">openanything.py</tt> 모듈에서 정의된 기본 중개자를 사용합니다. <tt class="filename">urllib2</tt>에서 정의된 기본 중개자는 사용하지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">ETag</tt> 해시가 주어지면 그것을 <tt class="literal">If-None-Match</tt> 헤더에 넣어 전송합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">last-modified 날짜가 주어지면 <tt class="literal">If-Modified-Since</tt> 헤더에 넣어 전송합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버에게 가능하면 압축된 데이터를 보내달라고 알립니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.1.6"><span class="round">⑥</span></a> 
+                           </td>
+                           <td valign="top" align="left">맞춤 URL 처리자를 <span class="emphasis"><em>둘 다</em></span> 사용하는 URL 개방자를 구축합니다: <tt class="classname">SmartRedirectHandler</tt>는 <tt class="literal">301</tt>과 <tt class="literal">302</tt> 방향전환을 처리하는데, 그리고 <tt class="classname">DefaultErrorHandler</tt>는 <tt class="literal">304</tt>와 <tt class="literal">404</tt> 그리고 기타 에러 조건을 우아하게 처리하는데 사용합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.1.7"><span class="round">⑦</span></a> 
+                           </td>
+                           <td valign="top" align="left">바로 이것입니다!  URL을 열고 파일-류의 객체를 호출자에게 돌려줍니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e29574"></a><h3 class="title">예제&nbsp;11.18.&nbsp;<tt class="function">fetch</tt> 함수
+                  </h3>
+                  <p>다음 함수는 <tt class="filename">openanything.py</tt>에 정의되어 있습니다.
+                  </p><pre class="programlisting">
+def fetch(source, etag=None, last_modified=None, agent=USER_AGENT):  
+    '''데이터와 메타데이터를 URL, 파일, 스트림, 또는 문자열로부터 가져온다'''
+    result = {}                                                      
+    f = openAnything(source, etag, last_modified, agent)              <a name="oa.alltogether.2.1"></a><span class="round">①</span>
+    result['data'] = f.read()                                         <a name="oa.alltogether.2.2"></a><span class="round">②</span>
+    if hasattr(f, 'headers'):                                        
+        # 서버가 보낸게 있다면 ETag를 저장한다.                       
+        result['etag'] = f.headers.get('ETag')                        <a name="oa.alltogether.2.3"></a><span class="round">③</span>
+        # 서버가 보낸게 있다면 Last-Modified 헤더를 저장한다.    
+        result['lastmodified'] = f.headers.get('Last-Modified')       <a name="oa.alltogether.2.4"></a><span class="round">④</span>
+        if f.headers.get('content-encoding', '') == 'gzip':           <a name="oa.alltogether.2.5"></a><span class="round">⑤</span>
+            # 데이터가 gzip-압축되어 돌아오면 그 압축을 푼다.  
+            result['data'] = gzip.GzipFile(fileobj=StringIO(result['data']])).read()
+    if hasattr(f, 'url'):                                             <a name="oa.alltogether.2.6"></a><span class="round">⑥</span>
+        result['url'] = f.url                                        
+        result['status'] = 200                                       
+    if hasattr(f, 'status'):                                          <a name="oa.alltogether.2.7"></a><span class="round">⑦</span>
+        result['status'] = f.status                                  
+    f.close()                                                        
+    return result                                                    
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">먼저, URL과 <tt class="literal">ETag</tt> 해시 그리고 <tt class="literal">Last-Modified</tt> 날짜와 <tt class="literal">User-Agent</tt>를 가지고 <tt class="function">openAnything</tt> 함수를 호출합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버가 돌려준 실제 데이터를 읽습니다. 이 데이터는 압축되어 있을 수 있습니다; 그렇다면 나중에 풀면 됩니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버로부터 돌려받은 <tt class="literal">ETag</tt> 해시를 저장합니다. 그래서 호출 어플리케이션이 다음 번에 다시 여러분에게 건네줄 수 있으며, 여러분은 그것을 잇달아서 <tt class="function">openAnything</tt>에 전송할 수 있습니다. 이 함수는 그 해시를 <tt class="literal">If-None-Match</tt> 헤더에 붙여서 원격 서버에 보냅니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">Last-Modified</tt> 날짜도 저장합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.2.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버가 압축된 데이터를 보낸다고 말해 주면 압축을 풉니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.2.6"><span class="round">⑥</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버로부터 URL을 돌려 받으면 그것을 저장하고, 다른 것을 발견하기 전까지는 상태 코드가 <tt class="literal">200</tt>이라고 간주합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.2.7"><span class="round">⑦</span></a> 
+                           </td>
+                           <td valign="top" align="left">맞춤 URL 처리자중의 하나가 상태 코드를 잡았다면 그것도 저장합니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e29650"></a><h3 class="title">예제&nbsp;11.19.&nbsp;<tt class="filename">openanything.py</tt> 사용하기 </h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import openanything</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">useragent = 'MyHTTPWebServicesApp/1.0'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">url = 'http://diveintopython.org/redir/example301.xml'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">params = openanything.fetch(url, agent=useragent)</span>              <a name="oa.alltogether.3.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">params</span>                                                         <a name="oa.alltogether.3.2"></a><span class="round">②</span>
+<span class="computeroutput">{'url': 'http://diveintomark.org/xml/atom.xml', 
+'lastmodified': 'Thu, 15 Apr 2004 19:45:21 GMT', 
+'etag': '"e842a-3e53-55d97640"', 
+'status': 301,
+'data': '&lt;?xml version="1.0" encoding="iso-8859-1"?&gt;
+&lt;feed version="0.3"
+&lt;-- 나머지 데이터는 깨끗하게 생략함 --&gt;'}</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">if params['status'] == 301:</span>                                    <a name="oa.alltogether.3.3"></a><span class="round">③</span>
+<tt class="prompt">...     </tt><span class="userinput">url = params['url']</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">newparams = openanything.fetch(</span>
+<tt class="prompt">...     </tt><span class="userinput">url, params['etag'], params['lastmodified'], useragent)</span>    <a name="oa.alltogether.3.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">newparams</span>
+<span class="computeroutput">{'url': 'http://diveintomark.org/xml/atom.xml', 
+'lastmodified': None, 
+'etag': '"e842a-3e53-55d97640"', 
+'status': 304,
+'data': ''}</span>                                                        <a name="oa.alltogether.3.5"></a><span class="round">⑤</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">자원을 제일 처음 가져오면 <tt class="literal">ETag</tt> 해시나 <tt class="literal">Last-Modified</tt> 날짜가 없습니다. 그래서 그대로 둡니다.  (<a href="http://coreapython.hosting.paran.com/dive/chap04.html#apihelper.optional" title="4.2.&nbsp;Using Optional and Named Arguments">선택적인 매개변수</a>입니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">서버로부터 여러 유용한 헤더와 HTTP 상태 코드 그리고 진짜 데이터로 구성된 사전을 돌려받습니다. <tt class="filename">openanything</tt>은 gzip 압축을 내부적으로 처리합니다; 이 수준에서는 그에 관하여 신경쓰지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">301</tt> 상태 코드를 얻었다면 그것은 영구 방향전환입니다. URL을 새로운 주소로 갱신할 필요가 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.3.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">다음에 같은 자원을 다시 가져올 때, 온갖 정보를 돌려받습니다: (갱신되었을) URL, 지난 번 받은 <tt class="literal">ETag</tt>, 지난 번 받은 <tt class="literal">Last-Modified</tt> 날짜 그리고 물론 <tt class="literal">User-Agent</tt>를 돌려받습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#oa.alltogether.3.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">다시 사전을 돌려받지만, 날짜는 바뀌지 않았고, 그래서 <tt class="literal">304</tt> 상태 코드만 얻고 데이터는 받지 않습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="oa.summary"></a>11.10.&nbsp;요약
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><tt class="filename">openanything.py</tt>와 그의 함수들을 이제 완전히 이해하였습니다.
+                  </p>
+               </div>
+               <p>클라이언트가 반드시 지원해야 하는 다섯가지 중요한 특징이 HTTP 웹 서비스에 있습니다:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><a href="#oa.useragent" title="11.5.&nbsp;Setting the User-Agent">적절한 <tt class="literal">User-Agent</tt></a>를 사용하여 어플리케이션을 식별시킨다.
+                     </li>
+                     <li><a href="#oa.redirect" title="11.7.&nbsp;Handling redirects">적절하게 영구 방향전환을 처리한다</a>.
+                     </li>
+                     <li><a href="#oa.etags" title="11.6.&nbsp;Handling Last-Modified and ETag">최근-수정(<tt class="literal">Last-Modified</tt>) 날짜 점검을 지원하여</a> 바뀌지 않은 데이터를 내려받지 않도록 한다.
+                     </li>
+                     <li><a href="#oa.etags.example" title="Example&nbsp;11.9.&nbsp;Supporting ETag/If-None-Match"><tt class="literal">ETag</tt> 해쉬를 지원하여</a> 바뀌지 않은 데이터를 내려받지 않도록 한다.
+                     </li>
+                     <li>데이터가 <span class="emphasis"><em>바뀌었을 경우에는</em></span> <a href="#oa.gzip" title="11.8.&nbsp;Handling compressed data">gzip 압축</a>을 지원하여 대역폭을 절약한다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap10.html">☜ 제 10 장 스크립트와 스트림</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap12.html">제 12 장 SOAP 웹 서비스 ☞</A></TD>
+</TR>
+</TABLE>
+   </body>
+</html>

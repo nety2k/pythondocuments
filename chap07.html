@@ -1,0 +1,1074 @@
+<!DOCTYPE html  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:50.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap07.html">http://coreapython.hosting.paran.com/dive/chap07.html</a><br>
+<b>Title:</b> 7. 정규 표현식 &nbsp;&bull;&nbsp; <b>Size:</b> 111468<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap06.html">☜ 제 06 장 예외와 파일처리</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap08.html">제 08 장 HTML 처리 ☞</A></TD>
+</TR>
+</TABLE>
+		 <div name="07장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="re"></a>제&nbsp;7 장&nbsp;정규 표현식
+                     </h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="abstract">
+               <p>정규 표현식은 복잡한 패턴의 문자들로 구성된 텍스트를 탐색하고 교체하며 해석하는 강력하고 표준적인 방법입니다. 펄(<span class="application">Perl</span>)같은 다른 언어에서 정규 표현식을 사용하여 보았다면 구문이 아주 익숙할 것입니다. <a href="http://www.python.org/doc/current/lib/module-re.html"><tt class="filename">re</tt></a> 모듈의 요약을 읽어 보기만 해도 사용가능한 함수와 인자를 대략 살펴 볼 수 있습니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="re.intro"></a>7.1.&nbsp;들어가기                      </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <p>문자열은 검색(<tt class="function">index</tt>와 <tt class="function">find</tt> 그리고 <tt class="function">count</tt>)과 교체 (<tt class="function">replace</tt>) 그리고 분해(<tt class="function">split</tt>) 메쏘드가 있지만, 이런 메쏘드들은 사용 예가 단순하기 이를 데 없습니다.  검색 메쏘드는 한 개짜리로 직접-코딩된 부분문자열을 찾으며 언제나 대소문자를 구별합니다.  대소문자에 민감하지 않게 문자열 <tt class="varname">s</tt>를 검색하려면 <tt class="function">s.lower()</tt>나 <tt class="function">s.upper()</tt>를 사용하여, 검색중인 문자열을 적절하게 격변환하여 부합되도록 해야 합니다.  <tt class="function">replace</tt> 메쏘드와 <tt class="function">split</tt> 메쏘드도 똑 같이 한계가 있습니다.
+               </p>
+               <div class="abstract">
+                  <p>하고자 하는 일을 문자열 함수로 이룰 수 있다면 그냥 문자열 함수를 사용하는 것이 좋습니다. 더 빨리 읽을 수 있고 간단하고 쉽습니다. 많은 사람들이 빠르고 간단하며 가독성 높은 코드가 더 좋다고 말합니다.	그러나 여러 함수를 <tt class="literal">if</tt> 서술문에 사용해서 특수한 사례를 처리하고 있다면 또는 기묘하고 난해한 방식으로 <tt class="function">split</tt>과 <tt class="function">join</tt> 그리고 지능형 리스트에 조합해서 사용하고 있다면 정규 표현식이라는 계단을 오를 필요가 있습니다.
+                  </p>
+               </div>
+               <p>
+			   비록 정규 표현식 구문이 어렵고 보통의 코드와 다르지만 결과적으로 기다란 문자열 함수를 잇달아서 손으로 코딩하는 것에 비해 <span class="emphasis"><em>훨씬</em></span> 더 읽기 쉽습니다. 심지어 정규 표현식 안에 주석을 넣을 수도 있어서 실용적으로 문서화도 가능합니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="re.matching"></a>7.2.&nbsp;사례 연구: 길이름 주소
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>
+				  다음 예들은 실제로 몇 년 전에 일상 작업에서 겪은 경험에서 비롯되었습니다. 거리 주소를 구형 시스템으로부터 새로운 시스템으로 반입해야 했는데 그 전에 먼저 모아서 표준화할 필요가 있었습니다. (주의, 그저 교재를 채우려고 하는 것이 아닙니다; 실제로 유용합니다.)  다음 예제는 문제에 어떻게 접근했는지 보여줍니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e16923"></a><h3 class="title">예제&nbsp;7.1.&nbsp;문자열의 끝에 부합시키는 방법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s = '100 NORTH MAIN ROAD'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s.replace('ROAD', 'RD.')</span>               <a name="re.matching.1.1"></a><span class="round">①</span>
+<span class="computeroutput">'100 NORTH MAIN RD.'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s = '100 NORTH BROAD ROAD'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s.replace('ROAD', 'RD.')</span>               <a name="re.matching.1.2"></a><span class="round">②</span>
+<span class="computeroutput">'100 NORTH BRD. RD.'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s[:-4] + s[-4:].replace('ROAD', 'RD.')</span> <a name="re.matching.1.3"></a><span class="round">③</span>
+<span class="computeroutput">'100 NORTH BROAD RD.'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import re</span>                              <a name="re.matching.1.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.sub('ROAD$', 'RD.', s)</span>              <a name="re.matching.1.5"></a><span class="round">⑤</span> <a name="re.matching.1.6"></a><span class="round">⑥</span>
+<span class="computeroutput">'100 NORTH BROAD RD.'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">목표는 <tt class="literal">'ROAD'</tt>가 언제나 <tt class="literal">'RD.'</tt>로 약자화되도록 거리 주소를 표준화하는 것이었습니다. 처음에는 그냥 문자열 메쏘드 <tt class="function">replace</tt>를 사용하면 될 거라고 단순하게 생각했습니다. 어쨌거나, 모든 데이터는 이미 대문자였고, 그래서 대소문자가 불일치하는 문제는 없었습니다. 검색 문자열 <tt class="literal">'ROAD'</tt>는 상수였습니다. 이렇게 단순한 예제에서는 실제로 <tt class="function">s.replace</tt>가 제대로 작동합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">불행하게도 삶은 예상치 못한 일로 가득합니다. 즉시 다음과 같은 경우를 발견하였습니다. 문제는 <tt class="literal">'ROAD'</tt>가 주소에 두 번 나타나는 것입니다. 한 번은 거리 이름 <tt class="literal">'BROAD'</tt>에서 그리고 또 한 번은 단어 그 자체로 나타납니다. <tt class="function">replace</tt> 메쏘드는 이것들을 두 번 나타난거로 생각하고 맹목적으로 둘 모두를 교체해 버립니다; 그러다보니, 주소가 파괴되어 버렸습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">주소에 <tt class="literal">'ROAD'</tt>라는 부분 문자열이 여러 개 있는 문제를 해결하기 위하여, 다음과 같은 방법에 의지할 수도 있습니다: 주소에서 마지막 네 문자만(<tt class="literal">s[-4:]</tt>) <tt class="literal">'ROAD'</tt>를 찾아 교체하고, 나머지(<tt class="literal">s[:-4]</tt>)는 그대로 둡니다. 그러나 이것은 이미 제대로 작동하지 않는 것을 알 수 있습니다. 예를 들어, 패턴은 교체하려는 문자열의 길이에 의존합니다 (<tt class="literal">'STREET'</tt>를 <tt class="literal">'ST'</tt>로 교체하려면 <tt class="literal">s[:-6]</tt>과 <tt class="literal">s[-6:].replace(...)</tt>을 사용할 필요가 있습니다).  6개월 후에 다시 돌아와 이걸 디버그 해 보시겠습니까?  저는 그러고 싶지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 정규 표현식으로 올라갈 시간입니다. <span class="application">파이썬</span>에서, 정규 표현식에 관련된 모든 기능은 <tt class="filename">re</tt> 모듈에 담겨 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.1.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">첫 매개변수를 살펴보겠습니다: <tt class="literal">'ROAD$'</tt>가 그것인데, 이는 문자열의 끝에 나타날 경우에만 <tt class="literal">'ROAD'</tt>가 부합하는 간단한 정규 표현식입니다. <tt class="literal">$</tt>는 &#8220;<span class="quote">문자열의 끝을 의미합니다</span>&#8221;.  (그에 상응하는 문자도 있는데, 윗꺽쇠문자(<tt class="literal">^</tt>)가 바로 그것으로서, &#8220;<span class="quote">문자열의 처음이라는 뜻입니다</span>&#8221;.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.1.6"><span class="round">⑥</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">re.sub</tt> 함수를 사용하여 문자열 <tt class="varname">s</tt>에서 정규 표현식 <tt class="literal">'ROAD$'</tt>를 찾아 <tt class="literal">'RD.'</tt>로 교체합니다.  이는 문자열 <tt class="varname">s</tt>의 끝의 <tt class="literal">ROAD</tt>에는 부합하지만, <tt class="literal">BROAD</tt>라는 단어에 있는 <tt class="literal">ROAD</tt>에는 <span class="emphasis"><em>부합하지 않습니다</em></span>. 왜냐하면 문자열 <tt class="varname">s</tt>의 가운데에 있기 때문입니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>주소를 정리하다가, 곧 깨닫았습니다. <tt class="literal">'ROAD'</tt>가 주소의 끝에 부합하는 앞의 예제는 충분하지 않습니다. 왜냐하면 모든 주소에 거리 명칭이 포함되는 것은 아니기 때문입니다; 어떤 주소는 그냥 도로 이름으로 끝났습니다. 대부분, 신경쓰지 않아도 괜찮았지만,  도로 이름이 <tt class="literal">'BROAD'</tt>이라면 정규 표현식은 문자열의 끝에서 <tt class="literal">'BROAD'</tt>의 일부분으로 <tt class="literal">'ROAD'</tt>에 부합해 버릴 것입니다. 그것은 원한 바가 아니었습니다.
+               </p>
+               <div class="example"><a name="d0e17121"></a><h3 class="title">예제&nbsp;7.2.&nbsp;전체 단어에 부합시키는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s = '100 BROAD'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.sub('ROAD$', 'RD.', s)</span>
+<span class="computeroutput">'100 BRD.'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.sub('\\bROAD$', 'RD.', s)</span>  <a name="re.matching.2.2"></a><span class="round">①</span>
+<span class="computeroutput">'100 BROAD'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.sub(r'\bROAD$', 'RD.', s)</span>  <a name="re.matching.2.3"></a><span class="round">②</span>
+<span class="computeroutput">'100 BROAD'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">s = '100 BROAD ROAD APT. 3'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.sub(r'\bROAD$', 'RD.', s)</span>  <a name="re.matching.2.4"></a><span class="round">③</span>
+<span class="computeroutput">'100 BROAD ROAD APT. 3'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.sub(r'\bROAD\b', 'RD.', s)</span> <a name="re.matching.2.5"></a><span class="round">④</span>
+<span class="computeroutput">'100 BROAD RD. APT 3'</span></pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.2.2"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left"> <span class="emphasis"><em>정말로</em></span> 본인이 원하는 바는 <tt class="literal">'ROAD'</tt>를 부합시키는 것이었습니다. 문자열의 끝에 있어야 하고 <span class="emphasis"><em>그리고</em></span> 그 자체로 온전한 단어이어야 했습니다.  이를 정규표현식으로 표현하기 위해, <tt class="literal">\b</tt>를 사용합니다. 그 의미는 &#8220;<span class="quote">바로 여기에서 단어 경계가 나타나야 한다</span>&#8221;는 뜻입니다.  <span class="application">파이썬</span>에서, 이는 복잡합니다. <tt class="literal">'\'</tt> 문자가그 자체로 피신시켜야 할 문자이기 때문입니다. 이는 종종 역사선 고민거리라고 불리웁니다. 그리고 이 때문에 <span class="application">파이썬</span>보다 펄(<span class="application">Perl</span>)에서의 정규식이 더 쉽습니다.  약점이 있다면 펄(<span class="application">Perl</span>)은 정규 표현식을 다른 구문과 섞어 씁니다. 그래서 버그가 있다면 그게 구문 버그인지 정규 표현식 버그인지 구별하기가 매우 어렵습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.2.3"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">역사선 고민거리를 해결하기 위해 이른바 날 문자열을 사용할 수 있습니다. 문자열의 앞에다 문자 <tt class="literal">r</tt>을 두면 됩니다.  이렇게 하면 <span class="application">파이썬</span>은 이 문자열에서 아무것도 피신시키지 말아야 한다고 생각합니다; <tt class="literal">'\t'</tt>는 탭문자이지만, <tt class="literal">r'\t'</tt>는 진짜 <tt class="literal">\</tt> 역사선 문자 다음에 <tt class="literal">t</tt> 문자가 따라옵니다. 정규 표현식을 다룰 때  언제나 날 문자열을 사용하시기를 권장합니다; 그렇지 않으면 얼마 못가 일이 너무 복잡해집니다 (정규 표현식은 그 자체로도 금방 복잡해집니다).
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.2.4"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><span class="emphasis"><em>*탄식의 말*</em></span>  불행하게도 나의 논리에 반하는 사례들을 더 많이 발견했습니다. 이 경우, 거리 주소에 그 자체로 온전하게 <tt class="literal">'ROAD'</tt>라는 단어가 들어 있지만, 끝에 있지 않습니다. 왜냐하면 거리 명칭 뒤에 아파트 번호가 있기 때문입니다. <tt class="literal">'ROAD'</tt>가 문자열의 맨 마지막에 있지 않기 때문에 부합하지 않습니다. 그래서 <tt class="function">re.sub</tt>를 아무리 호출해도 아무것도 교체시키지 못합니다. 원래 문자열을 그대로 돌려받는데, 이는 원하는 바가 아닙니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.matching.2.5"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">
+						   이 문제를 풀기 위하여 <tt class="literal">$</tt> 문자를 제거하고 <tt class="literal">\b</tt> 문자를 추가했습니다.  이제 정규 표현식은 문자열에 끝이든 처음이든 또는 가운데 어느 곳이든 어디에 있든지 그 자체로 온전한 단어일 경우 &#8220;<span class="quote"><tt class="literal">'ROAD'</tt>에 부합한다</span>&#8221;라고 읽힙니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="re.roman"></a>7.3.&nbsp;사례 연구: 로마 숫자
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>
+				  비록 인식하지는 못했을지라도, 로마 숫자를 틀림없이 보셨을 것입니다. 예전 영화나 텔레비젼 쇼에서 (&#8220;<span class="quote">Copyright <tt class="literal">1946</tt></span>&#8221;이 아니라 &#8220;<span class="quote">Copyright <tt class="literal">MCMXLVI</tt></span>&#8221;를) 보셨거나 도서관이나 대학의 봉헌벽에서 ( &#8220;<span class="quote">established <tt class="literal">1888</tt></span>&#8221;이 아니라 &#8220;<span class="quote">established <tt class="literal">MDCCCLXXXVIII</tt></span>&#8221;를) 보셨거나 또는 저서 목록 개요에서 보셨을 수도 있습니다. 로마 숫자는 고대로 거슬러 올라가 로마 제국에서 실제로 사용되었던 숫자 표기 시스템입니다 (그래서 이름이 로마 숫자입니다).
+                  </p>
+               </div>
+               <p>
+			   로마 숫자는 일곱개의 문자가 반복되고 조합되어 다양한 방식으로 숫자를 표현합니다.</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><tt class="literal">I</tt> = <tt class="literal">1</tt></li>
+                     <li><tt class="literal">V</tt> = <tt class="literal">5</tt></li>
+                     <li><tt class="literal">X</tt> = <tt class="literal">10</tt></li>
+                     <li><tt class="literal">L</tt> = <tt class="literal">50</tt></li>
+                     <li><tt class="literal">C</tt> = <tt class="literal">100</tt></li>
+                     <li><tt class="literal">D</tt> = <tt class="literal">500</tt></li>
+                     <li><tt class="literal">M</tt> = <tt class="literal">1000</tt></li>
+                  </ul>
+               </div>
+               <p>다음은 로마 숫자를 구성하는 일반 규칙입니다:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li>문자는 부가적이다.  <tt class="literal">I</tt>는 <tt class="constant">1</tt>이고, <tt class="literal">II</tt> <tt class="literal">2</tt>이며, <tt class="literal">III</tt>은 <tt class="literal">3</tt>이다.  <tt class="literal">VI</tt>는 <tt class="literal">6</tt>이고 (문자 그래도, &#8220;<span class="quote"><tt class="literal">5</tt> 더하기 <tt class="literal">1</tt></span>&#8221;임), <tt class="literal">VII</tt>는 <tt class="literal">7</tt>이며, <tt class="literal">VIII</tt>은 <tt class="literal">8</tt>이다.
+                     </li>
+                     <li>10단위 문자 (<tt class="literal">I</tt>, <tt class="literal">X</tt>, <tt class="literal">C</tt>, 그리고 <tt class="literal">M</tt>)는 세번까지 반복가능하다.  
+					 <tt class="literal">4</tt>에서는 다음 5단위 숫자에서 뺄 필요가 있다.  <tt class="literal">4</tt>를 <tt class="literal">IIII</tt>로 나타낼 수 없다; 대신에 <tt class="literal">IV</tt>로 나타낸다 (&#8220;<tt class="literal">5</tt></span>보다 <span class="quote"><tt class="literal">1</tt> 작은 수&#8221;).  숫자 <tt class="literal">40</tt>은 <tt class="literal">XL</tt>로 표기된다 (<tt class="literal">50</tt>보다 <tt class="literal">10</tt> 작은 수), <tt class="literal">41</tt>은 <tt class="literal">XLI</tt>로, <tt class="literal">42</tt>는 <tt class="literal">XLII</tt>로, <tt class="literal">43</tt>는 <tt class="literal">XLIII</tt>로, 그리고 <tt class="literal">44</tt>은 <tt class="literal">XLIV</tt>로 표현된다 (<tt class="literal">50</tt>보다 <tt class="literal">10</tt>이 작고, <tt class="literal">5</tt>보다 <tt class="literal">1</tt>이 작은 수).
+                     </li>
+                     <li>
+					 비슷하게 <tt class="literal">9</tt>에서는 다음 10단위 숫자에서 뺄 필요가 있다: <tt class="literal">8</tt>은 <tt class="literal">VIII</tt>이지만, <tt class="literal">9</tt>는 <tt class="literal">IX</tt>이다 (<tt class="literal">10</tt>보다 <tt class="literal">1</tt> 작은 수), <tt class="literal">VIIII</tt>가 아니다 (<tt class="literal">I</tt> 문자는 네번 반복될 수 없기 때문이다). 숫자 <tt class="literal">90</tt>은 <tt class="literal">XC</tt>이고, <tt class="literal">900</tt>은 <tt class="literal">CM</tt>이다.
+                     </li>
+                     <li>5단위 문자들은 반복할 수 없다. 숫자 <tt class="literal">10</tt>은 언제나 <tt class="literal">X</tt>로 표현되지 <tt class="literal">VV</tt>가 될 수 없다.  숫자 <tt class="literal">100</tt>은 언제나 <tt class="literal">C</tt>이지 절대로 <tt class="literal">LL</tt>이 될 수 없다.
+                     </li>
+                     <li>로마 숫자는 언제나 높은 순위에서 낮은 순위로 작성되고 왼쪽에서 오른쪽으로 읽힌다. 그래서 문자의 순서가 아주 중요하다.
+                         <tt class="literal">DC</tt>는 <tt class="literal">600</tt>이고; <tt class="literal">CD</tt>는 완전히 다른 숫자이다 (<tt class="literal">500</tt>보다 <tt class="literal">100</tt> 작은 수이므로, <tt class="literal">400</tt>임).  <tt class="literal">CI</tt>는 <tt class="literal">101</tt>이지만; <tt class="literal">IC</tt>는 유효하지 않은 로마 숫자이다 (<tt class="literal">100</tt>에서 바로 <tt class="literal">1</tt>을 뺄 수 없기 때문이다; <tt class="literal">XCIX</tt>로 작성해야 하는데, <tt class="literal">100</tt>보다 <tt class="literal">10</tt>이 작고 <tt class="literal">10</tt> 보다 <tt class="literal">1</tt> 작기 때문이다).
+                     </li>
+                  </ul>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e17592"></a>7.3.1.&nbsp;천의 자리 점검하기
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>임의의 문자열이 유효한 로마 숫자인지 평가하려면 무엇이 필요한가? 한 번에 한 자리씩 취해 보겠습니다. 로마 숫자는 언제나 높은 수에서 낮은 수로 작성되기 때문에, 가장 높은 자리부터 시작해 봅시다: 천의 자리에서 시작합니다.  숫자가 1000이 넘어가면 천의 자리는 일련의 <tt class="literal">M</tt> 문자로 표현됩니다.
+                  </p>
+                  <div class="example"><a name="d0e17600"></a><h3 class="title">예제&nbsp;7.3.&nbsp;천의 자리 점검하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import re</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M?M?M?$'</span>       <a name="re.roman.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'M')</span>    <a name="re.roman.1.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;SRE_Match object at 0106FB58&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MM')</span>   <a name="re.roman.1.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;SRE_Match object at 0106C290&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMM')</span>  <a name="re.roman.1.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;SRE_Match object at 0106AA38&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMMM')</span> <a name="re.roman.1.5"></a><span class="round">⑤</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, '')</span>     <a name="re.roman.1.6"></a><span class="round">⑥</span>
+<span class="computeroutput">&lt;SRE_Match object at 0106F4A8&gt;</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.1.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">이 패턴은 세가지 부분으로 나뉩니다:
+                                 <div class="itemizedlist">
+                                    <ul>
+                                       <li><tt class="literal">^</tt>는 문자열의 처음 다음에 따라오는 패턴에만 부합한다.  이것이 지정되지 않으면 패턴은 <tt class="literal">M</tt> 문자가 어디에 있든지 부합해 버린다. 이는 원하는 바가 아니다.  
+									   
+									   혹 있다면 <tt class="literal">M</tt> 문자가 확실하게 문자열의 처음에 있기를 바란다.
+                                       </li>
+                                       <li><tt class="literal">M?</tt>는 선택적으로 <tt class="literal">M</tt> 문자 하나에만 부합한다. 이는 세번까지 반복되므로, 한 줄에서 0개에서 부터 3개까지의  <tt class="literal">M</tt> 문자가 있는 곳이면 어디든지 부합한다.
+                                       </li>
+                                       <li><tt class="literal">$</tt>는 문자열의 끝 바로 앞에 오는 문자에만 부합한다. 앞에서 <tt class="literal">^</tt> 문자와 조합하면 이는 패턴이 전체 문자열에 부합하여야 하고, <tt class="literal">M</tt> 문자의 앞에나 뒤에 어떤 문자도 없다는 뜻이다.
+                                       </li>
+                                    </ul>
+                                 </div>
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.1.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">
+							  <tt class="filename">re</tt> 모듈의 핵심은 <tt class="function">search</tt> 함수입니다. 이 함수는 정규 표현식 (<tt class="varname">pattern</tt>)과 문자열 (<tt class="literal">'M'</tt>)을 받아 정규 표현식에 대하여 일치를 시도합니다. 일치가 발견되면 <tt class="function">search</tt> 함수는 객체를 돌려주는데 다양한 메쏘드가 있어서 일치에 대하여 기술해 줍니다; 일치가 발견되지 않으면 <tt class="function">search</tt> 메쏘드는 <span class="application">파이썬</span> 널 값인 <tt class="literal">None</tt>을 돌려줍니다. 당장은 오직 패턴이 일치하는가에만 신경을 쓰겠습니다. <tt class="function">search</tt>의 반환값을 들여다 보면 알 수 있습니다.  <tt class="literal">'M'</tt>은 이 정규 표현식에 일치합니다. 첫 선택적인 <tt class="literal">M</tt> 문자에 부합하고 두 번째 세번째 선택적인 <tt class="literal">M</tt> 문자는 무시되기 때문입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.1.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">'MM'</tt>도 부합합니다. 첫 번째 두 번째 선택적인 <tt class="literal">M</tt> 문자가 부합하고 세 번째 <tt class="literal">M</tt> 문자는 무시되기 때문입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.1.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">'MMM'</tt>도 일치합니다. 세개의 <tt class="literal">M</tt> 문자 모두 부합하기 때문입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.1.5"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">'MMMM'</tt>은 부합하지 않습니다. 세개의 <tt class="literal">M</tt> 문자는 일치하지만, 일치가 끝났으므로 정규 표현식은 (<tt class="literal">$</tt> 문자 때문에) 문자열이 끝났다고 생각하고, 문자열은 (네 번째 <tt class="literal">M</tt> 문자 때문에) 아직 끝나지 않았기 때문입니다.  
+							  그래서 <tt class="function">search</tt> 메쏘드는 <tt class="literal">None</tt>을 돌려줍니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.1.6"><span class="round">⑥</span></a> 
+                              </td>
+                              <td valign="top" align="left">흥미롭게도 빈 문자열도 이 표현식에 부합합니다. 왜냐하면 모든 <tt class="literal">M</tt> 문자가 선택적이기 때문입니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+               </div>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e17785"></a>7.3.2.&nbsp;백의 자리수 점검하기
+                           </h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>백의 자리는 천의 자리보다 훨씬 더 복잡합니다. 왜냐하면 그의 값에 따라 표현법이 서로 배타적이기 때문입니다.
+                  </p>
+                  <div class="itemizedlist">
+                     <ul>
+                        <li><tt class="literal">100</tt> = <tt class="literal">C</tt></li>
+                        <li><tt class="literal">200</tt> = <tt class="literal">CC</tt></li>
+                        <li><tt class="literal">300</tt> = <tt class="literal">CCC</tt></li>
+                        <li><tt class="literal">400</tt> = <tt class="literal">CD</tt></li>
+                        <li><tt class="literal">500</tt> = <tt class="literal">D</tt></li>
+                        <li><tt class="literal">600</tt> = <tt class="literal">DC</tt></li>
+                        <li><tt class="literal">700</tt> = <tt class="literal">DCC</tt></li>
+                        <li><tt class="literal">800</tt> = <tt class="literal">DCCC</tt></li>
+                        <li><tt class="literal">900</tt> = <tt class="literal">CM</tt></li>
+                     </ul>
+                  </div>
+                  <p>그래서 가능한 패턴이 네 가지가 있습니다:</p>
+                  <div class="itemizedlist">
+                     <ul>
+                        <li><tt class="literal">CM</tt></li>
+                        <li><tt class="literal">CD</tt></li>
+                        <li>0개에서 세 개까지의 <tt class="literal">C</tt> 문자 (백의 자리가 0이면 0개)
+                        </li>
+                        <li><tt class="literal">D</tt>, 다음에 세 개 이하의 <tt class="literal">C</tt> 문자
+                        </li>
+                     </ul>
+                  </div>
+                  <p>마지막 두 패턴은 조합이 가능합니다:</p>
+                  <div class="itemizedlist">
+                     <ul>
+                        <li>선택적인 <tt class="literal">D</tt>, 다음에 세 개 이하의 <tt class="literal">C</tt> 문자</li>
+                     </ul>
+                  </div>
+                  <p>다음 예제는 로마 숫자의 백의 자리를 평가하는 법을 보여줍니다.</p>
+                  <div class="example"><a name="re.roman.hundreds"></a><h3 class="title">예제&nbsp;7.4.&nbsp;백의 자리 점검하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import re</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M?M?M?(CM|CD|D?C?C?C?)$'</span> <a name="re.roman.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MCM')</span>            <a name="re.roman.2.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;SRE_Match object at 01070390&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MD')</span>             <a name="re.roman.2.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;SRE_Match object at 01073A50&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMMCCC')</span>         <a name="re.roman.2.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;SRE_Match object at 010748A8&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MCMC')</span>           <a name="re.roman.2.5"></a><span class="round">⑤</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, '')</span>               <a name="re.roman.2.6"></a><span class="round">⑥</span>
+<span class="computeroutput">&lt;SRE_Match object at 01071D98&gt;</span></pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.2.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">이 패턴은 앞의 패턴과 똑같이 시작해서, 문자열의 앞인지 점검하고 (<tt class="literal">^</tt>), 다음으로 천의 자리를 점검합니다 (<tt class="literal">M?M?M?</tt>). 괄호 부분에 새로운 것이 나옵니다. 세  개의 단독 패턴을 세로 막대로 갈라 정의합니다: <tt class="literal">CM</tt>와 <tt class="literal">CD</tt> 그리고 <tt class="literal">D?C?C?C?</tt>(이는 선택적인 <tt class="literal">D</tt> 다음에 선택적으로 세 개 이하의 <tt class="literal">C</tt> 문자임)가 바로 그것입니다. 정규 표현식 해석기는 이런 패턴마다 (왼쪽에서 오른쪽으로) 순서대로 점검해서, 부합하는 첫 패턴 하나를 취하고, 나머지는 무시합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.2.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">'MCM'</tt>은 부합합니다. 왜냐하면 첫째 <tt class="literal">M</tt>이 부합하고, 둘째 셋째 <tt class="literal">M</tt> 문자는 무시되며, <tt class="literal">CM</tt>은 부합하기 때문입니다. 
+							  
+							  (그래서 <tt class="literal">CD</tt>와 <tt class="literal">D?C?C?C?</tt> 패턴은 고려조차 되지 않습니다). 
+							  
+							  <tt class="literal">MCM</tt>은 로마 숫자로 <tt class="literal">1900</tt>을 나타냅니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.2.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">'MD'</tt>는 부합하는데 첫 <tt class="literal">M</tt>이 부합하고, 둘째 셋째 <tt class="literal">M</tt> 문자가 무시되고 <tt class="literal">D?C?C?C?</tt> 패턴은 <tt class="literal">D</tt>에 부합하기 때문입니다 (세개의 <tt class="literal">C</tt> 문자 하나하나는 선택적이며 무시됩니다).  <tt class="literal">MD</tt>는 로마 숫자로 <tt class="literal">1500</tt>을 표현합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.2.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">'MMMCCC'</tt>는 일치하는데 세개의 <tt class="literal">M</tt> 문자 모두 부합하고, <tt class="literal">D?C?C?C?</tt> 패턴은 <tt class="literal">CCC</tt>에 부합하기 때문입니다 (<tt class="literal">D</tt>는 선택적이며 무시됩니다).  <tt class="literal">MMMCCC</tt>는 <tt class="literal">3300</tt>을 나타내는 로마 숫자입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.2.5"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left"><tt class="literal">'MCMC'</tt>는 부합하지 않습니다. 첫 <tt class="literal">M</tt>이 부합하고, 둘째 셋째 <tt class="literal">M</tt> 문자는 무시되며 <tt class="literal">CM</tt>은 부합하지만, 그러면 <tt class="literal">$</tt>가 부합하지 않는데 그 이유는 아직 문자열의 끝에 있지 않기 때문입니다 (여전히 부합하지 않는 <tt class="literal">C</tt> 문자가 있습니다). <tt class="literal">C</tt>는 <tt class="literal">D?C?C?C?</tt> 패턴에 <span class="emphasis"><em>부합하지 않습니다</em></span>. 왜냐하면 상호 배척적인 <tt class="literal">CM</tt> 패턴이 이미 부합했기 때문입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.roman.2.6"><span class="round">⑥</span></a> 
+                              </td>
+                              <td valign="top" align="left">흥미롭게도, 빈 문자열은 여전히 이 패턴에 부합합니다. 왜냐하면 모든 <tt class="literal">M</tt> 문자가 선택적이며 무시되기 때문입니다. 그리고 빈 문자열은 모든 문자가 선택적이고 무시되는 <tt class="literal">D?C?C?C?</tt> 패턴에 부합합니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>휴! 얼마나 빨리 정규 표현식이 지저분해지는지 보이시나요?  이제 겨우 로마 숫자의 천의 자리와 백의 자리를 다루었을 뿐입니다. 지금까지 잘 따라 오셨다면 십의 자리와 일의 자리는 쉽습니다. 정확하게 패턴이 같기 때문입니다. 그러나 패턴을 표현하는 또다른 방법을 살펴보겠습니다.
+                  </p>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="re.nm"></a>7.4.&nbsp;<tt class="literal">{n,m}</tt> 구문 사용법</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><a href="#re.roman" title="7.3.&nbsp;Case Study: Roman Numerals">앞 섹션에서</a> 다룬 패턴은 같은 문자가 세 번까지 반복될 수 있었습니다. 정규 표현식에서 또다른 방식으로 이를 표현할 수 있습니다. 이것이 좀 더 읽기 쉬울 수 있습니다. 먼저 앞 예제에서 이미 사용해 본 메쏘드를 살펴보겠습니다.
+                  </p>
+               </div>
+               <div class="example"><a name="d0e18113"></a><h3 class="title">예제&nbsp;7.5.&nbsp;예전 방법: 문자마다 선택적으로</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import re</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M?M?M?$'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'M')</span>    <a name="re.nm.1.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EE090&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M?M?M?$'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MM')</span>   <a name="re.nm.1.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M?M?M?$'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMM')</span>  <a name="re.nm.1.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EE090&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMMM')</span> <a name="re.nm.1.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.nm.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이렇게 하면 문자열의 시작에 부합하고, 다음에 첫번째 선택적인 <tt class="literal">M</tt>에 부합하지만, 둘째 셋째 <tt class="literal">M</tt>은 부합하지 않고 (그러나 선택적이기 때문에 상관없습니다), 다음에 문자열의 끝에 부합합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.nm.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 문자열의 처음에 부합하고, 다음에 첫째 둘째 선택적인 <tt class="literal">M</tt>에 부합하지만, 셋째 <tt class="literal">M</tt>은 부합하지 않고 (그러나 선택적이기 때문에 괜찮습니다), 다음에 문자열의 끝에 부합합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.nm.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 문자열의 처음에 일치한 다음, 세개의 선택적인 <tt class="literal">M</tt> 모두에 부합하고, 다음에 문자열의 끝에 부합합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.nm.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 문자열의 처음에 일치하고, 다음의 세개의 선택적인 <tt class="literal">M</tt> 모두에 부합하지만, 문자열의 끝에는 부합하지 않습니다 (여전히 부합되지 않은 <tt class="literal">M</tt>이 있기 때문입니다), 그래서 패턴은 일치하지 않고 <tt class="literal">None</tt>을 돌려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e18215"></a><h3 class="title">예제&nbsp;7.6.&nbsp;새로운 방법: <tt class="literal">n</tt> 개에서 <tt class="literal">m</tt>개까지</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M{0,3}$'</span>       <a name="re.nm.2.0"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'M')</span>    <a name="re.nm.2.1"></a><span class="round">②</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MM')</span>   <a name="re.nm.2.2"></a><span class="round">③</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EE090&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMM')</span>  <a name="re.nm.2.3"></a><span class="round">④</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEDA8&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMMM')</span> <a name="re.nm.2.4"></a><span class="round">⑤</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.nm.2.0"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 패턴은: &#8220;<span class="quote">문자열의 처음에 부합하고, 다음에 0개에서 3개까지의 <tt class="literal">M</tt> 문자에 부합하고, 다음에 문자열의 끝에 부합합니다.</span>&#8221; 0과 3은 어떤 숫자도 가능합니다; 적어도 하나 이상 세개 이하의 <tt class="literal">M</tt> 문자에 일치시키고 싶으면 <tt class="literal">M{1,3}</tt>라고 기술하면 됩니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.nm.2.1"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 문자열의 처음에 부합하고, 다음에 가능한 세개의 <tt class="literal">M</tt>중에서 하나가 부합하고, 다음에 문자열의 끝에 부합합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.nm.2.2"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 문자열의 처음에 부합하고, 다음에 가능한 세개의 <tt class="literal">M</tt>중에서 두 개가 부합하고, 다음에 문자열의 끝에 부합합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.nm.2.3"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 문자열의 처음에 부합하고, 가능한 세개의 <tt class="literal">M</tt>중에서 세개가 부합하고, 그 다음에 문자열의 끝에 부합합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.nm.2.4"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 문자열의 처음에 일치하고, 가능한 세개의 <tt class="literal">M</tt>중에 세개가 부합하지만, 문자열의 끝에는 <span class="emphasis"><em>부합하지 않습니다</em></span>. 정규 표현식은 문자열의 끝이 되기 전이라면 최대 세개의 <tt class="literal">M</tt> 문자를 허용하지만, 네개가 있으며, 그래서 패턴은 일치하지 않고 <tt class="literal">None</tt>을 돌려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="d0e18321"></a><table class="note" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundNote">☞</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">두 개의 정규 표현식이 동등한지 프로그램적으로 결정하는 방법은 없습니다. 최선의 방법은 수 많은 테스트 사례를 만들어서 모든 관련 입력에 같은 방식으로 작동하는지 확인하는 것입니다. 나중에 이 책에서 테스트 사례를 작성하는 방법에 관하여 다루겠습니다.
+                     </td>
+                  </tr>
+               </table>
+               <div class="section" lang="en">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h3 class="title"><a name="d0e18326"></a>7.4.1.&nbsp;십의 자리와 일의 자리 점검하기</h3>
+                        </div>
+                     </div>
+                     <div></div>
+                  </div>
+                  <p>이제 십의 자리와 일의 자리를 다루도록 로마 숫자 정규 표현식을 확장해 보겠습니다. 다음 예제는 십의 자리를 점검하는 법을 보여줍니다.
+                  </p>
+                  <div class="example"><a name="re.tens.example"></a><h3 class="title">예제&nbsp;7.7.&nbsp;10의 자리 점검하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M?M?M?M?(CM|CD|D?C?C?C?)(XC|XL|L?X?X?X?)$'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MCMXL')</span>    <a name="re.nm.3.3"></a><span class="round">①</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MCML')</span>     <a name="re.nm.3.4"></a><span class="round">②</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MCMLX')</span>    <a name="re.nm.3.5"></a><span class="round">③</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MCMLXXX')</span>  <a name="re.nm.3.7"></a><span class="round">④</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MCMLXXXX')</span> <a name="re.nm.3.8"></a><span class="round">⑤</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.nm.3.3"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 문자열의 처음에 부합하고, 선택적인 첫 <tt class="literal">M</tt>에 부합하며, 다음 <tt class="literal">CM</tt>에 부합하고, 다음 <tt class="literal">XL</tt>에 부합하고, 문자열의 끝에 부합합니다. 기억하십니까? <tt class="literal">(A|B|C)</tt> 구문은 &#8220;<span class="quote">정확하게 A나 B 또는 C 중 하나에</span>&#8221; 부합한다는 뜻입니다.  <tt class="literal">XL</tt>에 부합하며, 그래서 <tt class="literal">XC</tt>와 <tt class="literal">L?X?X?X?</tt> 선택을 무시하고, 다음 문자열의 끝으로 갑니다. <tt class="literal">MCML</tt>는 <tt class="literal">1940</tt>의 로마 숫자 표현입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.nm.3.4"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 문자열의 처음에 부합하고, 다음 선택적인 첫 <tt class="literal">M</tt>에 부합하고, 다음 <tt class="literal">CM</tt>에 부합하고, 다음 <tt class="literal">L?X?X?X?</tt>에 부합합니다. <tt class="literal">L?X?X?X?</tt> 중에서, <tt class="literal">L</tt>에 부합하고 세개의 선택적인 <tt class="literal">X</tt> 문자는 모두 건너뜁니다. 다음 문자열의 끝으로 갑니다.  <tt class="literal">MCML</tt>은 로마 숫자로 <tt class="literal">1950</tt>을 표현합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.nm.3.5"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 문자열의 처음에 부합하고, 선택적인 첫 <tt class="literal">M</tt>에 부합하고, 다음 <tt class="literal">CM</tt>에 부합하고, 다음 선택적인 <tt class="literal">L</tt>과 선택적인 첫 <tt class="literal">X</tt>에 부합하며, 선택적인 둘째 셋째 <tt class="literal">X</tt>는 건너뛰고, 다음 문자열의 끝에 부합합니다.  <tt class="literal">MCMLX</tt>은 <tt class="literal">1960</tt>을 로마 숫자로 표현한 것입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.nm.3.7"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 문자열의 처음에 부합하고, 다음 선택적인 첫 <tt class="literal">M</tt>에 부합하고, 다음 <tt class="literal">CM</tt>에 부합하고, 다음 선택적인 <tt class="literal">L</tt>가 선택적인 세개의 <tt class="literal">X</tt> 문자 모두에 부합하고, 다음 문자열의 끝에 부합합니다.  <tt class="literal">MCMLXXX</tt>는 로마 숫자로 <tt class="literal">1980</tt>을 나타냅니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.nm.3.8"><span class="round">⑤</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 문자열의 처음에 부합하고, 다음 선택적인 첫 <tt class="literal">M</tt>에 부합하고, 다음 <tt class="literal">CM</tt>에 부합하고, 다음 선택적인 <tt class="literal">L</tt>과 선택적인 세개의 <tt class="literal">X</tt> 문자 모두에 부합하고, 다음 문자열의 끝에 <span class="emphasis"><em>부합하지 못합니다</em></span> . 왜냐하면 여전히 <tt class="literal">X</tt>가 하나 더 해결되지 못하고 있기 때문입니다. 그래서 전체 패턴은 부합에 실패하고, <tt class="literal">None</tt>을 돌려줍니다.  <tt class="literal">MCMLXXXX</tt>는 유효한 로마 숫자가 아닙니다.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>일의 자리에 대한 표현도 같은 패턴을 따릅니다. 자세하게 설명하고 최종 결과를 보여드리겠습니다.</p>
+                  <div class="informalexample"><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M?M?M?M?(CM|CD|D?C?C?C?)(XC|XL|L?X?X?X?)(IX|IV|V?I?I?I?)$'</span>
+</pre></div>
+                  <p>그래서 이 대안적인 <tt class="literal">{n,m}</tt> 구문을 사용하면 어떻게 보이는가? 다음 예제는 새로운 구문을 보여줍니다.
+                  </p>
+                  <div class="example"><a name="re.nm.example"></a><h3 class="title">예제&nbsp;7.8.&nbsp; <tt class="literal">{n,m}</tt>으로 로마 숫자 평가하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = '^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$'</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MDLV')</span>             <a name="re.nm.4.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMDCLXVI')</span>         <a name="re.nm.4.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMMMDCCCLXXXVIII')</span> <a name="re.nm.4.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'I')</span>                <a name="re.nm.4.4"></a><span class="round">④</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+</pre><div class="calloutlist">
+                        <table border="0" summary="Callout list">
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.nm.4.1"><span class="round">①</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 문자열의 처음에 부합하고, 다음 가능한 네 개의 <tt class="literal">M</tt> 문자중에 하나가 부합하고, 다음 <tt class="literal">D?C{0,3}</tt>에 부합합니다.  그 중에서, 선택적인 <tt class="literal">D</tt>와 세 개의 가능한 <tt class="literal">C</tt> 문자중에 0개가 부합합니다. 계속해서, <tt class="literal">L?X{0,3}</tt>에 부합합니다. 선택적인 <tt class="literal">L</tt>과 가능한 세 개의 <tt class="literal">X</tt> 문자중에서 0개가 부합하기 때문입니다. 다음 <tt class="literal">V?I{0,3}</tt>에 부합합니다. 선택적인 V와 가능한 세 개의 <tt class="literal">I</tt> 문자 중에서 0개가 부합하고, 마지막으로 문자열의 끝에 부합하기 때문입니다. <tt class="literal">MDLV</tt>는 로마 숫자로 <tt class="literal">1555</tt>를 표현합니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.nm.4.2"><span class="round">②</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 문자열의 처음에 부합하고, 가능한 네 개의 <tt class="literal">M</tt> 문자중에 두 개가 부합하고, 다음 <tt class="literal">D?C{0,3}</tt>에 부합하는데 <tt class="literal">D</tt>와 가능한 세 개의 <tt class="literal">C</tt> 문자중에서 한 개가 부합하기 때문입니다; 다음 <tt class="literal">L?X{0,3}</tt>에 부합하는데 <tt class="literal">L</tt>과 가능한 세 개의 <tt class="literal">X</tt> 문자중에 하나가 부합하기 때문입니다; 다음 <tt class="literal">V?I{0,3}</tt>에 부합하는데 <tt class="literal">V</tt>와 가능한 세 개의 <tt class="literal">I</tt> 문자 중에 하나가 일치하기 때문입니다; 다음 문자열의 끝에 부합합니다. <tt class="literal">MMDCLXVI</tt>는 로마 숫자로 <tt class="literal">2666</tt>을 나타냅니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.nm.4.3"><span class="round">③</span></a> 
+                              </td>
+                              <td valign="top" align="left">이는 문자열의 처음에 부합하고, 다음 네 개의 가능한 <tt class="literal">M</tt> 문자중에 네 개가 부합하고, 다음 <tt class="literal">D?C{0,3}</tt>에 부합하는데 <tt class="literal">D</tt>와 세 개의 <tt class="literal">C</tt> 문자중에 세 개가 부합합니다; 다음 <tt class="literal">L?X{0,3}</tt>에 부합하는데 <tt class="literal">L</tt>과 가능한 네 개의 <tt class="literal">X</tt> 문자 중에서 세 개가 부합하기 때문입니다; 다음 <tt class="literal">V?I{0,3}</tt>에 부합하는데 <tt class="literal">V</tt>와 세 개의 <tt class="literal">I</tt> 문자 중에 세 개가 부합하기 때문입니다; 다음 문자열의 끝에 부합합니다.  <tt class="literal">MMMMDCCCLXXXVIII</tt>는 로마 숫자로 <tt class="literal">3888</tt>을 표현하며, 구문을 확장하지 않는 한, 쓸 수 있는 가장 큰 로마 숫자입니다.
+                              </td>
+                           </tr>
+                           <tr>
+                              <td width="12" valign="top" align="left"><a href="#re.nm.4.4"><span class="round">④</span></a> 
+                              </td>
+                              <td valign="top" align="left">세심하게 살펴보세요.  (마법사 같은 느낌으로 말해 보면  &#8220;<span class="quote">어린이 여러분 잘 보세요. 모자에서 토끼를 꺼내 볼께요.</span>&#8221;)  이는 문자열의 처음에 부합하고, 네 개의 가능한 <tt class="literal">M</tt> 문자중에 0개에 부합하고, 다음 <tt class="literal">D?C{0,3}</tt>에 부합하는데 선택적인 <tt class="literal">D</tt>를 건너뛰고 세 개의 가능한 <tt class="literal">C</tt> 중에 0개가 부합하기 때문입니다. 다음 <tt class="literal">L?X{0,3}</tt>에 부합하는데 선택적인 <tt class="literal">L</tt>을 건너뛰고 가능한 세 개의 <tt class="literal">X</tt>중 0개에 부합하기 때문입니다. 다음 <tt class="literal">V?I{0,3}</tt>에 부합하는데 선택적인 <tt class="literal">V</tt>를 건너뛰고 가능한 세 개의 <tt class="literal">I</tt> 중에서 하나가 부합하기 때문입니다. 다음으로 문자열의 끝에 부합합니다. 헉헉.
+                              </td>
+                           </tr>
+                        </table>
+                     </div>
+                  </div>
+                  <p>첫 시도에서 이 모든 것을 따라오셨다면 여러분은 저보다 훨씬 낫습니다. 이제 거대한 프로그램의 중요한 함수 안에서 다른 이의 정규 표현식을 이해하려고 시도한다고 생각해 봅시다. 또는 몇 개월이 지난 뒤 여러분이 만든 정규 표현식으로 다시 돌아온다고 상상해 봅시다. 완성은 했으나, 모양이 별로 좋지 않습니다.
+                  </p>
+                  <p>다음 섹션에서는 표현식을 유지관리하는데 도움을 줄 수 있는 대안 구문을 탐험해 보겠습니다.</p>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="re.verbose"></a>7.5.&nbsp;상세한 정규 표현식</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>지금까지 &#8220;<span class="quote">간결한</span>&#8221; 정규 표현식만 다루어 보았습니다. 보셨다시피, 읽기가 힘들고 심지어 육 개월이 지난 후 무엇을 하는지 알아 볼 때 그 구문을 이해한다는 보장이 없습니다. 정말 필요한 것은 인라인 문서화입니다.
+                  </p>
+               </div>
+               <p><span class="application">파이썬</span>에서는 <span class="emphasis"><em>상세한 정규 표현식</em></span>이라는 것으로 문서화를 할 수 있습니다. 상세한 정규 표현식은 간결한 정규 표현식과 두 가지 면에서 다릅니다:
+               </p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li>공백이 무시된다. 공간과 탭 그리고 줄가름 문자는 공간과 탭 그리고 줄가름 문자와 일치하지 않는다. 전혀 부합하지 않는다.  (상세한 정규 표현식에서 공간 문자를 일치시키고 싶으면 앞에다 역사선을 두어서 피신시킬 필요가 있다.)
+                     </li>
+                     <li>주석이 무시된다. 상세한 정규 표현식에서 주석은 파이썬 코드의 주석과 똑 같다: <tt class="literal">#</tt> 문자로 시작해서 줄 끝까지 간다. 이 경우 주석이 소스 코드 안에 있지 않고 여러-줄 문자열 안에 있지만, 같은 방식으로 작동한다.
+                     </li>
+                  </ul>
+               </div>
+               <p>예제를 하나 보면 이해가 더 잘 되실 겁니다. 앞서 작업했던 간결한 정규 표현식을 자세히 살펴보고, 상세한 정규 표현식으로 만들어 보겠습니다. 다음 예제는 그 방법을 보여줍니다.
+               </p>
+               <div class="example"><a name="d0e18777"></a><h3 class="title">예제&nbsp;7.9.&nbsp;인라인 주석이 달린 정규 표현식</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">pattern = """
+    ^                   # beginning of string
+    M{0,4}              # thousands - 0 to 4 M's
+    (CM|CD|D?C{0,3})    # hundreds - 900 (CM), 400 (CD), 0-300 (0 to 3 C's),
+                        #            or 500-800 (D, followed by 0 to 3 C's)
+    (XC|XL|L?X{0,3})    # tens - 90 (XC), 40 (XL), 0-30 (0 to 3 X's),
+                        #        or 50-80 (L, followed by 0 to 3 X's)
+    (IX|IV|V?I{0,3})    # ones - 9 (IX), 4 (IV), 0-3 (0 to 3 I's),
+                        #        or 5-8 (V, followed by 0 to 3 I's)
+    $                   # end of string
+    """</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'M', re.VERBOSE)</span>                <a name="re.verbose.1.1"></a><span class="round">①</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MCMLXXXIX', re.VERBOSE)</span>        <a name="re.verbose.1.2"></a><span class="round">②</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'MMMMDCCCLXXXVIII', re.VERBOSE)</span> <a name="re.verbose.1.3"></a><span class="round">③</span>
+<span class="computeroutput">&lt;_sre.SRE_Match object at 0x008EEB48&gt;</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">re.search(pattern, 'M')</span>                            <a name="re.verbose.1.4"></a><span class="round">④</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.verbose.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">상세한 정규 표현식을 사용할 때 기억해야 할 가장 중요한 것은 인자를 하나 더 건넬 필요가 있다는 것입니다: <tt class="literal">re.VERBOSE</tt>는 <tt class="filename">re</tt> 모듈에 정의된 상수로서 패턴이 상세한 정규 표현식으로 취급되어야 한다고 신호를 보냅니다. 보시다시피, 이 패턴은 공백문자가 상당히 많고 (모두 다 무시됨), 주석이 여러개 있습니다 (모두 다 무시됨). 공백문자와 주석을 무시하면 이는 정확하게 <a href="#re.nm" title="7.4.&nbsp;Using the {n,m} Syntax">앞 섹션에서</a> 본 정규 표현식과 똑 같지만, 훨씬 더 가독성이 높습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.verbose.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 문자열의 처음에 부합하고, 다음 네 개의 가능한 <tt class="literal">M</tt> 중에 하나가 부합하고, 다음 <tt class="literal">CM</tt>이 부합하고, 다음 <tt class="literal">L</tt>과 가능한 세 개의 <tt class="literal">X</tt>중 세 개가 부합하고, <tt class="literal">IX</tt>가 부합하고, 다음 문자열의 끝에 부합합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.verbose.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 문자열의 처음에 부합하고, 가능한 네 개의 <tt class="literal">M</tt>중에 네 개가 부합하고, 다음 <tt class="literal">D</tt>와 가능한 세 개의 <tt class="literal">C</tt>중에 세 개가 부합하고, 다음 <tt class="literal">L</tt>과 가능한 세 개의 <tt class="literal">X</tt>중에 세 개가 부합하고, 다음 <tt class="literal">V</tt>와 가능한 세 개의 <tt class="literal">I</tt>중에 세 개가 부합하고, 다음 문자열의 끝에 부합합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.verbose.1.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 부합하지 않습니다. 왜 그런가? <tt class="literal">re.VERBOSE</tt> 플래그가 없기 때문입니다. 그래서 <tt class="function">re.search</tt> 함수는 패턴을 간결한 정규 표현식으로 다루고 있습니다. 공백문자와 해시 마크가 문자 그대로 의미가 있습니다.  <span class="application">파이썬</span>은 정규 표현식이 상세 모드인지 아닌지 자동으로 감지할 수 없습니다. <span class="application">파이썬</span>은 명시적으로 상세를 언급하지 않는 한 정규 표현식마다 간결하다고 간주합니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="re.phone"></a>7.6.&nbsp;사례 연구: 전화 번호 해석하기</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>지금까지 전체 패턴에 온전히 부합시키는데 집중했습니다. 패턴이 일치하든가, 아니면 일치하지 않습니다. 그러나 정규 표현식은 그보다 훨씬 더 강력합니다. 정규 표현식이 <span class="emphasis"><em>부합하면</em></span>, 그 중에 특정 조각을 뽑아낼 수 있습니다. 무엇이 어디에서 부합했는지 알 수 있습니다.
+                  </p>
+               </div>
+               <p>다음 예제는 본인이 실-세계에서 마주한 문제, 앞에서 다룬 작업으로부터 또 가져왔습니다. 문제는: 미국 전화 번호를 해석하는 것입니다. 고객은 (필드에) 자유로운 형태로 숫자를 입력하고 싶어 했습니다. 그러나 지역 코드와 국번 그리고 번호 또 선택적으로 구내번호를 회사의 데이터베이스에 저장하고 싶어 했습니다. 웹을 뒤져서 이런 작업을 위해 개발된 정규 표현식을 수 없이 발견했지만, 어느 것도 충분하지 않았습니다.
+               </p>
+               <p>다음은 받아 들여야 할 필요가 있는 전화 번호입니다:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><tt class="literal">800-555-1212</tt></li>
+                     <li><tt class="literal">800 555 1212</tt></li>
+                     <li><tt class="literal">800.555.1212</tt></li>
+                     <li><tt class="literal">(800) 555-1212</tt></li>
+                     <li><tt class="literal">1-800-555-1212</tt></li>
+                     <li><tt class="literal">800-555-1212-1234</tt></li>
+                     <li><tt class="literal">800-555-1212x1234</tt></li>
+                     <li><tt class="literal">800-555-1212 ext. 1234</tt></li>
+                     <li><tt class="literal">work 1-(800) 555.1212 #1234</tt></li>
+                  </ul>
+               </div>
+               <p>정말 다양합니다! 각 사례마다, 지역 코드가 <tt class="literal">800</tt>이고 국번은 <tt class="literal">555</tt>이며 그리고 나머지 전화 번호는 <tt class="literal">1212</tt>라는 사실을 알 필요가 있습니다. 구내 번호가 있는 전화번호는 구내 번호가 <tt class="literal">1234</tt>라는 사실을 알 필요가 있습니다.
+               </p>
+               <p>전화 번호 해석을 위한 해결책을 개발해 보겠습니다. 다음 예제는 첫 단계를 보여줍니다.</p>
+               <div class="example"><a name="re.phone.example"></a><h3 class="title">예제&nbsp;7.10.&nbsp;숫자 검색</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern = re.compile(r'^(\d{3})-(\d{3})-(\d{4})$')</span> <a name="re.phone.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212').groups()</span>            <a name="re.phone.1.2"></a><span class="round">②</span>
+<span class="computeroutput">('800', '555', '1212')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212-1234')</span>                <a name="re.phone.1.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">언제나 정규 표현식은 왼쪽에서 오른쪽으로 읽습니다. 이 정규 표현식은 문자열의 처음에 부합하고, 다음 <tt class="literal">(\d{3})</tt>에 부합합니다.  <tt class="literal">\d{3}</tt>은 무엇인가?  자, <tt class="literal">{3}</tt>은 &#8220;<span class="quote">정확하게 세 자리 숫자에 부합한다</span>&#8221;는 뜻입니다; 앞서 본 <a href="#re.nm" title="7.4.&nbsp;Using the {n,m} Syntax"><tt class="literal">{n,m} 구문</tt></a>을 변형한 것입니다.  <tt class="literal">\d</tt>는 (<tt class="literal">0</tt>에서부터 <tt class="literal">9</tt>까지) &#8220;<span class="quote">숫자면 모두 부합한다는</span>&#8221;뜻입니다. 괄호 안에 둔 것은 &#8220;<span class="quote">정확하게 세 자리 숫자에 부합하고, <span class="emphasis"><em>다음 나중에 내가 점검할 수 있도록 그것들을 그룹으로 기억한다는</em></span></span>&#8221;뜻입니다. 다음으로 문자 그대로 옆줄 문자에(hyphen)에 부합합니다. 그 다음에 정확하게 또다른 세 자리 그룹에 부합합니다. 그 다음, 문자 그대로 또다른 옆줄 문자에 부합합니다. 다음, 정확하게 또다른 네 자리 숫자 그룹에 부합합니다. 그 다음, 문자열의 끝에 부합합니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">정규 표현식 해석기가 그 동안 기억해 둔 그룹에 접근하려면 <tt class="function">search</tt> 함수가 돌려주는 객체에 <tt class="function">groups()</tt> 메쏘드를 요청하면 됩니다. 정규 표현식에 정의된 그룹만큼 얼마든지 터플을 돌려줍니다. 이 경우, 그룹을 세 개 정의했는데, 하나는 세 자리 수 또 하나는 세 자리 수 그리고 네 자리 수 그룹을 정의했습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">다음 정규 표현식이 최종 해답은 아닙니다. 왜냐하면 끝에 구내 번호가 있는 전화번호는 다루지 못하기 때문입니다. 그를 위하여 정규 표현식을 확장할 필요가 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="example"><a name="d0e19043"></a><h3 class="title">예제&nbsp;7.11.&nbsp;구내 번호 검색하기</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern = re.compile(r'^(\d{3})-(\d{3})-(\d{4})-(\d+)$')</span> <a name="re.phone.2.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212-1234').groups()</span>             <a name="re.phone.2.2"></a><span class="round">②</span>
+<span class="computeroutput">('800', '555', '1212', '1234')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800 555 1212 1234')</span>                      <a name="re.phone.2.3"></a><span class="round">③</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212')</span>                           <a name="re.phone.2.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.2.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이 정규 표현식은 앞 정규 표현식과 거의 동일합니다. 앞에서 처럼 문자열의 처음에 부합시킨 다음, 기억된 세 자리수 그룹에, 그리고 옆줄문자, 다음 기억된 세 자리수 그룹, 다음 옆줄문자, 다음 기억된 네 자리수 그룹에 부합시킵니다. 새로운 것은 또다른 옆줄문자에 부합시킨 다음, 기억된 한 자리수 이상의 그룹에 부합시키고, 다음으로 문자열의 끝에 부합시킵니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.2.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="function">groups()</tt> 메쏘드는 이제 네 개의 원소가 담긴 터플을 돌려줍니다. 정규 표현식에는 이제 네 개의 그룹이 기억되도록 정의되어 있기 때문입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.2.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">불행하게도, 이 정규 표현식도 최종 해답은 아닙니다. 왜냐하면 전화 번호 각 부분들이 옆줄문자로 분리되어 있다고 간주하기 때문입니다. 공간문자나 쉼표 또는 점으로 분리되어 있다면 어떻게 하는가? 여러 다양한 종류의 가름자에 부합시키려면 더 일반적인 해결책이 필요합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.2.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이런! 이 정규 표현식은 원하는 바를 제대로 해주지 않을 뿐 아니라, 실제로 한 단계 퇴보했습니다. 그 이유는 <span class="emphasis"><em>구내번호가 없어서</em></span> 전화 번호를 해석할 수 없기 때문입니다. 그것은 전혀 원한 바가 아닙니다; 구내번호가 있다면 그것이 무엇인지 알고 싶습니다. 그러나 구내번호가 없더라도 여전히 메인 번호가 각각 무엇인지 알고 싶습니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>다음 예제는 정규 표현식에서 전화 번호 사이에 있는 가름자를 다루는 법을 보여줍니다.</p>
+               <div class="example"><a name="d0e19106"></a><h3 class="title">예제&nbsp;7.12.&nbsp;다양한 가름자 처리하는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern = re.compile(r'^(\d{3})\D+(\d{3})\D+(\d{4})\D+(\d+)$')</span> <a name="re.phone.3.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800 555 1212 1234').groups()</span>                   <a name="re.phone.3.2"></a><span class="round">②</span>
+<span class="computeroutput">('800', '555', '1212', '1234')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212-1234').groups()</span>                   <a name="re.phone.3.3"></a><span class="round">③</span>
+<span class="computeroutput">('800', '555', '1212', '1234')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('80055512121234')</span>                               <a name="re.phone.3.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212')</span>                                 <a name="re.phone.3.5"></a><span class="round">⑤</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.3.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">단단히 준비하세요.  문자열의 처음에 부합시키고, 다음 세 자리수 그룹, 다음으로 <tt class="literal">\D+</tt>에 부합시킵니다. 이게 도대체 무엇인가?  자, <tt class="literal">\D</tt>는 <span class="emphasis"><em>숫자를 제외하고</em></span> 무엇이든 부합합니다. 그리고 <tt class="literal">+</tt>는 &#8220;<span class="quote">1 이상이라는</span>&#8221;뜻입니다. 그래서 <tt class="literal">\D+</tt>는 숫자가 아닌 하나 이상의 문자에 부합합니다. 이것이 바로 다양한 가름자에 부합시키기 위해서 옆줄 문자 대신에 사용하는 것입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.3.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="literal">\D+</tt>를 <tt class="literal">-</tt> 대신 사용하면 이제 전화 번호의 각 부분에 옆줄문자 대신에 공간문자로 갈려도 부합시킬 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.3.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">물론, 옆줄문자로 갈린 전화번호도 여전히 작동합니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.3.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">불행하게도, 여전히 최종 해답이 아닙니다. 왜냐하면 가름자가 있다고 가정하기 때문입니다. 전화 번호가 공간문자나 옆줄문자 없이 입력되면 어떻게 할까?
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.3.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">이런! 구내번호가 요구되는 이 문제는 아직 수정되지 않았습니다. 이제 문제가 두 가지이지만, 두 문제 모두 같은 테크닉으로 해결할 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>다음 예제는  <span class="emphasis"><em>가름자 없이</em></span> 전화번호를 처리하는 정규 표현식을 보여줍니다.
+               </p>
+               <div class="example"><a name="d0e19203"></a><h3 class="title">예제&nbsp;7.13.&nbsp;가름자 없는 숫자 처리하는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern = re.compile(r'^(\d{3})\D*(\d{3})\D*(\d{4})\D*(\d*)$')</span> <a name="re.phone.4.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('80055512121234').groups()</span>                      <a name="re.phone.4.2"></a><span class="round">②</span>
+<span class="computeroutput">('800', '555', '1212', '1234')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800.555.1212 x1234').groups()</span>                  <a name="re.phone.4.3"></a><span class="round">③</span>
+<span class="computeroutput">('800', '555', '1212', '1234')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212').groups()</span>                        <a name="re.phone.4.4"></a><span class="round">④</span>
+<span class="computeroutput">('800', '555', '1212', '')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('(800)5551212 x1234')</span>                           <a name="re.phone.4.5"></a><span class="round">⑤</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.4.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">지난 단계 이후로 유일하게 수정한 것은 <tt class="literal">+</tt>를 모두 <tt class="literal">*</tt>로 바꾼 것입니다.  전화 번호의 각 부분 사이에 <tt class="literal">\D+</tt>를 사용하는 대신에, 이제 <tt class="literal">\D*</tt>에 부합시킵니다.  <tt class="literal">+</tt>는 &#8220;<span class="quote">1 이상을</span>&#8221;뜻한다는 사실을 기억하십니까?  자, <tt class="literal">*</tt>는 &#8220;<span class="quote">0 이상이라는</span>&#8221;뜻입니다. 그래서 이제 가름자 문자가 전혀 없더라도 전화 번호를 해석할 수 있을 것입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.4.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">보세요, 정말 작동합니다. 왜 그럴까요? 문자열의 처음에 부합시켰고, 다음 기억된 세 자리수 그룹 (<tt class="literal">800</tt>), 다음 숫자 아닌 문자 0개에 부합, 다음 기억된 세 자리수 그룹 (<tt class="literal">555</tt>), 다음 숫자 아닌 문자 0개, 다음 기억된 네 자리수 그룹 (<tt class="literal">1212</tt>), 다음 숫자 아닌 문자 0개, 다음 기억된 임의 자리수 그룹 (<tt class="literal">1234</tt>), 다음 문자열의 끝에 부합시켰습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.4.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">다른 변형도 역시 작동합니다: 옆줄문자 대신 점문자 그리고 구내번호 앞에 공간문자와 <tt class="literal">x</tt> 문자가 있어도 작동합니다. 
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.4.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">마지막으로, 다른 고질적인 문제도 해결했습니다: 구내번호 역시 선택적입니다. 구내번호가 없으면 <tt class="function">groups()</tt> 메쏘드는 여전히 원소 네 개가 담긴 터플을 돌려줍니다. 그러나 네 번째 요소는 그냥 빈 문자열입니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.4.5"><span class="round">⑤</span></a> 
+                           </td>
+                           <td valign="top" align="left">나쁜 소식을 전하고 싶지는 않지만, 아직 끝나지 않았습니다. 여기에서 문제는 무엇인가? 지역 코드 앞에 문자가 하나 더 있지만, 정규 표현식은 지역 코드가 문자열의 처음에 나온다고 가정합니다. 문제 없습니다. &#8220;<span class="quote">0개 이상의 숫자 아닌 문자와</span>&#8221; 같은 테크닉을 사용하면 지역 코드 앞에 오는 문자들을 건너뛸 수 있습니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>다음 예제는 전화 번호 앞에 오는 문자들을 처리하는 법을 보여줍니다.</p>
+               <div class="example"><a name="d0e19318"></a><h3 class="title">예제&nbsp;7.14.&nbsp;맨 앞에 오는 문자들을 처리하는 법</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern = re.compile(r'^\D*(\d{3})\D*(\d{3})\D*(\d{4})\D*(\d*)$')</span> <a name="re.phone.5.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('(800)5551212 ext. 1234').groups()</span>                 <a name="re.phone.5.2"></a><span class="round">②</span>
+<span class="computeroutput">('800', '555', '1212', '1234')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212').groups()</span>                           <a name="re.phone.5.3"></a><span class="round">③</span>
+<span class="computeroutput">('800', '555', '1212', '')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('work 1-(800) 555.1212 #1234')</span>                     <a name="re.phone.5.4"></a><span class="round">④</span>
+<tt class="prompt">&gt;&gt;&gt; </tt>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.5.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">이는 앞 예제와 같은데, 다만 이제는 <tt class="literal">\D*</tt>, 즉 0개 이상의 숫자아닌 문자에 부합시키고 나서, 기억된 첫 그룹에 (지역 코드) 부합시킵니다. 이런 비-숫자 문자들을 기억하고 있지 않음에 주목하세요 (괄호 안에 들어 있지 않습니다). 발견하더라도 그냥 건너뛰고 지역 코드를 만날때마다 기억을 시작합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.5.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">성공적으로 전화 번호를 해석할 수 있습니다. 심지어 지역 코드 앞에 왼쪽 괄호가 나오더라도 말입니다.  (지역코드 뒤의 오른쪽 괄호는 이미 처리되었습니다; 비-숫자 가름자로 취급되며 기억된 첫 그룹 이후로 <tt class="literal">\D*</tt>에 부합합니다.)
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.5.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">작동했던 것들을 하나도 깨뜨리지 않았다고 확인하는 위생점검입니다.  앞에 오는 문자들은 전적으로 선택적이기 때문에, 이는 문자열의 처음에 부합하고, 다음 0개 이상의 비-숫자 문자들, 다음 기억된 세 자리수 그룹 (<tt class="literal">800</tt>), 다음 비-숫자 문자 (옆줄문자), 다음 기억된 세 자리수 그룹 (<tt class="literal">555</tt>), 다음 1개의 비-숫자 문자 (옆줄문자), 다음 기억된 네 자리수 그룹 (<tt class="literal">1212</tt>), 다음 0개의 비-숫자 문자, 다음에 기억된 0자리수 그룹, 다음 문자열의 끝에 부합합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.5.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">정규 표현식에서 이런 곳을 만나면 머리 카락을 쥐어 뜯어 버리고 싶습니다. 왜 이 전화 번호는 부합하지 않는가? 왜냐하면 지역 코드 앞에 <tt class="literal">1</tt>이 있기 때문입니다. 그러나 지역 코드 앞에 오는 문자들은 모두 숫자-아닌 문자라고 간주했었습니다 (<tt class="literal">\D*</tt>).  아아!.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>잠시 뒤로 돌아가 보겠습니다. 지금까지 정규 표현식은 모두 문자열의 처음에 부합했습니다. 그러나 이제 문자열의 앞 쪽에 무시하고 싶은 것들이 있습니다. 그 모두를 부합시키는 대신에 그냥 무시하고 건너 뛸 수 있도록, 다른 접근법을 취해 보겠습니다: 명시적으로 문자열의 처음에 부합시키지 마세요. 이런 접근법을 다음 예제에서 보여줍니다.
+               </p>
+               <div class="example"><a name="d0e19396"></a><h3 class="title">예제&nbsp;7.15.&nbsp;전화 번호, 발견만 하면 해석할 수 있어</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern = re.compile(r'(\d{3})\D*(\d{3})\D*(\d{4})\D*(\d*)$')</span> <a name="re.phone.6.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('work 1-(800) 555.1212 #1234').groups()</span>        <a name="re.phone.6.2"></a><span class="round">②</span>
+<span class="computeroutput">('800', '555', '1212', '1234')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212')</span>                                <a name="re.phone.6.3"></a><span class="round">③</span>
+<span class="computeroutput">('800', '555', '1212', '')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('80055512121234')</span>                              <a name="re.phone.6.4"></a><span class="round">④</span>
+<span class="computeroutput">('800', '555', '1212', '1234')</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.6.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">정규 표현식에 <tt class="literal">^</tt>가 없는 것에 주목하세요. 이제 더 이상 문자열의 처음에 부합시키지 않습니다. 전체 입력을 정규 표현식에 부합시켜야 한다고 명령하는 것은 이제 전혀 없습니다. 정규 표현식 엔진은 입력 문자열이 어디에서 부합을 시작하여 거기에서부터 어디까지 가야 할지 알아내는 고된 작업을 합니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.6.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">이제 전화번호 앞에 문자나 숫자 또 사이 사이에 다양한 종류의 가름자가 포함되어 있더라도 성공적으로 해석할 수 있습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.6.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left">위생점검입니다. 여전히 작동합니다.</td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.6.4"><span class="round">④</span></a> 
+                           </td>
+                           <td valign="top" align="left">역시 작동합니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <p>
+			   얼마나 빨리 정규 표현식이 통제를 벗어나는지 보이십니까? 앞의 예제들을 아무거나 잠깐 살펴보세요. 한 예제와 다음 예제 사이의 차이점을 알 수 있습니까?
+               </p>
+               <p>최종 해답을 이해하지만 (최종 결론입니다; 다루지 못하는 사례를 발견한다고 할지라도, 그에 관하여 알고 싶지 않습니다), 왜 그런 선택을 했는지 잊어 버리기 전에, 상세한 정규 표현식으로 작성해 보겠습니다.
+               </p>
+               <div class="example"><a name="d0e19458"></a><h3 class="title">예제&nbsp;7.16.&nbsp;전화 번호 해석하는 법 (최종 버전)</h3><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern = re.compile(r'''
+                # 문자열의 처음에 부합시키지 않는다. 숫자는 어느 곳에서도 시작해도 된다.
+    (\d{3})     # 지역 코드는 3 자리이다 (예, '800').
+    \D*         # 선택적인 가름자는 숫자만-아니면 몇개라도 상관없다.
+    (\d{3})     # 국번은 3 자리이다 (예, '555').
+    \D*         # 선택적인 가름자이다.
+    (\d{4})     # 나머지 번호는 4 자리이다 (예, '1212').
+    \D*         # 선택적인 가름자이다.
+    (\d*)       # 구내번호는 선택적이며 숫자면 몇개라도 상관없다.
+    $           # 문자열의 끝.
+    ''', re.VERBOSE)</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('work 1-(800) 555.1212 #1234').groups()</span>        <a name="re.phone.7.1"></a><span class="round">①</span>
+<span class="computeroutput">('800', '555', '1212', '1234')</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">phonePattern.search('800-555-1212')</span>                                <a name="re.phone.7.2"></a><span class="round">②</span>
+<span class="computeroutput">('800', '555', '1212', '')</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.7.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">여러 줄에 걸쳐 늘어 놓는다는 것 말고는 정확하게 지난 단계의 정규 표현식과 똑 같습니다. 그래서 입력을 똑같이 해석한다고 하더라도 놀랍지 않습니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#re.phone.7.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left">최종 위생 점검입니다. 네, 역시 작동합니다. 이상입니다.</td>
+                        </tr>
+                     </table>
+                  </div>
+               </div>
+               <div class="itemizedlist">
+                  <h3 class="title">정규 표현식에 관하여 더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://py-howto.sourceforge.net/regex/regex.html">정규 표현식 HOWTO</a>에서는 정규 표현식에 관하여 그리고 <span class="application">파이썬</span>에서 사용하는 법을 가르쳐 준다.
+                     </li>
+                     <li><a href="http://www.python.org/doc/current/lib/"><i class="citetitle"><span class="application">파이썬</span> 라이브러리 참조서</i></a>에 <a href="http://www.python.org/doc/current/lib/module-re.html"><tt class="filename">re</tt> 모듈</a>이 요약되어 있다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="re.summary"></a>7.7.&nbsp;요약</h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>지금까지 정규 표현식이 할 수 있는 일 중에서 빙산의 일각을 보았을 뿐입니다. 다른 말로 하면  지금 완전히 압도당해 있을 지라도, 아직 아무것도 보지 못한 셈입니다.
+                  </p>
+               </div>
+               <p>이제 다음 테크닉에 익숙해 있어야 하겠습니다:</p>
+               <div class="itemizedlist">
+                  <ul>
+                     <li><tt class="literal">^</tt>는 문자열의 처음에 부합한다.
+                     </li>
+                     <li><tt class="literal">$</tt>는 문자열의 끝에 부합한다.
+                     </li>
+                     <li><tt class="literal">\b</tt>는 단어 경계에 부합한다.
+                     </li>
+                     <li><tt class="literal">\d</tt>는 숫자에 부합한다.
+                     </li>
+                     <li><tt class="literal">\D</tt>는 비-숫자에 부합한다.
+                     </li>
+                     <li><tt class="literal">x?</tt>는 선택적인 <tt class="literal">x</tt> 문자에 부합한다 (다른 말로 하면 0개나 1개의 <tt class="literal">x</tt> 문자에 부합한다).
+                     </li>
+                     <li><tt class="literal">x*</tt>는 0개 이상의 <tt class="literal">x</tt> 문자에 부합한다.
+                     </li>
+                     <li><tt class="literal">x+</tt>는 1개 이상의 <tt class="literal">x</tt> 문자에 부합한다.
+                     </li>
+                     <li><tt class="literal">x{n,m}</tt>는 적어도 <tt class="literal">n</tt>개 이상 <tt class="literal">m</tt>개 이하의 <tt class="literal">x</tt> 문자에 부합한다.
+                     </li>
+                     <li><tt class="literal">(a|b|c)</tt>는 <tt class="literal">a</tt>나 <tt class="literal">b</tt> 또는 <tt class="literal">c</tt>에 부합한다.
+                     </li>
+                     <li><tt class="literal">(x)</tt>는 일반적으로 <span class="emphasis"><em>기억된 그룹(remembered group)</em></span>이다. <tt class="function">re.search</tt>가 돌려준 객체의 <tt class="function">groups()</tt> 메쏘드를 사용하면 부합된 값을 얻을 수 있다.
+                     </li>
+                  </ul>
+               </div>
+               <p>정규 표현식은 매우 강력하지만, 아무 문제에나 올바른 해결책은 아닙니다. 정규 표현식을 충분히 배워서 언제가 적절한지 언제 문제를 해결해 주는지 그리고 언제 해결보다는 문제를 더 야기하는지 알아야 하겠습니다.
+               </p>
+               <div class="blockquote">
+                  <table border="0" width="100%" cellspacing="0" cellpadding="0" summary="Block quote">
+                     <tr>
+                        <td width="100%" valign="top">
+                           <p>어떤 사람들은 문제에 봉착하면 &#8220;<span class="quote">알겠어, 정규 표현식을 사용해야지</span>&#8221;라고 생각한다. 이제 그들은 문제가 두가지이다.
+                           </p>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td colspan="2" align="right" valign="top">--<span class="attribution">Jamie Zawinski, <a href="http://groups.google.com/groups?selm=33F0C496.370D7C45%40netscape.com">in comp.emacs.xemacs</a></span></td>
+                     </tr>
+                  </table>
+               </div>
+            </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap06.html">☜ 제 06 장 예외와 파일처리</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap08.html">제 08 장 HTML 처리 ☞</A></TD>
+</TR>
+</TABLE>
+    </body>
+</html>

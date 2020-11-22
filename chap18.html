@@ -1,0 +1,857 @@
+        <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <link rel="stylesheet" href="diveintopython.css" type="text/css">
+      <link rev="made" href="mailto:johnsonj@dreamwiz.com">
+      <meta name="generator" content="johnsonj">
+      <meta name="description" content="다이빙 파이썬 번역.">
+      <meta name="keywords" content="Python, Dive Into Python, tutorial, object-oriented, programming, documentation, book, free">
+      <meta name="description" content="한글판">
+   </head>
+   <body>
+
+
+<!-- Copyright � 2005. Spidersoft Ltd -->
+<style>
+A.applink:hover {border: 2px dotted #DCE6F4;padding:2px;background-color:#ffff00;color:green;text-decoration:none}
+A.applink       {border: 2px dotted #DCE6F4;padding:2px;color:#2F5BFF;background:transparent;text-decoration:none}
+A.info          {color:#2F5BFF;background:transparent;text-decoration:none}
+A.info:hover    {color:green;background:transparent;text-decoration:underline}
+</style>
+<div style='BORDER: 1px solid #DCE6F4; MARGIN-TOP: 20px; MARGIN-BOTTOM: 20px; MARGIN-LEFT: 5px; MARGIN-RIGHT: 5px; PADDING: 5px; BACKGROUND-COLOR: #eef8ff;line-height:180%; COLOR: #000000; font-family: Arial; font-size: 8pt; width=100%; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr="#FFFFFFFF", EndColorStr="#F2F5FAFF");'>
+This page was saved using <a class="applink" href="http://www.spidersoft.com"><b>WebZIP 7.0.2.1028</b></a>  on  06/14/12 ���� 11:14:49.<br>
+<b>Address:</b> <a class="info" href="http://coreapython.hosting.paran.com/dive/chap18.html">http://coreapython.hosting.paran.com/dive/chap18.html</a><br>
+<b>Title:</b> ☜ 제 18 장 수행성능 조율 &nbsp;&bull;&nbsp; <b>Size:</b> 60378<br></div>
+<!-- /Copyright � 2005. Spidersoft Ltd -->
+
+
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap17.html">☜ 제 17 장 동적 함수</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap00.html">제 00 장 다이빙 파이썬 ☞</A></TD>
+</TR>
+</TABLE>
+		 <div name="18장" class="chapter" lang="en">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h1 class="title"><a name="soundex"></a>제&nbsp;18 장&nbsp;수행성능 조율
+                     </h1>
+                  </div>
+               </div>
+               <div></div>
+            </div>
+            <div class="abstract">
+               <p>수행성능 조율은 아주 화려합니다.  <span class="application">파이썬</span>은 인터프리터 언어이지만 그렇다고 해서 코드 최적화에 대하여 신경쓰지 않아도 된다는 뜻은 아닙니다.  그러나  <span class="emphasis"><em>너무</em></span> 고민하지 마세요.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="soundex.divein"></a>18.1.&nbsp;들어가기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>코드를 최적화하는 일에는 많은 함정이 연루되어 있어서, 어디에서 시작해야 할지 알기가 힘듭니다.</p>
+               </div>
+               <p>여기에서부터 시작합시다: <span class="emphasis"><em>꼭 그렇게 해야 할 필요가 있다고 확신하는가?</em></span>  코드가 정말 그렇게 나쁜가?  시간을 들여 조율할 가치가 있는가? 어플리케이션이 실무에 적용되는 동안, 그 코드를 실행하는데 어느 정도의 시간이 드는가? 원격 데이터 베이스 서버를 기다리거나 또는 사용자의 입력을 기다리는데 드는 시간에 비하여 말입니다.
+               </p>
+               <p>둘째, <span class="emphasis"><em>코딩이 끝났다고 확신하는가?</em></span> 너무 이르게 최적화를 하면 설구은 케이크에 크림을 바르는 것과 같습니다. 수행성능의 향상을 위해 몇날 며칠을 들여 최적화를 했지만 기껏해야 그렇게 할 필요가 없다는 사실을 깨닫을 뿐입니다. 이제 모두 하수구로 버릴 시간입니다.
+               </p>
+               <p>
+			   코드 최적화가 가치가 없다고 말하는 것은 아니지만 전체 시스템을 살펴보고 시간을 들일 적절한 시기인지 아닌지 결정할 필요가 있습니다. 코드 최적화에 드는 일분 일초가 귀중한 시간입니다. 그대신 새로운 특징을 추가하거나 문서를 쓰거나 또는 자녀와 놀아주거나 아니면 유닛 테스트를 작성할 수 있습니다.
+               </p>
+               <p>네 물론, 유닛 테스트가 정답입니다.  수행성능을 조율하기 전에 먼저 완벽하게 유닛 테스트를 갖출 필요가 있다는 것은 말할 필요도 없습니다. 가장 필요한 것은 알고리즘을 이리저리 가지고 놀면서 새로운 버그를 초래하는 것입니다.
+               </p>
+               <p>
+			   이런 주의 사항들을 염두에 두고서 <span class="application">파이썬</span> 코드를 최적화하는 테크닉을 살펴보겠습니다. 해당 코드는 Soundex 알고리즘을 구현합니다.  Soundex는 20세가 초반에 미국에서 인구 조사시 성을 범주화하기 위해 사용되었던 방법입니다. 비슷한-발음이 나는 이름끼리 무리를 짓습니다. 그래서 이름이 혹시 철자가 잘못 기재되더라도 연구원이 알아낼 기회가 있었습니다.  Soundex는 거의 같은 이유로 오늘날에도 여전히 사용됩니다. 물론 이제는 컴퓨터화된 데이터베이스 서버를 사용하지만 말입니다. 대부분의 데이터베이스 서버에는 Soundex 기능이 있습니다.
+               </p>
+               <p>Soundex 알고리즘이 미묘하게 변형된 여러 버전이 있습니다. 다음은 이 장에서 사용되는 알고리즘입니다:</p>
+               <div class="orderedlist">
+                  <ol type="1">
+                     <li>이름의 첫 글자를 있는 그대로 보관한다.</li>
+                     <li>나머지 문자들을 특정한 테이블에 맞추어 숫자로 변환한다:
+                        <div class="itemizedlist">
+                           <ul>
+                              <li>B, F, P, 그리고 V는 1이 된다.</li>
+                              <li>C, G, J, K, Q, S, X, 그리고 Z는 2가 된다.</li>
+                              <li>D 그리고 T는 3이 된다.</li>
+                              <li>L은 4가 된다.</li>
+                              <li>M과 N은 5가 된다.</li>
+                              <li>R은 6이 된다.</li>
+                              <li>다른 문자는 모두 9가 된다.</li>
+                           </ul>
+                        </div>
+                     </li>
+                     <li>연속적으로 중복이면 제거한다.</li>
+                     <li>9이면 모두 제거한다.</li>
+                     <li>결과가 네 문자보다 짧으면 (첫 문자에다 세자리 수) 그 결과의 뒤에다 0을 덧댄다.</li>
+                     <li>결과가 네 문자보다 길면 네 번째 문자 뒤에 있는 것은 모조리 버린다.</li>
+                  </ol>
+               </div>
+               <p>
+			   예를 들어, 본인의 이름인 <tt class="literal">Pilgrim</tt>은 P942695가 됩니다.  연속적으로 중복되는 것이 없으므로 아무것도 할 것이 없습니다. 다음 9들을 제거해서, P4265가 남습니다.  너무 깁니다. 그래서 초과하는 문자들은 버려서 P426이 남습니다.
+               </p>
+               <p>또다른 예제를 보겠습니다: <tt class="literal">Woo</tt>는 W99가 되는데, 이는 W9가 되고, 또 W가 되며, 이제는 뒤에다 0을 덧대어서 W000이 됩니다.
+               </p>
+               <p>다음은 Soundex 함수를 처음으로 시도해 보겠습니다:</p>
+               <div class="example"><a name="d0e38889"></a><h3 class="title">예제&nbsp;18.1.&nbsp;<tt class="filename">soundex/stage1/soundex1a.py</tt></h3>
+                  <p>아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">다음 예제와 기타 예제들을 내려받을 수 있습니다</a>.
+                  </p><pre class="programlisting">
+import string, re
+
+charToSoundex = {"A": "9",
+                 "B": "1",
+                 "C": "2",
+                 "D": "3",
+                 "E": "9",
+                 "F": "1",
+                 "G": "2",
+                 "H": "9",
+                 "I": "9",
+                 "J": "2",
+                 "K": "2",
+                 "L": "4",
+                 "M": "5",
+                 "N": "5",
+                 "O": "9",
+                 "P": "1",
+                 "Q": "2",
+                 "R": "6",
+                 "S": "2",
+                 "T": "3",
+                 "U": "9",
+                 "V": "1",
+                 "W": "9",
+                 "X": "2",
+                 "Y": "9",
+                 "Z": "2"}
+
+def soundex(source):
+    "문자열을 Soundex 동등물로 변환한다"
+
+    # Soundex 요구조건:
+    # 소스 문자열은 반드시 1 문자 이상이어야 하며,
+    # 반드시 전적으로 문자기호로 구성되어 있어야 한다.
+    allChars = string.uppercase + string.lowercase
+    if not re.search('^[%s]+$' % allChars, source):
+        return "0000"
+
+    # Soundex 알고리즘:
+    # 1. 첫 문자로 대문자로 만든다.
+    source = source[0].upper() + source[1:]
+    
+    # 2. 다른 문자는 모두 Soundex 숫자기호로 변환한다.
+    digits = source[0]
+    for s in source[1:]:
+        s = s.upper()
+        digits += charToSoundex[s]
+
+    # 3. 연속된 숫자기호를 제거한다.
+    digits2 = digits[0]
+    for d in digits[1:]:
+        if digits2[-1] != d:
+            digits2 += d
+        
+    # 4. "9"는 모두 제거한다.
+    digits3 = re.sub('9', '', digits2)
+    
+    # 5. 4문자까지 "0"으로 끝을 채운다.
+    while len(digits3) &lt; 4:
+        digits3 += "0"
+        
+    # 6. 첫 4 문자를 돌려준다.
+    return digits3[:4]
+
+if __name__ == '__main__':
+    from timeit import Timer
+    names = ('Woo', 'Pilgrim', 'Flingjingwaller')
+    for name in names:
+        statement = "soundex('%s')" % name
+        t = Timer(statement, "from __main__ import soundex")
+        print name.ljust(15), soundex(name), min(t.repeat())
+</pre></div>
+               <div class="itemizedlist">
+                  <h3 class="title">Soundex에 관하여 더 읽어야 할 것</h3>
+                  <ul>
+                     <li><a href="http://www.avotaynu.com/soundex.html">Soundexing 그리고 그 계보</a>는 Soundex와 그의 지역적 변종들의 진화에 관한 연대기를 제공합니다.
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="soundex.timeit"></a>18.2.&nbsp;<tt class="filename">timeit</tt> 모듈 사용법
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p><span class="application">파이썬</span> 코드의 최적화에 관하여 꼭 알아야 할 중요한 것은 스스로 시간재기 함수를 만들지 말아야 한다는 것입니다.
+                  </p>
+               </div>
+               <p>짧은 코드의 시간을 재는 일은 놀랍도록 복잡합니다. 컴퓨터가 이 코드를 실행하는데 얼마의 시간이 걸리는가? 배경에서 실행되는 것들인가? 확신하는가? 현대의 컴퓨터는 배경에서 언제나 또는 간헐적으로 다음과 같은 일을 합니다.  Cron 작업은 일정 간격으로 촉발되며; 배경 서비스는 가끔씩 &#8220;<span class="quote">깨어나서</span>&#8221; 유용한 작업을 합니다. 예를 들어, 새로운 메일을 점검하고, 인스턴트 메시지 서비스에 접속하며, 어플리케이션 갱신 사항을 점검하며, 바이러스를 점검하고, 디스크에 지난 100 나노초 동안 CD 드라이브에 디스크가 삽입되었는지 등등을 점검합니다. 시간 측정 테스트를 시작하기 전에 모든 작업을 멈추고 네트워크를 완전히 단절시키세요. 네트워크가 회복되었는지 끊임없이 점검하는 서비스를 꺼버리고, 등등...
+               </p>
+               <p>
+			   
+			   다음으로 시간 측정 작업틀마다 약간씩 다른 문제가 있습니다. <span class="application">파이썬</span> 인터프리터가 캐시를 이용하여 메쏘드 이름을 찾는가?  블록 컴파일 코드를 캐시하는가?  정규 표현식은 캐시하는가?  코드를 여러 번 실행하면 부작용이 있는가?  초 단위의 짧은 코드를 다루고 있다는 사실을 잊지 마세요. 그래서 측정 작업틀에 아주 작은 실수만 있어도 결과가 돌이킬 수 없도록 왜곡됩니다. 
+               </p>
+               <p>
+			   <span class="application">파이썬</span> 공동체의 주장에 의하면: &#8220;<span class="quote"><span class="application">파이썬</span>에는 배터리가 장착되어 따라옵니다.</span>&#8221;  손수 시간측정 작업틀을 만들지 마세요.  <span class="application">파이썬</span> 2.3에는 <tt class="filename">timeit</tt>이라는 완벽한 작업틀이 따라옵니다.
+               </p>
+               <div class="example"><a name="d0e38948"></a><h3 class="title">예제&nbsp;18.2.&nbsp; <tt class="filename">timeit</tt> 소개</h3>
+                  <p>
+				  아직 그렇게 하지 못했다면 이 책에 사용된 <a href="exdive.zip" title="Download example scripts">다음 예제와 다른 예제들을 내려받을 수 있습니다</a>.
+                  </p><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">import timeit</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">t = timeit.Timer("soundex.soundex('Pilgrim')",</span>
+<tt class="prompt">...     </tt><span class="userinput">"import soundex")</span>   <a name="soundex.timeit.1.1"></a><span class="round">①</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">t.timeit()</span>              <a name="soundex.timeit.1.2"></a><span class="round">②</span>
+<span class="computeroutput">8.21683733547</span>
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">t.repeat(3, 2000000)</span>    <a name="soundex.timeit.1.3"></a><span class="round">③</span>
+<span class="computeroutput">[16.48319309109, 16.46128984923, 16.44203948912]</span>
+</pre><div class="calloutlist">
+                     <table border="0" summary="Callout list">
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#soundex.timeit.1.1"><span class="round">①</span></a> 
+                           </td>
+                           <td valign="top" align="left">
+						   <tt class="filename">timeit</tt> 모듈에 <tt class="classname">Timer</tt>라는 클래스 하나가 정의되어 있습니다. 클래스는 인자를 두개 받습니다. 두 인자 모두 문자열입니다. 첫 인자는 측정하고 싶은 서술문인데; 이 경우 <tt class="literal">'Pilgrim'</tt>이라는 인자로 <tt class="filename">soundex</tt> 안에서 Soundex 함수를 호출하는 시간을 측정하고 있습니다. <tt class="classname">Timer</tt> 클래스에 건네는 두 번째 인자는 그 서술문에 대한 환경을 설정해 주는 반입 서술문입니다. 내부적으로, <tt class="filename">timeit</tt>은 따로 가상 환경을 구성하고, 수작업으로 설정 서술문을 실행하고 (<tt class="filename">soundex</tt> 모듈을 반입함), 다음 수작업으로 해당 서술문을 컴파일하고 실행합니다 (Soundex 함수를 호출함).
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#soundex.timeit.1.2"><span class="round">②</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">Timer</tt> 객체가 확보되면 그냥 가장 쉽게 <tt class="methodname">timeit()</tt>을 호출하면 되는데, 이렇게 하면 함수가 백만 번 호출되고 그렇게 하는데 걸린 시간을 초 단위로 돌려줍니다.
+                           </td>
+                        </tr>
+                        <tr>
+                           <td width="12" valign="top" align="left"><a href="#soundex.timeit.1.3"><span class="round">③</span></a> 
+                           </td>
+                           <td valign="top" align="left"><tt class="classname">Timer</tt> 객체는 또 <tt class="methodname">repeat()</tt> 메쏘드가 있습니다. 이 메쏘드는 인자를 두개 받습니다. 첫 인자는 전체 테스트를 반복할 횟수이고, 두 번째 인자는 각 테스트 안에서 해당 서술문을 호출할 횟수입니다.  두 인자 모두 선택적이며, 각각 <tt class="literal">3</tt>과 <tt class="literal">1000000</tt>이 기본값입니다. <tt class="methodname">repeat()</tt> 메쏘드는 각 테스트 주기에 걸린 시간을 초 단위로 리스트에 담아 돌려줍니다.
+                           </td>
+                        </tr>
+                     </table>
+                  </div>
+               </div><a name="d0e39049"></a><table class="tip" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundTip">√</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">명령어 줄에서 <tt class="filename">timeit</tt> 모듈을 사용하여 기존의 <span class="application">파이썬</span> 프로그램을 측정할 수 있습니다. 코드를 전혀 수정할 필요가 없습니다.  명령어-줄 플래그에 관한 문서는 <a href="http://docs.python.org/lib/node396.html">http://docs.python.org/lib/node396.html</a>을 참조하세요.
+                     </td>
+                  </tr>
+               </table>
+               <p>
+			   <tt class="methodname">repeat()</tt> 함수는 시간을 담은 리스트를 돌려준다는 것에 주목하세요. 시간은 거의 절대로 동일하지 않을 텐데, 그 이유는 <span class="application">파이썬</span> 인터프리터가 얻은 프로세서 시간이 약간씩 다르기 때문입니다 (그리고 제거하기가 너무나 까다로운 배경 프로세스 때문에 그렇습니다).  언뜻 이렇게 생각하실지 모르겠습니다 &#8220;<span class="quote">평균을 내서 그 값을 진짜 숫자로 생각하자</span>&#8221;고 말입니다.
+               </p>
+               <p>
+			   사실, 그런 생각은 잘못된 것입니다. 오래 걸리는 테스트라고 해서 코드 자체 또는 <span class="application">파이썬</span> 인터프리터에 존재하는 다양성 때문에 더 오래 걸리는 것은 아닙니다; 더 오래 걸리는 이유는 까탈스러운 배경 프로세스나 또는 <span class="application">파이썬</span> 인터프리터 바깥에 있는 기타 요인들 때문입니다. 그런 외부 요인들은 완전히 제거할 수 없습니다. 시간 측정 결과가 몇 퍼센트 이상 차이가 나면 그 결과를 믿기에는 너무 변수가 많습니다. 그런 경우라면 차라리 최소 시간을 취하고 나머지는 버리세요.
+               </p>
+               <p><span class="application">파이썬</span>에는 간편한 <tt class="function">min</tt> 함수가 있는데 이 함수는 리스트를 받아 가장 작은 값을 돌려줍니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">&gt;&gt;&gt; </tt><span class="userinput">min(t.repeat(3, 1000000))</span>
+<span class="computeroutput">8.22203948912</span>
+</pre></div><a name="d0e39097"></a><table class="tip" border="0" summary="">
+                  <tr>
+                     <td rowspan="2" align="center" valign="top" width="1%"><span class="roundTip">√</span></td>
+                  </tr>
+                  <tr>
+                     <td colspan="2" align="left" valign="top" width="99%">
+					 <tt class="filename">timeit</tt> 모듈은 최적화할 코드 조각을 이미 알고 있는 경우에만 작동합니다.  <span class="application">파이썬</span> 프로그램이 더 방대하고 수행성능의 문제가 어디에 있는지 모른다면 <a href="http://docs.python.org/lib/module-hotshot.html"> <tt class="filename">hotshot</tt> 모듈을 고려해 보세요.</a></td>
+                  </tr>
+               </table>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="soundex.stage1"></a>18.3.&nbsp;정규 표현식 최적화하기
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>
+				  제일 먼저 Soundex 함수는 입력이 비어있는 문자열인지 점검합니다. 이렇게 하려면 어떤 방법이 가장 좋은가?
+                  </p>
+               </div>
+               <p>
+			   &#8220;<span class="quote">정규 표현식</span>&#8221;이라고 답했다면 한 구석에 앉아 한심한 본능을 한탄하세요. 정규 표현식은 거의 어떤 경우에도 올바른 답이 아닙니다; 정규 표현식은 가능하면 피하는 것이 좋습니다. 수행성능이 떨어질 뿐만 아니라 디버그하고 유지 관리하기가 어렵기 때문입니다.         </p>
+               <p>
+			   <tt class="filename">soundex/stage1/soundex1a.py</tt>에서 가져온 다음 코드 조각은 함수 <tt class="varname">source</tt> 인자가 (빈 문자열인지가 아니라) 전부 다 기호로 구성된 단어인지, 적어도 기호 하나로 구성된 단어인지 점검합니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    allChars = string.uppercase + string.lowercase
+    if not re.search('^[%s]+$' % allChars, source):
+        return "0000"
+</pre></div>
+               <p>
+			   <tt class="filename">soundex1a.py</tt>는 어떻게 수행되는가?  편의를 위해, 스크립트의 <tt class="literal">__main__</tt> 섹션에 담긴 코드는 <tt class="filename">timeit</tt> 모듈을 호출하고, 세 가지 다른 이름으로 시간측정 테스트를 설정하며, 각각의 테스트에서 최소 시간을 화면에 보여줍니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+if __name__ == '__main__':
+    from timeit import Timer
+    names = ('Woo', 'Pilgrim', 'Flingjingwaller')
+    for name in names:
+        statement = "soundex('%s')" % name
+        t = Timer(statement, "from __main__ import soundex")
+        print name.ljust(15), soundex(name), min(t.repeat())
+</pre></div>
+               <p>그래서 이 정규 표현식으로 <tt class="filename">soundex1a.py</tt>는 어떻게 수행합니까?
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage1&gt;</tt><span class="userinput">python soundex1a.py</span>
+<span class="computeroutput">Woo             W000 19.3356647283
+Pilgrim         P426 24.0772053431
+Flingjingwaller F452 35.0463220884</span>
+</pre></div>
+               <p>예상하시듯이, 더 긴 이름으로 호출되면 알고리즘은 시간이 상당히 더 걸립니다. 그 격차를 좁히기 위하여 할 수 있는 일이 몇 가지 있겠지만 (긴 입력에 대하여 함수를 상대적으로 짧은 시간을 소모하도록 만드는 것), 이 알고리즘은 그 본성상 절대로 상수 시간에 실행되지 않습니다. 
+               </p>
+               <p>꼭 기억해야 할 다른 것이 있다면 이름의 대표 샘플을 테스트하고 있다는 것입니다.  <tt class="literal">Woo</tt>는 사소한 사례입니다. 하나의 문자로 축약되고 나머지는 0으로 채워집니다.  <tt class="literal">Pilgrim</tt>은 보통의 사례입니다. 길이는 평균이고 의미있는 문자와 무시될 문자가 혼합되어 있습니다.  <tt class="literal">Flingjingwaller</tt>는 무지하게 길고 연속적으로 중복되어 있습니다. 다른 테스트도 도움이 되겠지만 이 정도면 충분히 다양한 사례를 포괄합니다.
+               </p>
+               <p>그래서 정규 표현식은 어떤가?  자, 정규 표현식은 비효율적입니다. 표현식은 문자 범위를 테스트하므로 (대문자로 <tt class="literal">A-Z</tt> 그리고 소문자로 <tt class="literal">a-z</tt>), 간략한 정규 표현식 구문을 사용할 수 있습니다. 다음은 <tt class="filename">soundex/stage1/soundex1b.py</tt>입니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    if not re.search('^[A-Za-z]+$', source):
+        return "0000"
+</pre></div>
+               <p><tt class="filename">timeit</tt>에 의하면 <tt class="filename">soundex1b.py</tt>는 <tt class="filename">soundex1a.py</tt>보다 약간 더 빠르지만 그 정도로 무지하게 기쁠 정도는 아닙니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage1&gt;</tt><span class="userinput">python soundex1b.py</span>
+<span class="computeroutput">Woo             W000 17.1361133887
+Pilgrim         P426 21.8201693232
+Flingjingwaller F452 32.7262294509</span>
+</pre></div>
+               <p><a href="http://coreapython.hosting.paran.com/dive/chap15.html#roman.refactoring" title="15.3.&nbsp;Refactoring">섹션&nbsp;15.3 &#8220;리팩토링&#8221;</a>에서 본 바에 의하면 정규 표현식은 더 빠른 결과를 얻기 위해 컴파일되고 재사용될 수 있습니다.  이 정규 표현식은 함수 호출마다 달라지지 않기 때문에, 한 번 컴파일해 두고 그 컴파일된 버전을 사용할 수 있습니다. 다음은 <tt class="filename">soundex/stage1/soundex1c.py</tt>입니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+isOnlyChars = re.compile('^[A-Za-z]+$').search
+def soundex(source):
+    if not isOnlyChars(source):
+        return "0000"
+</pre></div>
+               <p>컴파일된 정규 표현식을 <tt class="filename">soundex1c.py</tt>에 사용하면 상당히 더 빠릅니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage1&gt;</tt><span class="userinput">python soundex1c.py</span>
+<span class="computeroutput">Woo             W000 14.5348347346
+Pilgrim         P426 19.2784703084
+Flingjingwaller F452 30.0893873383</span>
+</pre></div>
+               <p>그러나 이것이 잘못된 길인가?  여기에서 로직은 단순합니다: 입력 <tt class="varname">소스</tt>는 비어 있으면 안 되고, 전적으로 문자기호로 구성되어 있어야 합니다. 정규 표현식을 모조리 없애 버리고 각 문자를 점검하는 회돌이를 작성하면 더 빠르지 않을까?            </p>
+               <p>다음은 <tt class="filename">soundex/stage1/soundex1d.py</tt>입니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    if not source:
+        return "0000"
+    for c in source:
+        if not ('A' &lt;= c &lt;= 'Z') and not ('a' &lt;= c &lt;= 'z'):
+            return "0000"
+</pre></div>
+               <p>알고보니 <tt class="filename">soundex1d.py</tt>에 있는 이 테크닉은 컴파일된 정규 표현식을 사용하는 방법보다 더 <span class="emphasis"><em>빠르지 않습니다</em></span> (물론 컴파일-안된 정규 표현식을 사용하는 것보다는 빠릅니다):
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage1&gt;</tt><span class="userinput">python soundex1d.py</span>
+<span class="computeroutput">Woo             W000 15.4065058548
+Pilgrim         P426 22.2753567842
+Flingjingwaller F452 37.5845122774</span>
+</pre></div>
+               <p>왜 <tt class="filename">soundex1d.py</tt>가 더 빠르지 않은가?  그 해답은 <span class="application">파이썬</span>의 통역적 본성에 있습니다.  정규 표현식 엔진은  C로 작성되어 있으며, 컴파일되어 컴퓨터에서 고유하게 실행됩니다. 반면에, 이 회돌이는 <span class="application">파이썬</span>으로 작성되어 있으며, <span class="application">파이썬</span> 인터프리터를 통하여 실행됩니다. 회돌이는 상대적으로 단순함에도 불구하고, 통역된다는 부담을 메울만큼 충분히 단순하지는 않습니다. 정규 표현식은 절대로 정답이 아닙니다. ... 꼭 그래야 할 경우가 아니라면 말입니다.
+               </p>
+               <p><span class="application">파이썬</span>은 불분명한 문자열 메쏘드를 제공합니다. 몰라도 상관없습니다. 왜냐하면 이 책에서 언급한 바가 없기 때문입니다. 그 메쏘드는 이른바 <tt class="methodname">isalpha()</tt>라고 부르는데, 문자열에 오직 문자만 담겨 있는지 점검합니다.
+               </p>
+               <p>다음은 <tt class="filename">soundex/stage1/soundex1e.py</tt>입니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    if (not source) and (not source.isalpha()):
+        return "0000"
+</pre></div>
+               <p>이 특정한 메쏘드를 <tt class="filename">soundex1e.py</tt>에 사용함으로써 얼마나 이득을 얻었는가? 상당히 얻었습니다.
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage1&gt;</tt><span class="userinput">python soundex1e.py</span>
+<span class="computeroutput">Woo             W000 13.5069504644
+Pilgrim         P426 18.2199394057
+Flingjingwaller F452 28.9975225902</span>
+</pre></div>
+               <div class="example"><a name="d0e39318"></a><h3 class="title">예제&nbsp;18.3.&nbsp;지금까지 제일 좋은 결과: <tt class="filename">soundex/stage1/soundex1e.py</tt></h3><pre class="programlisting">
+import string, re
+
+charToSoundex = {"A": "9",
+                 "B": "1",
+                 "C": "2",
+                 "D": "3",
+                 "E": "9",
+                 "F": "1",
+                 "G": "2",
+                 "H": "9",
+                 "I": "9",
+                 "J": "2",
+                 "K": "2",
+                 "L": "4",
+                 "M": "5",
+                 "N": "5",
+                 "O": "9",
+                 "P": "1",
+                 "Q": "2",
+                 "R": "6",
+                 "S": "2",
+                 "T": "3",
+                 "U": "9",
+                 "V": "1",
+                 "W": "9",
+                 "X": "2",
+                 "Y": "9",
+                 "Z": "2"}
+
+def soundex(source):
+    if (not source) and (not source.isalpha()):
+        return "0000"
+    source = source[0].upper() + source[1:]
+    digits = source[0]
+    for s in source[1:]:
+        s = s.upper()
+        digits += charToSoundex[s]
+    digits2 = digits[0]
+    for d in digits[1:]:
+        if digits2[-1] != d:
+            digits2 += d
+    digits3 = re.sub('9', '', digits2)
+    while len(digits3) &lt; 4:
+        digits3 += "0"
+    return digits3[:4]
+
+if __name__ == '__main__':
+    from timeit import Timer
+    names = ('Woo', 'Pilgrim', 'Flingjingwaller')
+    for name in names:
+        statement = "soundex('%s')" % name
+        t = Timer(statement, "from __main__ import soundex")
+        print name.ljust(15), soundex(name), min(t.repeat())
+</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="soundex.stage2"></a>18.4.&nbsp;사전 검색 최적화
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>Soundex 알고리즘의 두 번째 단계는 특정한 패턴으로 문자를 숫자로 변환하는 것입니다. 이렇게 하기 위한 가장 좋은 방법은 무엇인가?
+                  </p>
+               </div>
+               <p>가장 확실한 해결책은 사전을 정의하는 것입니다. 개별 문자를 키로 그리고 그에 상응하는 자리수를 값으로 하여 그리고 각 문자에 사전 찾기를 하는 것입니다. 이것이 바로 <tt class="filename">soundex/stage1/soundex1c.py</tt>에 구현한 것입니다 (지금까지 현재 가장 결과가 좋음):
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+charToSoundex = {"A": "9",
+                 "B": "1",
+                 "C": "2",
+                 "D": "3",
+                 "E": "9",
+                 "F": "1",
+                 "G": "2",
+                 "H": "9",
+                 "I": "9",
+                 "J": "2",
+                 "K": "2",
+                 "L": "4",
+                 "M": "5",
+                 "N": "5",
+                 "O": "9",
+                 "P": "1",
+                 "Q": "2",
+                 "R": "6",
+                 "S": "2",
+                 "T": "3",
+                 "U": "9",
+                 "V": "1",
+                 "W": "9",
+                 "X": "2",
+                 "Y": "9",
+                 "Z": "2"}
+
+def soundex(source):
+    # ... 간결하게 하기 위해 입력 점검 생략 ...
+    source = source[0].upper() + source[1:]
+    digits = source[0]
+    for s in source[1:]:
+        s = s.upper()
+        digits += charToSoundex[s]
+</pre></div>
+               <p>이미 <tt class="filename">soundex1c.py</tt>의 시간을 측정하였습니다; 다음이 측정한 방법입니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage1&gt;</tt><span class="userinput">python soundex1c.py</span>
+<span class="computeroutput">Woo             W000 14.5341678901
+Pilgrim         P426 19.2650071448
+Flingjingwaller F452 30.1003563302</span>
+</pre></div>
+               <p>이 코드는 보이는 그대로이지만 가장 좋은 해결책일까요?  문자마다 <tt class="methodname">upper()</tt>를 호출하는 일은 별로 효율성이 없어 보입니다; 전체 문자열에 대하여 한 번만 <tt class="methodname">upper()</tt>를 호출하는 편이 더 좋을 것 같습니다.
+               </p>
+               <p>다음으로 <tt class="varname">digits</tt> 문자열을 점증적으로 구축한다는 문제가 있습니다.  이런 식으로 문자열을 점증적으로 구축하는 것은 엄청나게 비효율적입니다; 내부적으로, <span class="application">파이썬</span> 인터프리터는 회돌이를 돌 때마다 새로운 문자열을 만들고 예전 문자열을 버릴 필요가 있습니다.
+               </p>
+               <p>그렇지만 <span class="application">파이썬</span>은 리스트에 능합니다. 자동으로 문자열을 문자 리스트로 취급할 수 있습니다.  그리고  <tt class="methodname">join()</tt> 문자열 메쏘드를 사용하면 리스트는 다시 문자열로 쉽게 결합할 수 있습니다.
+               </p>
+               <p>다음은 <tt class="filename">soundex/stage2/soundex2a.py</tt>로서, &#8614; 그리고 람다(<tt class="literal">lambda</tt>)를 사용하여 문자를 숫자로 변환합니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+def soundex(source):
+    # ...
+    source = source.upper()
+    digits = source[0] + "".join(map(lambda c: charToSoundex[c], source[1:]))
+</pre></div>
+               <p>놀랍게도 <tt class="filename">soundex2a.py</tt>가 더 빠르지 않습니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage2&gt;</tt><span class="userinput">python soundex2a.py</span>
+<span class="computeroutput">Woo             W000 15.0097526362
+Pilgrim         P426 19.254806407
+Flingjingwaller F452 29.3790847719</span>
+</pre></div>
+               <p>익명 람다(<tt class="literal">lambda</tt>) 함수의 부담 때문에 문자열을 문자 리스트로 취급함으로써 얻은 수행성능의 이득을 모두 잃어버립니다.
+               </p>
+               <p><tt class="filename">soundex/stage2/soundex2b.py</tt>는 &#8614; 그리고 람다(<tt class="literal">lambda</tt>) 대신에 지능형 리스트를 사용합니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    source = source.upper()
+    digits = source[0] + "".join([charToSoundex[c] for c in source[1:]])
+</pre></div>
+               <p><tt class="filename">soundex2b.py</tt>에서 지능형 리스트를 사용하는 것이 <tt class="filename">soundex2a.py</tt>에서 &#8614;와 람다(<tt class="literal">lambda</tt>)를 사용하는 것보다 더 빠르지만 원래 코드에 비하면 ( <tt class="filename">soundex1c.py</tt>에서 점증적으로 문자열을 구축하는 것에 비해) 여전히 더 빠르지 못합니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage2&gt;</tt><span class="userinput">python soundex2b.py</span>
+<span class="computeroutput">Woo             W000 13.4221324219
+Pilgrim         P426 16.4901234654
+Flingjingwaller F452 25.8186157738</span>
+</pre></div>
+               <p>근본적으로 다른 접근법을 사용할 시간입니다. 사전 찾기는 범용 목적의 도구입니다. 사전의 키는 문자열의 길이에 상관이 없지만 (또는 다른 데이터 유형에 상관이 없지만), 이 경우 한개짜리- 문자 키 <span class="emphasis"><em>그리고</em></span> 한-문자 값을 다루고 있습니다. 알고 보면 <span class="application">파이썬</span>은 정확하게 이 상황에 알맞는 특별한 함수가 있습니다: <tt class="function">string.maketrans</tt> 함수가 그것입니다.
+               </p>
+               <p>다음은 <tt class="filename">soundex/stage2/soundex2c.py</tt>입니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+allChar = string.uppercase + string.lowercase
+charToSoundex = string.maketrans(allChar, "91239129922455912623919292" * 2)
+def soundex(source):
+    # ...
+    digits = source[0].upper() + source[1:].translate(charToSoundex)
+</pre></div>
+               <p>여기에서 무슨 일이 일어나고 있는가?  <tt class="function">string.maketrans</tt>은 두 문자열 사이의 변환 행렬을 만듭니다: 첫 인자와 두 번째 인자 사이에 변환표가 생성됩니다. 이 경우, 첫 인자는 문자열 <tt class="literal">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</tt>이고, 두 번째 인자는 문자열 <tt class="literal">9123912992245591262391929291239129922455912623919292</tt>입니다. 패턴이 보이십니까? 사전으로 설정하는 정석과 똑 같은 변환 패턴입니다. A는 9에 짝짓기 되고, B는 1, C는 2, 등등에 짝짓기 됩니다. 그러나 사전이 아닙니다; 문자열 <tt class="methodname">translate</tt> 메쏘드로 접근할 수 있는 특별한 데이터 구조입니다. <tt class="function">string.maketrans</tt>에 정의된 행렬표에 근거하여 각 문자를 그에 상응하는 숫자로 변환합니다.
+               </p>
+               <p><tt class="filename">timeit</tt>에 의하면 <tt class="filename">soundex2c.py</tt>가 상당히 더 빠릅니다. 사전을 정의하고 입력을 회돌이하면서 점증적으로 출력을 구축하는 것보다 말입니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage2&gt;</tt><span class="userinput">python soundex2c.py</span>
+<span class="computeroutput">Woo             W000 11.437645008
+Pilgrim         P426 13.2825062962
+Flingjingwaller F452 18.5570110168</span>
+</pre></div>
+               <p>더 이상 좋은 성능을 얻지는 못할 것입니다.  <span class="application">파이썬</span>은 정확하게 원하는 것을 해 주는 특수한 함수가 있습니다; 그것을 사용하고 계속해 보겠습니다.
+               </p>
+               <div class="example"><a name="d0e39507"></a><h3 class="title">예제&nbsp;18.4.&nbsp;지금까지 제일 좋은 결과: <tt class="filename">soundex/stage2/soundex2c.py</tt></h3><pre class="programlisting">
+import string, re
+
+allChar = string.uppercase + string.lowercase
+charToSoundex = string.maketrans(allChar, "91239129922455912623919292" * 2)
+isOnlyChars = re.compile('^[A-Za-z]+$').search
+
+def soundex(source):
+    if not isOnlyChars(source):
+        return "0000"
+    digits = source[0].upper() + source[1:].translate(charToSoundex)
+    digits2 = digits[0]
+    for d in digits[1:]:
+        if digits2[-1] != d:
+            digits2 += d
+    digits3 = re.sub('9', '', digits2)
+    while len(digits3) &lt; 4:
+        digits3 += "0"
+    return digits3[:4]
+
+if __name__ == '__main__':
+    from timeit import Timer
+    names = ('Woo', 'Pilgrim', 'Flingjingwaller')
+    for name in names:
+        statement = "soundex('%s')" % name
+        t = Timer(statement, "from __main__ import soundex")
+        print name.ljust(15), soundex(name), min(t.repeat())
+</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="soundex.stage3"></a>18.5.&nbsp;리스트 연산 최적화 방법
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>Soundex 알고리즘에서 세 번째 단계는 중복해서 연속되는 숫자를 제거하는 것입니다. 이렇게 하려면 가장 좋은 방법은 무엇인가?</p>
+               </div>
+               <p>다음은 지금까지 <tt class="filename">soundex/stage2/soundex2c.py</tt>에 확보한 코드입니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    digits2 = digits[0]
+    for d in digits[1:]:
+        if digits2[-1] != d:
+            digits2 += d
+</pre></div>
+               <p>다음은 <tt class="filename">soundex2c.py</tt>에 대한 수행성능 측정의 결과입니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage2&gt;</tt><span class="userinput">python soundex2c.py</span>
+<span class="computeroutput">Woo             W000 12.6070768771
+Pilgrim         P426 14.4033353401
+Flingjingwaller F452 19.7774882003</span>
+</pre></div>
+               <p>제일 먼저 고려할 일은 회돌이를 돌 때마다 <tt class="varname">digits[-1]</tt>를 점검하는 것이 효율적인가 알아보는 것입니다. 리스트 인덱스는 비쌀까요?  대신에 마지막 숫자는 따로 변수에 보관하고 그것을 점검하는 것이 더 좋을까요?
+               </p>
+               <p>이 질문에 답하기 위하여, 다음에 <tt class="filename">soundex/stage3/soundex3a.py</tt>가 있습니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    digits2 = ''
+    last_digit = ''
+    for d in digits:
+        if d != last_digit:
+            digits2 += d
+            last_digit = d
+</pre></div>
+               <p><tt class="filename">soundex3a.py</tt>는 실행이 <tt class="filename">soundex2c.py</tt>보다 전혀 빠르지 않으며, 오히려 약간 더 느리기도 합니다 (물론 확실하게 말할 정도로 차이가 있는 것은 아닙니다):
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage3&gt;</tt><span class="userinput">python soundex3a.py</span>
+<span class="computeroutput">Woo             W000 11.5346048171
+Pilgrim         P426 13.3950636184
+Flingjingwaller F452 18.6108927252</span>
+</pre></div>
+               <p>
+			   왜 <tt class="filename">soundex3a.py</tt>가 더 빠르지 않을까요?  알고보면 <span class="application">파이썬</span>의 리스트 인덱스가 아주 효율적이기 때문입니다. 반복적으로 <tt class="varname">digits2[-1]</tt>에 접근하더라도 전혀 문제가 아닙니다. 반면에, 가장 마지막에 참조한 숫자로 따로 변수에 손수 유지관리한다는 것은 저장하려고 하는 각 자리마다 <span class="emphasis"><em>두개의 변수</em></span>가 있다는 뜻이고, 이 때문에 리스트 검색을 제거함으로써 얻은 아주 작은 이득조차도 깨끗이 날려버립니다.
+               </p>
+               <p>뭔가 근본적으로 다른 방식을 시도해 보겠습니다. 문자열을 문자로 구성된 리스트로 다룰 수 있다면 분명히 지능형 리스트를 사용하여 그 리스트를 순회할 수 있을 것입니다. 문제는 바로 그 코드가 리스트의 앞 문자에 접근할 필요가 있다는 것인데, 이는 눈에 보이는 그대로의 지능형 리스트로 다루기에 쉽지 않습니다.
+               </p>
+               <p>
+			   그렇지만 내장 <tt class="function">range()</tt> 함수를 사용하여 인덱스 번호 리스트를 만들 수 있습니다. 그리고 그런 인덱스 번호를 사용하여 리스트를 차츰차츰 검색해서 앞 문자와 다른 문자를 하나하나 뽑아내면 됩니다. 그렇게 하면 문자 리스트가 결과로 남을 것이고, 그러면 문자열 메쏘드인 <tt class="methodname">join()</tt>을 사용하여 그로부터 문자열을 재구성할 수 있습니다.
+               </p>
+               <p>다음은 <tt class="filename">soundex/stage3/soundex3b.py</tt>입니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    digits2 = "".join([digits[i] for i in range(len(digits))
+                       if i == 0 or digits[i-1] != digits[i]])
+</pre></div>
+               <p>이게 더 빠른가요?  한마디로, 그렇지 않습니다.</p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage3&gt;</tt><span class="userinput">python soundex3b.py</span>
+<span class="computeroutput">Woo             W000 14.2245271396
+Pilgrim         P426 17.8337165757
+Flingjingwaller F452 25.9954005327</span>
+</pre></div>
+               <p>
+			   지금까지의 테크닉들은 &#8220;<span class="quote">문자열-중심적</span>&#8221;이라고 할 수 있었습니다.  <span class="application">파이썬</span>은 단 한개의 명령어로 문자열을 문자 리스트로 변환할 수 있습니다: <tt class="function">list('abc')</tt>는 <tt class="literal">['a', 'b', 'c']</tt>을 돌려줍니다.  
+			   
+			   게다가, 리스트는 아주 빠르게 <span class="emphasis"><em>제자리에서 수정할 수 있습니다</em></span>. 소스 문자열로부터 점진적으로 새로운 리스트(또는 문자열)를 구성하는 대신, 리스트 안에서 원소를 이리 저리 옮기는 건 어떨까요?
+               </p>
+               <p>
+			   다음은 <tt class="filename">soundex/stage3/soundex3c.py</tt>입니다. 다음 코드는 리스트를 제자리에서 수정하여 연속되는 중복 원소를 제거합니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    digits = list(source[0].upper() + source[1:].translate(charToSoundex))
+    i=0
+    for item in digits:
+        if item==digits[i]: continue
+        i+=1
+        digits[i]=item
+    del digits[i+1:]
+    digits2 = "".join(digits)
+</pre></div>
+               <p>이거 <tt class="filename">soundex3a.py</tt>나 <tt class="filename">soundex3b.py</tt> 보다 빠른가요?  아닙니다, 사실 아직 가장 느린 방법입니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage3&gt;</tt><span class="userinput">python soundex3c.py</span>
+<span class="computeroutput">Woo             W000 14.1662554878
+Pilgrim         P426 16.0397885765
+Flingjingwaller F452 22.1789341942</span>
+</pre></div>
+               <p>여러 &#8220;<span class="quote">현명한</span>&#8221; 테크닉들을 시도해 보았다는 점을 제외하면 조금의 진전도 없습니다. 지금까지 가장 빠른 코드는 최초의 코드로서, 가장 이해하기 쉬운 방법입니다 (<tt class="filename">soundex2c.py</tt>).  어떤 때는 구지 머리를 쓸 필요가 없습니다.
+               </p>
+               <div class="example"><a name="d0e39674"></a><h3 class="title">예제&nbsp;18.5.&nbsp;지금까지 제일 좋은 결과: <tt class="filename">soundex/stage2/soundex2c.py</tt></h3><pre class="programlisting">
+import string, re
+
+allChar = string.uppercase + string.lowercase
+charToSoundex = string.maketrans(allChar, "91239129922455912623919292" * 2)
+isOnlyChars = re.compile('^[A-Za-z]+$').search
+
+def soundex(source):
+    if not isOnlyChars(source):
+        return "0000"
+    digits = source[0].upper() + source[1:].translate(charToSoundex)
+    digits2 = digits[0]
+    for d in digits[1:]:
+        if digits2[-1] != d:
+            digits2 += d
+    digits3 = re.sub('9', '', digits2)
+    while len(digits3) &lt; 4:
+        digits3 += "0"
+    return digits3[:4]
+
+if __name__ == '__main__':
+    from timeit import Timer
+    names = ('Woo', 'Pilgrim', 'Flingjingwaller')
+    for name in names:
+        statement = "soundex('%s')" % name
+        t = Timer(statement, "from __main__ import soundex")
+        print name.ljust(15), soundex(name), min(t.repeat())
+</pre></div>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="soundex.stage4"></a>18.6.&nbsp;문자열 조작 최적화 방법
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>Soundex 알고리즘의 최종 단계는 짧은 결과는 0으로 채우고 긴 결과는 잘라내는 것입니다. 이렇게 하는 가장 좋은 방법은 무엇인가?
+                  </p>
+               </div>
+               <p>다음은 지금까지 얻은 성과로서, <tt class="filename">soundex/stage2/soundex2c.py</tt>에서 가져 왔습니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    digits3 = re.sub('9', '', digits2)
+    while len(digits3) &lt; 4:
+        digits3 += "0"
+    return digits3[:4]
+</pre></div>
+               <p>다음은 <tt class="filename">soundex2c.py</tt>에 대한 결과입니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage2&gt;</tt><span class="userinput">python soundex2c.py</span>
+<span class="computeroutput">Woo             W000 12.6070768771
+Pilgrim         P426 14.4033353401
+Flingjingwaller F452 19.7774882003</span>
+</pre></div>
+               <p>가장 먼저 고려할 것은 정규 표현식을 회돌이로 교체하는 것입니다. 이 코드는 <tt class="filename">soundex/stage4/soundex4a.py</tt>에서 가져 왔습니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    digits3 = ''
+    for d in digits2:
+        if d != '9':
+            digits3 += d
+</pre></div>
+               <p><tt class="filename">soundex4a.py</tt>는 더 빠른가?  네 그렇습니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage4&gt;</tt><span class="userinput">python soundex4a.py</span>
+<span class="computeroutput">Woo             W000 6.62865531792
+Pilgrim         P426 9.02247576158
+Flingjingwaller F452 13.6328416042</span>
+</pre></div>
+               <p>그러나 잠깐. 문자열에서 문자를 제거하는 회돌이라? 그에 대해서는 간단한 문자열 메쏘드를 사용할 수 있습니다. 다음은 <tt class="filename">soundex/stage4/soundex4b.py</tt>입니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    digits3 = digits2.replace('9', '')
+</pre></div>
+               <p><tt class="filename">soundex4b.py</tt>가 더 빠른가?  흥미로운 질문입니다. 그것은 입력에 달려 있습니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage4&gt;</tt><span class="userinput">python soundex4b.py</span>
+<span class="computeroutput">Woo             W000 6.75477414029
+Pilgrim         P426 7.56652144337
+Flingjingwaller F452 10.8727729362</span>
+</pre></div>
+               <p><tt class="filename">soundex4b.py</tt>에 있는 문자열 메쏘드는 대부분의 이름에 대하여 회돌이 보다 더 빠르지만 (아주 이름이 짧은) 사소한 사례에서는 실제로 <tt class="filename">soundex4a.py</tt> 보다 약간 더 느립니다.  수행성능 최적화는 언제나 같은 모습이 아닙니다; 성능을 조율해서 한 사례를 더 빠르게 만들면 다른 사례가 더 느려지는 경우가 종종 있습니다. 이 경우, 수정으로 인해 대부분의 사례가 혜택을 받습니다. 그래서 그대로 두겠지만 중요한 원칙은 꼭 기억해야 합니다.
+               </p>
+               <p>마지막으로 제일 중요한 것이 있습니다. 알고리즘의 최종 두 단계를 조사해 보겠습니다: 짧은 결과에는 0을 덧대고, 긴 결과는 네문자만 남기고 잘라내는 것이 그것입니다. <tt class="filename">soundex4b.py</tt>에서 보신 코드가 바로 그 일을 하지만 너무 비효율적입니다. <tt class="filename">soundex/stage4/soundex4c.py</tt>을 살펴보고 그 이유를 알아보겠습니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    digits3 += '000'
+    return digits3[:4]
+</pre></div>
+               <p>결과를 추가하기 위해 왜 <tt class="literal">while</tt> 회돌이가 필요한가?  결과를 네 문자로 잘라낼 것이라는 사실을 이미 알고 있습니다. 그리고 이미 적어도 하나의 문자는 가지고 있다는 사실을 알고 있습니다 (초기 문자가 그것인데, 이는 원래 <tt class="varname">source</tt> 변수로부터 그대로 건네집니다). 다시 말해 그냥 세 개의 0을 출력에 덧댄 다음에 잘라내면 된다는 뜻입니다. 문제에 문구대로 얽매이지 마세요; 문제를 약간만 다른 각도에서 보면 더 간단한 해결책을 도출할 수 있습니다.
+               </p>
+               <p>
+			   <tt class="filename">soundex4c.py</tt>에서 <tt class="literal">while</tt> 회돌이를 생략하면 얼마나 많은 속도가 향상되는가? 상당한 속도 향상이 있습니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage4&gt;</tt><span class="userinput">python soundex4c.py</span>
+<span class="computeroutput">Woo             W000 4.89129791636
+Pilgrim         P426 7.30642134685
+Flingjingwaller F452 10.689832367</span>
+</pre></div>
+               <p>
+			   마지막으로, 이 세 줄의 코드를 더 빠르게 하기 위하여 여전히 할 수 있는 일이 여럿 있습니다: 세 줄을 한 줄로 조합할 수 있습니다. <tt class="filename">soundex/stage4/soundex4d.py</tt>를 한 번 살펴보겠습니다:
+               </p>
+               <div class="informalexample"><pre class="programlisting">
+    return (digits2.replace('9', '') + '000')[:4]
+</pre></div>
+               <p><tt class="filename">soundex4d.py</tt>에서 이 코드를 한 줄로 조립하면 <tt class="filename">soundex4c.py</tt> 보다 별로 더 빠르지 않습니다:
+               </p>
+               <div class="informalexample"><pre class="screen">
+<tt class="prompt">C:\samples\soundex\stage4&gt;</tt><span class="userinput">python soundex4d.py</span>
+<span class="computeroutput">Woo             W000 4.93624105857
+Pilgrim         P426 7.19747593619
+Flingjingwaller F452 10.5490700634</span>
+</pre></div>
+               <p>게다가 가독성도 상당히 떨어지며 수행성능도 별로 향상되지 않습니다. 가치가 있을까?  모쪼록 많은 논평을 바랍니다. 수행성능이 모든 것은 아닙니다. 최적화 노력은 반드시 언제나 프로그램의 가독성과 유지보수성에 균형을 이루어야 합니다.
+               </p>
+            </div>
+            <div class="section" lang="en">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h2 class="title"><a name="soundex.summary"></a>18.7.&nbsp;요약
+                        </h2>
+                     </div>
+                  </div>
+                  <div></div>
+               </div>
+               <div class="abstract">
+                  <p>이 장에서는 <span class="application">파이썬</span>의 수행성능 조율 방법의 일반적인 여러 중요한 측면들을 보여주었습니다.
+                  </p>
+               </div>
+               <div class="itemizedlist">
+                  <ul>
+                     <li>정규 표현식과 회돌이 작성 중에서 골라야 한다면 정규 표현식을 고르세요. 정규 표현식 엔진은 C로 컴파일되어 있으며 어디에서나 고유하게 실행됩니다; 회돌이는 <span class="application">파이썬</span>으로 작성되고 <span class="application">파이썬</span> 인터프리터를 통해 실행됩니다.
+                     </li>
+                     <li>정규 표현식과 문자열 메쏘드 중에 골라야 한다면 문자열 메쏘드를 고르세요. 둘 다 C로 컴파일되어 있으므로, 더 간단한 걸 고르세요.
+                     </li>
+                     <li>범용-목적의 사전 찾기는 빠르지만 <tt class="function">string.maketrans</tt>와 같은 특수 함수나 <tt class="methodname">isalpha()</tt> 같은 문자열 메쏘드가 더 빠릅니다.  <span class="application">파이썬</span>에 여러분을 위한 맞춤 함수가 있다면 그것을 씁시다.
+                     </li>
+                     <li>너무 머리 쓰지 맙시다. 어떤 때는 가장 확실한 알고리즘이 가장 빠르기도 합니다.</li>
+                     <li>너무 땀 빼지 맙시다. 수행성능이 모든 것은 아닙니다.</li>
+                  </ul>
+               </div>
+               <p>
+			   마지막에 지적한 것을 강조하고 또 강조하고 싶습니다. 이 장을 배우면서 이 함수를 세 배 더 빠르게 만들었고 백만 번의 호출에 20초를 절약했습니다. 훌륭합니다. 이제 생각해 봅시다: 그 백만번의 호출 동안에, 얼마나 많은 시간 동안 주변의 어플리케이션이 데이터베이스 접속을 기다립니까?  얼마나 디스크 입/출력을 또는 사용자의 입력을 기다립니까?  한 알고리즘을 과도하게-최적화하기 위해 너무 많은 시간을 소비하지 마세요. 그렇지 않으면 다른 곳에서 확실하게 개선할 수 있는 것들을 놓칠 수 있습니다. <span class="application">파이썬</span>이 잘 실행되는 종류의 코드를 본능적으로 개발하세요. 확실하게 잘못된 것이 있다면 교정하시고, 나머지는 그대로 두세요.
+               </p>
+           </div>
+         </div>
+<TABLE class='headerOFcontent'>
+<TR>
+    <TD align="left"><A HREF="chap17.html">☜ 제 17 장 동적 함수</A></TD>
+    <TD align="center"><A HREF="chap00.html" title="목차로">"""  Dive Into Python  """<BR>다이빙 파이썬</A></TD>
+    <TD align="right"><A HREF="chap00.html">제 00 장 다이빙 파이썬 ☞</A></TD>
+</TR>
+</TABLE>
+   </body>
+</html>
